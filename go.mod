@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/fatih/color v1.13.0
-	github.com/fatih/structs v1.1.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/imroc/req v0.3.2
 	github.com/json-iterator/go v1.1.12
