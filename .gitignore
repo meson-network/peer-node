@@ -1,0 +1,21 @@
+**/.DS_Store
+
+# local env files
+.env.local
+.env.*.local
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+vscode
+
+# vendor
+logs
+peer-node
+storage/file/*
+!storage/file/file.readme.md

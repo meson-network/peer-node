@@ -1,0 +1,16 @@
+{
+  "local_log_level": "DEBU",
+
+  "http_port": 80,
+  "http_static_dir":"assets/html",
+
+  "api_doc_gen_search_dir":"cmd/default_/http/api",
+  "api_doc_gen_mainfile":"api.go",
+  "api_doc_gen_output_dir":"cmd/default_/http/api_docs",
+
+  "storage_folder":"storage",
+  "storage_size":30,
+
+  "token":""
+
+}

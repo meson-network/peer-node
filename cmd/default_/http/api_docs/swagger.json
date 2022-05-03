@@ -1,0 +1,60 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "api example",
+        "title": "api example",
+        "termsOfService": "https://domain.com",
+        "contact": {
+            "name": "Support",
+            "url": "https://domain.com",
+            "email": "contact@domain.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/health": {
+            "get": {
+                "description": "health check",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "/api/health",
+                "responses": {
+                    "200": {
+                        "description": "server unix time",
+                        "schema": {
+                            "$ref": "#/definitions/api.MSG_RESP_HEALTH"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.MSG_RESP_HEALTH": {
+            "type": "object",
+            "properties": {
+                "unixtime": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
