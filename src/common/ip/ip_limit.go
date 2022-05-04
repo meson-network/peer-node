@@ -9,13 +9,17 @@ package ip
 
 // const redis_ip_limit_prefix = "ip_limit"
 
-// func LimitAction(ip string, action string, secs int) {
+// func LimitAction(ip string, action string, duration time.Duration) {
 // 	key := redis_plugin.GetInstance().GenKey(redis_ip_limit_prefix, ip, action)
-// 	redis_plugin.GetInstance().Set(context.Background(), key, 1, time.Duration(secs)*time.Second)
+// 	redis_plugin.GetInstance().Set(context.Background(), key, 1, duration)
 // }
 
 // func HasLimitedAction(ip string, action string) bool {
 // 	key := redis_plugin.GetInstance().GenKey(redis_ip_limit_prefix, ip, action)
 // 	_, err := redis_plugin.GetInstance().Get(context.Background(), key).Result()
-// 	return err == redis.Nil
+// 	if err == redis.Nil {
+// 		return false
+// 	} else {
+// 		return true
+// 	}
 // }

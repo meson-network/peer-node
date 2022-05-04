@@ -43,6 +43,5 @@ func ConfigSetting(clictx *cli.Context) {
 			return
 		}
 		fmt.Println("config modified")
-		//fmt.Println(configuration.Config.GetConfigAsString())
 	}
 }

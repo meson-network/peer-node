@@ -1,7 +1,7 @@
 package dbkv
 
 type DBKVModel struct {
-	Id    int64  `gorm:"primarykey"`
-	Key   string `gorm:"index;unique"`
-	Value string
+	Id    int64  `json:"id"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
