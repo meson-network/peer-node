@@ -110,8 +110,8 @@ github.com/coreservice-io/log v0.1.18 h1:hZ8MXvnxtchnjap36ac4Cpe63W8Mg2eRahBtP9y
 github.com/coreservice-io/log v0.1.18/go.mod h1:skkyNG6Y27IrNYzFc0NCekU6+OM+CiLh2AJxTpbRKsA=
 github.com/coreservice-io/logrus_log v0.1.20 h1:wZAe/ddKLMvN6OJDctZP1D1AWU34r2LfwzrLhm1OXj8=
 github.com/coreservice-io/logrus_log v0.1.20/go.mod h1:bEsSSRphetRNaKomr4kq59w5UUXvKW2YsI47gr2cw3s=
-github.com/coreservice-io/reference v0.0.6 h1:vyB/uTeybm5E5sMi+1uX5b7wYZAVf+lzqw11m3uXw0k=
-github.com/coreservice-io/reference v0.0.6/go.mod h1:Kehi3lk+/a+hbK+4o+w4tUGlNdzezjewZ+1uKOkcP4Q=
+github.com/coreservice-io/reference v0.0.8 h1:Fx1zU262ExmKs6EQhTITkgRCPlXfhrBN2V7hY5ga7Vk=
+github.com/coreservice-io/reference v0.0.8/go.mod h1:Kehi3lk+/a+hbK+4o+w4tUGlNdzezjewZ+1uKOkcP4Q=
 github.com/coreservice-io/utils v0.1.10 h1:wNDlTOdoZyrt59W4CFqa7P4hsOlgiQL2VaqFzUMZDqI=
 github.com/coreservice-io/utils v0.1.10/go.mod h1:1+QwZe3yIuRmP3k9W1iJx777rGfhMVb+n3Za3QZogbA=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=

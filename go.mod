@@ -25,7 +25,7 @@ require (
 	github.com/coreservice-io/job v0.1.20
 	github.com/coreservice-io/log v0.1.18
 	github.com/coreservice-io/logrus_log v0.1.20
-	github.com/coreservice-io/reference v0.0.6
+	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/utils v0.1.10
 	gorm.io/driver/sqlite v1.2.6
 )

@@ -39,8 +39,8 @@ func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 	if fromRef {
 		basic.Logger.Debugln("GetFile from reference")
 		// try to get from reference
-		ref_result, _, exist := reference_plugin.GetInstance().Get(key)
-		if exist {
+		ref_result, _ := reference_plugin.GetInstance().Get(key)
+		if ref_result != nil {
 			return ref_result.(*FileModel), nil
 		}
 	}
