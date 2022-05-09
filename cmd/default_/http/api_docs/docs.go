@@ -70,7 +70,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"https"},
 	Title:            "api example",
 	Description:      "api example",
 	InfoInstanceName: "swagger",

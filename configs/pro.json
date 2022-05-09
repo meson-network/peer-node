@@ -1,16 +1,19 @@
 {
-  "local_log_level": "DEBU",
+  "token":"",
+  
+  "https_port": 443,
+  "https_crt_path":"assets/cert/crt.crt",
+  "https_key_path":"assets/cert/key.key",
 
-  "http_port": 80,
-  "http_static_dir":"assets/html",
+  "storage_folder":"storage",
+  "storage_size":30,
 
   "api_doc_gen_search_dir":"cmd/default_/http/api",
   "api_doc_gen_mainfile":"api.go",
   "api_doc_gen_output_dir":"cmd/default_/http/api_docs",
 
-  "storage_folder":"storage",
-  "storage_size":30,
-
-  "token":""
+  "daemon_name":"node-service",
+  "local_log_level": "DEBU"
+ 
 
 }

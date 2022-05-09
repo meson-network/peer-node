@@ -31,7 +31,7 @@ paths:
       tags:
       - health
 schemes:
-- http
+- https
 securityDefinitions:
   ApiKeyAuth:
     in: header

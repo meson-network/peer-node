@@ -2,7 +2,9 @@ package echo_plugin
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -12,12 +14,19 @@ import (
 	"github.com/coreservice-io/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/meson-network/peer-node/basic"
 )
 
 type EchoServer struct {
 	*echo.Echo
-	Http_port int
-	Logger    log.Logger
+	Logger          log.Logger
+	Http_port       int
+	Tls             bool
+	Crt_path        string
+	Key_path        string
+	Html_dir        string
+	Html_index_path string
+	Cert            *tls.Certificate
 }
 
 var instanceMap = map[string]*EchoServer{}
@@ -34,7 +43,12 @@ func GetInstance_(name string) *EchoServer {
 http_port
 */
 type Config struct {
-	Port int
+	Port            int
+	Tls             bool
+	Crt_path        string
+	Key_path        string
+	Html_dir        string
+	Html_index_path string
 }
 
 func Init(serverConfig Config, OnPanicHanlder func(panic_err interface{}), logger log.Logger) error {
@@ -60,12 +74,19 @@ func Init_(name string, serverConfig Config, OnPanicHanlder func(panic_err inter
 
 	echoServer := &EchoServer{
 		echo.New(),
-		serverConfig.Port,
 		logger,
+		serverConfig.Port,
+		serverConfig.Tls,
+		serverConfig.Crt_path,
+		serverConfig.Key_path,
+		serverConfig.Html_dir,
+		serverConfig.Html_index_path,
+		nil,
 	}
 
 	//cros
 	echoServer.Use(middleware.CORS())
+
 	//logger
 	echoServer.Use(echo_middleware.LoggerWithConfig(echo_middleware.LoggerConfig{
 		Logger:            logger,
@@ -75,6 +96,7 @@ func Init_(name string, serverConfig Config, OnPanicHanlder func(panic_err inter
 	echoServer.Use(echo_middleware.RecoverWithConfig(echo_middleware.RecoverConfig{
 		OnPanic: OnPanicHanlder,
 	}))
+
 	echoServer.JSONSerializer = tool.NewJsoniter()
 
 	instanceMap[name] = echoServer
@@ -82,8 +104,42 @@ func Init_(name string, serverConfig Config, OnPanicHanlder func(panic_err inter
 }
 
 func (s *EchoServer) Start() error {
-	s.Logger.Infoln("http server started on port :" + strconv.Itoa(s.Http_port))
-	return s.Echo.Start(":" + strconv.Itoa(s.Http_port))
+	if s.Tls {
+		cert, err := tls.LoadX509KeyPair(s.Crt_path, s.Key_path)
+		if err != nil {
+			return err
+		}
+		s.Cert = &cert
+		tlsconf := new(tls.Config)
+		tlsconf.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			return s.Cert, nil
+		}
+
+		server := http.Server{
+			Addr:      ":" + strconv.Itoa(s.Http_port),
+			TLSConfig: tlsconf,
+		}
+
+		s.Logger.Infoln("https server started on port :" + strconv.Itoa(s.Http_port))
+		return s.StartServer(&server)
+
+	} else {
+		s.Logger.Infoln("https server started on port :" + strconv.Itoa(s.Http_port))
+		return s.Echo.Start(":" + strconv.Itoa(s.Http_port))
+	}
+}
+
+func (s *EchoServer) ReloadCert() error {
+	if s.Tls {
+		cert, err := tls.LoadX509KeyPair(s.Crt_path, s.Key_path)
+		if err != nil {
+			return err
+		}
+
+		basic.Logger.Debugln("GetCertificate reloading happend")
+		s.Cert = &cert
+	}
+	return nil
 }
 
 func (s *EchoServer) Close() {

@@ -23,7 +23,7 @@ import (
 // @license.name    Apache 2.0
 // @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @schemes         http
+// @schemes         https
 
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
@@ -31,6 +31,10 @@ import (
 
 func DeclareApi(httpServer *echo_plugin.EchoServer) {
 	//health
+	//never change this api
+	//there will be callback from checker
+	//there won't be any token reward if fails
+	//there maybe credit punishment if node health fails(not active)
 	config_health(httpServer)
 }
 

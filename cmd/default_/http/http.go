@@ -1,10 +1,11 @@
 package http
 
 import (
-	"github.com/coreservice-io/utils/path_util"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http/api"
-	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 )
 
@@ -14,15 +15,10 @@ func StartDefaultHttpSever() {
 	api.ConfigApi(httpServer)
 	api.DeclareApi(httpServer)
 
-	//static
-	conf_http_static_dir, sd_err := configuration.Config.GetString("http_static_dir", "")
-	if sd_err == nil && conf_http_static_dir != "" {
-		h_s_d, err := path_util.SmartExistPath(conf_http_static_dir)
-		if err == nil {
-			httpServer.Static("/", h_s_d)
-			basic.Logger.Infoln("http static folder:", h_s_d)
-		}
-	}
+	//for handling storage
+	httpServer.GET("/*", func(ctx echo.Context) error {
+		return ctx.HTML(http.StatusOK, "default")
+	})
 
 	err := httpServer.Start()
 	if err != nil {

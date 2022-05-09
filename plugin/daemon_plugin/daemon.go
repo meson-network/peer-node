@@ -1,16 +1,11 @@
 package daemon_plugin
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 
 	"github.com/takama/daemon"
-)
-
-const (
-	// name of the service
-	serviceName = "template"
-	description = "app template"
 )
 
 type Service struct {
@@ -19,24 +14,16 @@ type Service struct {
 
 var instanceMap = map[string]*Service{}
 
-func GetInstance() *Service {
-	return instanceMap["default"]
-}
-
-func GetInstance_(name string) *Service {
-	return instanceMap[name]
-}
-
-func Init() error {
-	return Init_("default")
+func GetInstance(service_name string) *Service {
+	return instanceMap[service_name]
 }
 
 // Init a new instance.
 //  If only need one instance, use empty name "". Use GetDefaultInstance() to get.
 //  If you need several instance, run Init() with different <name>. Use GetInstance(<name>) to get.
-func Init_(name string) error {
+func Init(name string) error {
 	if name == "" {
-		name = "default"
+		return errors.New("name can not be vacant ")
 	}
 
 	_, exist := instanceMap[name]
@@ -48,7 +35,7 @@ func Init_(name string) error {
 	if runtime.GOOS == "darwin" {
 		kind = daemon.UserAgent
 	}
-	srv, err := daemon.New(serviceName, description, kind)
+	srv, err := daemon.New(name, name+":description", kind)
 	if err != nil {
 		return err
 	}

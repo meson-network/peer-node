@@ -24,10 +24,4 @@ func InitPlugin() {
 		basic.Logger.Fatalln(err)
 	}
 
-	/////////////////////////
-	err = initEchoServer()
-	if err != nil {
-		basic.Logger.Fatalln(err)
-	}
-
 }
