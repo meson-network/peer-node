@@ -11,7 +11,7 @@ import (
 
 //url_hash to a rel_path to "public" folder
 func UrlHashToPublicFileRelPath(url_hash string) string {
-	return filepath.Join(url_hash[0:4], url_hash[4:8], url_hash[8:12], url_hash[12:32])
+	return filepath.Join(url_hash[0:4], url_hash[4:8], url_hash[8:16], url_hash)
 }
 
 func RequestPublicFile(url_hash string) (string, error) {

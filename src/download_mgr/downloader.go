@@ -1,4 +1,4 @@
-package downloader_mgr
+package download_mgr
 
 import (
 	"os"

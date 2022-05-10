@@ -7,6 +7,7 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
+	"github.com/meson-network/peer-node/src/download_mgr"
 	"github.com/meson-network/peer-node/src/info"
 	"github.com/meson-network/peer-node/src/remote/cert"
 	"github.com/meson-network/peer-node/src/remote/client"
@@ -85,5 +86,12 @@ func start_jobs() {
 	}
 	cert_m.ScheduleUpdateJob(func(crt, key string) {
 		http.ServerReloadCert()
+	})
+
+	//test a download task
+	download_mgr.DoTask(func(filehash string, file_local_abs_path string) {
+		basic.Logger.Infoln("sucess download task callback", filehash, file_local_abs_path)
+	}, func(filehash string, download_code int) {
+		basic.Logger.Infoln("failed download task callback", filehash, download_code)
 	})
 }
