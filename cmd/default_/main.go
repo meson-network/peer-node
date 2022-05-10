@@ -7,6 +7,7 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
+	"github.com/meson-network/peer-node/src/info"
 	"github.com/meson-network/peer-node/src/remote/cert"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/storage_mgr"
@@ -23,9 +24,14 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln(stor_err)
 	}
 
+	//init node
+	err := info.InitNode()
+	if err != nil {
+		basic.Logger.Fatalln("initNode error", err)
+	}
 	///////////////////
-
 	plugin.InitPlugin()
+	///////////////////
 
 	//token check first
 	_, c_err := client.GetClient()
