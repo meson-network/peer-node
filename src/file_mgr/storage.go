@@ -2,20 +2,16 @@ package file_mgr
 
 import (
 	"errors"
+	"path/filepath"
 	"time"
 
 	"github.com/meson-network/peer-node/plugin/reference_plugin"
 	"github.com/meson-network/peer-node/src/storage_mgr"
 )
 
-// func UrlToPublicFileHash(url string) string {
-// 	return hash_util.SHA256String(url)[0:32]
-// }
-
-// func UrlToPublicFileRelPath(url string) string {
-// 	nameHash := UrlToPublicFileHash(url)
-// 	return filepath.Join(nameHash[0:4], nameHash[4:8], nameHash[8:12], nameHash[12:32])
-// }
+func UrlToPublicFileRelPath(url_hash string) string {
+	return filepath.Join(url_hash[0:4], url_hash[4:8], url_hash[8:12], url_hash[12:32])
+}
 
 func RequestPublicFile(url_hash string) (string, error) {
 

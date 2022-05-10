@@ -24,14 +24,15 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln(stor_err)
 	}
 
+	///////////////////
+	plugin.InitPlugin()
+	///////////////////
+
 	//init node
 	err := info.InitNode()
 	if err != nil {
 		basic.Logger.Fatalln("initNode error", err)
 	}
-	///////////////////
-	plugin.InitPlugin()
-	///////////////////
 
 	//token check first
 	_, c_err := client.GetClient()
