@@ -17,7 +17,6 @@ func StartDefaultHttpSever() {
 
 	//for handling storage
 	httpServer.GET("/*", func(ctx echo.Context) error {
-
 		//storage_mgr.GetInstance()
 		return ctx.HTML(http.StatusOK, "default")
 	})
@@ -30,4 +29,8 @@ func StartDefaultHttpSever() {
 
 func CheckDefaultHttpServerStarted() bool {
 	return echo_plugin.GetInstance().CheckStarted()
+}
+
+func ServerReloadCert() error {
+	return echo_plugin.GetInstance().ReloadCert()
 }

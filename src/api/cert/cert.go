@@ -5,10 +5,12 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/coreservice-io/job"
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/api/client"
+	error_tool "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/http"
 	"github.com/meson-network/peer_common/dns"
 )
@@ -52,10 +54,16 @@ func GetCertMgr() (*CertMgr, error) {
 	return cert_mgr, nil
 }
 
-func (c *CertMgr) UpdateCert(client *client.Client) error {
+//success_callback func(string crt, string key)
+func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
+
+	cient_, c_err := client.GetClient()
+	if c_err != nil {
+		basic.Logger.Fatalln(c_err)
+	}
 
 	res := &dns.Msg_Resp_Cert{}
-	err := http.Get(client.EndPoint+"/api/node/cert", client.Token, res)
+	err := http.Get(cient_.EndPoint+"/api/node/cert", cient_.Token, res)
 
 	if err != nil {
 		return err
@@ -64,8 +72,6 @@ func (c *CertMgr) UpdateCert(client *client.Client) error {
 	if res.Meta_status <= 0 {
 		return errors.New(res.Meta_message)
 	}
-
-	basic.Logger.Infoln(res)
 
 	///////////////
 	change := false
@@ -99,9 +105,40 @@ func (c *CertMgr) UpdateCert(client *client.Client) error {
 		if key_file_err != nil {
 			return key_file_err
 		}
+
+		if success_callback != nil {
+			success_callback(res.Crt, res.Key)
+		}
 	}
 
 	return nil
+}
+
+func (c *CertMgr) ScheduleUpdateJob(success_callback func(string, string)) {
+	job.Start(
+		"update_cert_job",
+		// job process
+		func() {
+			c.UpdateCert(success_callback)
+		},
+		// onPanic callback, run if panic happened
+		error_tool.PanicHandler,
+		// job interval in seconds
+		3600,
+		// job type
+		// job.TYPE_PANIC_REDO  auto restart if panic
+		// job.TYPE_PANIC_RETURN  stop if panic
+		job.TYPE_PANIC_REDO,
+		// check continue callback, the job will stop running if return false
+		// the job will keep running if this callback is nil
+		func(job *job.Job) bool {
+			return true
+		},
+		// onFinish callback
+		func(inst *job.Job) {
+
+		},
+	)
 }
 
 func file_overwrite(path string, content string) error {

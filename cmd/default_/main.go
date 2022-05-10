@@ -20,26 +20,29 @@ func StartDefault(clictx *cli.Context) {
 	plugin.InitPlugin()
 
 	//token check first
-	cient_, c_err := client.GetClient()
+	_, c_err := client.GetClient()
 	if c_err != nil {
 		basic.Logger.Fatalln(c_err)
 	}
 
-	//update cert
+	////////init update cert
 	cert_m, cert_m_err := cert.GetCertMgr()
 	if cert_m_err != nil {
 		basic.Logger.Fatalln(cert_m_err)
 	}
 
-	cert_update_err := cert_m.UpdateCert(cient_)
+	cert_update_err := cert_m.UpdateCert(nil)
 	if cert_update_err != nil {
 		basic.Logger.Fatalln(cert_update_err)
 	}
+	///////////////////////////////
 
-	err := storage_mgr.Init()
-	if err != nil {
-		basic.Logger.Fatalln(err)
+	//init storage
+	stor_err := storage_mgr.Init()
+	if stor_err != nil {
+		basic.Logger.Fatalln(stor_err)
 	}
+	///////////////////
 
 	/////////////////////////
 	err_server := plugin.InitEchoServer()
@@ -47,18 +50,32 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln(err_server)
 	}
 
-	//start the httpserver
+	//////////////start the httpserver
 	go http.StartDefaultHttpSever()
 
-	//start threads jobs
-	//check all services already started
-	if !http.CheckDefaultHttpServerStarted() {
-		panic("http server not working")
-	}
+	/////////////////start jobs
+	go start_jobs()
 
 	for {
 		//never quit
 		time.Sleep(time.Duration(1) * time.Hour)
 	}
 
+}
+
+func start_jobs() {
+	//start threads jobs
+	//check all services already started
+	if !http.CheckDefaultHttpServerStarted() {
+		basic.Logger.Fatalln("http server not working")
+	}
+
+	/////////
+	cert_m, cert_m_err := cert.GetCertMgr()
+	if cert_m_err != nil {
+		basic.Logger.Fatalln(cert_m_err)
+	}
+	cert_m.ScheduleUpdateJob(func(crt, key string) {
+		http.ServerReloadCert()
+	})
 }
