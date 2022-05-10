@@ -1,6 +1,6 @@
 {
-  "token":"",
-  
+  "token":"bswarohzvbroqovhrmefajiu",
+
   "https_port": 443,
   "https_crt_path":"assets/cert/crt.crt",
   "https_key_path":"assets/cert/key.key",

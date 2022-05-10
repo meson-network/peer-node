@@ -27,6 +27,7 @@ require (
 	github.com/coreservice-io/logrus_log v0.1.20
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/utils v0.1.10
+	github.com/meson-network/peer_common v0.0.0-20220509134924-758d605174b6
 	gorm.io/driver/sqlite v1.2.6
 )
 
@@ -34,6 +35,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/coreservice-io/dns-common v0.0.23 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
