@@ -17,6 +17,14 @@ func StartDefault(clictx *cli.Context) {
 
 	color.Green(basic.Logo)
 
+	//init storage
+	stor_err := storage_mgr.Init()
+	if stor_err != nil {
+		basic.Logger.Fatalln(stor_err)
+	}
+
+	///////////////////
+
 	plugin.InitPlugin()
 
 	//token check first
@@ -37,23 +45,16 @@ func StartDefault(clictx *cli.Context) {
 	}
 	///////////////////////////////
 
-	//init storage
-	stor_err := storage_mgr.Init()
-	if stor_err != nil {
-		basic.Logger.Fatalln(stor_err)
-	}
-	///////////////////
-
-	/////////////////////////
+	//init httpserver
 	err_server := plugin.InitEchoServer()
 	if err_server != nil {
 		basic.Logger.Fatalln(err_server)
 	}
 
-	//////////////start the httpserver
+	//start the httpserver
 	go http.StartDefaultHttpSever()
 
-	/////////////////start jobs
+	//start jobs
 	go start_jobs()
 
 	for {

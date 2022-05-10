@@ -44,7 +44,7 @@ func Init() error {
 	storage_mgr_pointer = &StorageMgr{
 		Storage_folder: sf_absdir,
 		Total_size:     storage_size,
-		Private_size:   int(float64(storage_size) * storage.MAX_STOR_PRIVATE_RATIO),
+		Private_size:   int(float64(storage_size) * storage.MAX_STOR_PERSONAL_RATIO),
 	}
 
 	return nil
@@ -56,19 +56,9 @@ func GetInstance() *StorageMgr {
 
 //check rel_path(folder/file) relative to storage folder exist
 //return abs_path if exist
-func CheckPath(rel_paths ...string) (string, error) {
+func (stor_m *StorageMgr) FileExist(rel_paths ...string) (string, error) {
 
-	sf, sf_err := configuration.Config.GetString("storage_folder", "")
-	if sf_err != nil || sf == "" {
-		return "", errors.New("storage_folder not configured correctly")
-	}
-
-	sf_absdir, abs_err := path_util.SmartExistPath(sf)
-	if abs_err != nil {
-		return "", errors.New(sf + " :storage_folder not exist , please reset your storage_folder ")
-	}
-
-	abs_path := filepath.Join(sf_absdir, filepath.Join(rel_paths...))
+	abs_path := filepath.Join(stor_m.Storage_folder, filepath.Join(rel_paths...))
 
 	exsit, patherr := path_util.AbsPathExist(abs_path)
 	if patherr != nil || !exsit {

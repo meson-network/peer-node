@@ -35,7 +35,6 @@ func DeleteFile(hash string) error {
 func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 
 	key := hash
-
 	if fromRef {
 		basic.Logger.Debugln("GetFile from reference")
 		// try to get from reference
@@ -45,10 +44,9 @@ func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 		}
 	}
 
-	var sqlfiles []*FileModel
-
-	basic.Logger.Debugln("GetFile from sqlite")
 	//try from db
+	var sqlfiles []*FileModel
+	basic.Logger.Debugln("GetFile from sqlite")
 	sql_err := sqlite_plugin.GetInstance().Table("file").Where("hash=?", hash).Find(&sqlfiles).Error
 
 	if sql_err != nil {
@@ -61,7 +59,7 @@ func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 		}
 		if updateRef {
 			basic.Logger.Debugln("GetFile updateRef")
-			reference_plugin.GetInstance().Set(key, result, 300)
+			reference_plugin.GetInstance().Set(key, result, 1800) //30 mins, long cache time to make things fast
 		}
 		return result, nil
 	}
