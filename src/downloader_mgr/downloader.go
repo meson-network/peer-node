@@ -2,12 +2,11 @@ package downloader_mgr
 
 import (
 	"os"
-	"path/filepath"
+	"path"
 	"sync/atomic"
 	"time"
 
 	"github.com/cavaliergopher/grab/v3"
-	"github.com/coreservice-io/utils/hash_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/storage_mgr"
@@ -33,13 +32,14 @@ func clean_download(filehash string, file_path string) {
 
 func StartDownloader(
 	remoteUrl string,
-	callback_succeed func(filehash string, file_path string),
+	url_hash string,
+	callback_succeed func(filehash string, file_local_abs_path string),
 	callback_failed func(filehash string, download_code int),
 ) {
 
-	url_hash := hash_util.MD5HashString(remoteUrl)
-	file_relpath := url_hash
-	des_path := filepath.Join(storage_mgr.GetInstance().Storage_folder, "file", file_relpath)
+	file_relpath := file_mgr.UrlHashToPublicFileRelPath(url_hash)
+
+	des_path := path.Join(storage_mgr.GetInstance().Storage_folder, "file", "public", file_relpath)
 
 	old_file, file_err := file_mgr.GetFile(url_hash, true, true)
 	if file_err != nil {

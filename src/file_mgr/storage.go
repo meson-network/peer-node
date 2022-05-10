@@ -9,7 +9,8 @@ import (
 	"github.com/meson-network/peer-node/src/storage_mgr"
 )
 
-func UrlToPublicFileRelPath(url_hash string) string {
+//url_hash to a rel_path to "public" folder
+func UrlHashToPublicFileRelPath(url_hash string) string {
 	return filepath.Join(url_hash[0:4], url_hash[4:8], url_hash[8:12], url_hash[12:32])
 }
 
