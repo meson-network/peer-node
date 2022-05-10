@@ -9,6 +9,7 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
 	"github.com/meson-network/peer-node/src/api/cert"
 	"github.com/meson-network/peer-node/src/api/client"
+	"github.com/meson-network/peer-node/src/storage_mgr"
 	"github.com/urfave/cli/v2"
 )
 
@@ -35,18 +36,16 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln(cert_update_err)
 	}
 
-	// err := storage_mgr.Init()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	/////////////////////////
-	err := plugin.InitEchoServer()
+	err := storage_mgr.Init()
 	if err != nil {
 		basic.Logger.Fatalln(err)
 	}
 
-	//get cert from remote
+	/////////////////////////
+	err_server := plugin.InitEchoServer()
+	if err_server != nil {
+		basic.Logger.Fatalln(err_server)
+	}
 
 	//start the httpserver
 	go http.StartDefaultHttpSever()

@@ -17,6 +17,8 @@ func StartDefaultHttpSever() {
 
 	//for handling storage
 	httpServer.GET("/*", func(ctx echo.Context) error {
+
+		//storage_mgr.GetInstance()
 		return ctx.HTML(http.StatusOK, "default")
 	})
 
