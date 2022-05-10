@@ -37,21 +37,21 @@ func StartDownloader(
 	callback_failed func(filehash string, download_code int),
 ) {
 
-	file_hash := hash_util.MD5HashString(remoteUrl)
-	file_relpath := file_hash
+	url_hash := hash_util.MD5HashString(remoteUrl)
+	file_relpath := url_hash
 	des_path := filepath.Join(storage_mgr.GetInstance().Storage_folder, "file", file_relpath)
 
-	old_file, file_err := file_mgr.GetFile(file_hash, true, true)
+	old_file, file_err := file_mgr.GetFile(url_hash, true, true)
 	if file_err != nil {
-		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
+		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 		return
 	}
 
 	if old_file != nil {
 		if old_file.Status == file_mgr.STATUS_DOWNLOADED {
-			callback_succeed(file_hash, des_path)
+			callback_succeed(url_hash, des_path)
 		} else {
-			callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
+			callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
 		}
 		return
 	}
@@ -63,7 +63,7 @@ func StartDownloader(
 	}()
 
 	if total_downloaders >= max_downloaders {
-		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_BUSY)
+		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_BUSY)
 		return
 	}
 	///////////////////////////////////////
@@ -73,7 +73,7 @@ func StartDownloader(
 	basic.Logger.Debugln("download to :", des_path)
 
 	file_mgr.CreateFile(&file_mgr.FileModel{
-		Hash:                   file_hash,
+		Url_hash:               url_hash,
 		Last_req_unixtime:      time.Now().Unix(),
 		Last_scan_unixtime:     time.Now().Unix(),
 		Last_download_unixtime: time.Now().Unix(),
@@ -85,8 +85,8 @@ func StartDownloader(
 
 	req, req_err := grab.NewRequest(des_path, remoteUrl)
 	if req_err != nil {
-		clean_download(file_hash, des_path)
-		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
+		clean_download(url_hash, des_path)
+		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 		return
 	}
 
@@ -100,16 +100,16 @@ func StartDownloader(
 		case <-t.C:
 			//check size limits
 			if resp.BytesComplete() > max_file_size_bytes {
-				clean_download(file_hash, des_path)
-				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
+				clean_download(url_hash, des_path)
+				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
 				return
 			}
 
 			//check too slow downloading
 			elapsed := time.Since(start_time)
 			if elapsed.Seconds() > 10 && total_downloaders > (max_downloaders*0.7) && resp.BytesComplete() < (min_speed_byte_per_sec*10) {
-				clean_download(file_hash, des_path)
-				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_SLOW)
+				clean_download(url_hash, des_path)
+				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_SLOW)
 				return
 			}
 
@@ -118,12 +118,12 @@ func StartDownloader(
 				"last_scan_unixtime":     time.Now().Unix(),
 				"last_download_unixtime": time.Now().Unix(),
 				"size_byte":              resp.BytesComplete(),
-			}, file_hash)
+			}, url_hash)
 
 		case <-resp.Done:
 			if resp.Err() != nil {
-				clean_download(file_hash, des_path)
-				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
+				clean_download(url_hash, des_path)
+				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 
 			} else {
 				file_mgr.UpdateFile(map[string]interface{}{
@@ -132,8 +132,8 @@ func StartDownloader(
 					"last_download_unixtime": time.Now().Unix(),
 					"size_byte":              resp.BytesComplete(),
 					"status":                 file_mgr.STATUS_DOWNLOADED,
-				}, file_hash)
-				callback_succeed(file_hash, des_path)
+				}, url_hash)
+				callback_succeed(url_hash, des_path)
 			}
 			return
 		}

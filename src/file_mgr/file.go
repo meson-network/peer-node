@@ -10,31 +10,31 @@ func CreateFile(file *FileModel) (*FileModel, error) {
 	if err := sqlite_plugin.GetInstance().Table("file").Create(file).Error; err != nil {
 		return nil, err
 	}
-	GetFile(file.Hash, false, true)
+	GetFile(file.Url_hash, false, true)
 	return file, nil
 }
 
-func UpdateFile(newData map[string]interface{}, hash string) error {
-	result := sqlite_plugin.GetInstance().Table("file").Where("hash=?", hash).Updates(newData)
+func UpdateFile(newData map[string]interface{}, url_hash string) error {
+	result := sqlite_plugin.GetInstance().Table("file").Where("url_hash=?", url_hash).Updates(newData)
 	if result.Error != nil {
 		return result.Error
 	}
-	GetFile(hash, false, true)
+	GetFile(url_hash, false, true)
 	return nil
 }
 
-func DeleteFile(hash string) error {
-	file := &FileModel{Hash: hash}
-	if err := sqlite_plugin.GetInstance().Table("file").Where("hash=?", hash).Delete(file).Error; err != nil {
+func DeleteFile(url_hash string) error {
+	file := &FileModel{Url_hash: url_hash}
+	if err := sqlite_plugin.GetInstance().Table("file").Where("url_hash=?", url_hash).Delete(file).Error; err != nil {
 		return err
 	}
-	GetFile(hash, false, true)
+	GetFile(url_hash, false, true)
 	return nil
 }
 
-func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
+func GetFile(url_hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 
-	key := hash
+	key := url_hash
 	if fromRef {
 		basic.Logger.Debugln("GetFile from reference")
 		// try to get from reference
@@ -47,7 +47,7 @@ func GetFile(hash string, fromRef bool, updateRef bool) (*FileModel, error) {
 	//try from db
 	var sqlfiles []*FileModel
 	basic.Logger.Debugln("GetFile from sqlite")
-	sql_err := sqlite_plugin.GetInstance().Table("file").Where("hash=?", hash).Find(&sqlfiles).Error
+	sql_err := sqlite_plugin.GetInstance().Table("file").Where("url_hash=?", url_hash).Find(&sqlfiles).Error
 
 	if sql_err != nil {
 		basic.Logger.Errorln("GetFile err :", sql_err)

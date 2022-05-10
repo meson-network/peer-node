@@ -24,16 +24,21 @@ func StartDefaultHttpSever() {
 
 	//for handling public storage
 	httpServer.GET("/*", func(ctx echo.Context) error {
-		// access_token := ctx.Request().Header.Get("access_token")
-		// if access_token == "" {
-		// 	return ctx.HTML(http.StatusOK, "request is forbidden")
-		// }
+		access_token := ctx.Request().Header.Get("access_token")
+		if access_token == "" {
+			return ctx.HTML(http.StatusOK, "request is forbidden")
+		}
+
+		url_hash := ctx.Request().Header.Get("url_hash")
+		if url_hash == "" {
+			return ctx.HTML(http.StatusOK, "url_hash not defined")
+		}
 
 		basic.Logger.Infoln(ctx.Request().URL)
-		basic.Logger.Infoln(file_mgr.UrlToPublicFileHash(ctx.Request().RequestURI))
-		basic.Logger.Infoln(file_mgr.UrlToPublicFileRelPath(ctx.Request().RequestURI))
+		//basic.Logger.Infoln(file_mgr.UrlToPublicFileHash(ctx.Request().RequestURI))
+		//basic.Logger.Infoln(file_mgr.UrlToPublicFileRelPath(ctx.Request().RequestURI))
 
-		file_abs, file_abs_err := file_mgr.RequestPublicFile(file_mgr.UrlToPublicFileHash(ctx.Request().RequestURI))
+		file_abs, file_abs_err := file_mgr.RequestPublicFile(url_hash)
 
 		basic.Logger.Infoln(file_abs)
 		if file_abs_err != nil {

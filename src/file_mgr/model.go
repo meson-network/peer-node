@@ -7,7 +7,7 @@ const TYPE_PUBLIC = "PUBLIC"
 const TYPE_PRIVATE = "PRIVATE"
 
 type FileModel struct {
-	Hash                   string `gorm:"hash"`
+	Url_hash               string `gorm:"url_hash"`
 	Last_req_unixtime      int64  `gorm:"last_req_unixtime"`
 	Last_scan_unixtime     int64  `gorm:"last_scan_unixtime"`
 	Last_download_unixtime int64  `gorm:"last_download_unixtime"`
