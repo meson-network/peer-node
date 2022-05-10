@@ -27,7 +27,7 @@ require (
 	github.com/coreservice-io/logrus_log v0.1.20
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/utils v0.1.10
-	github.com/meson-network/peer_common v0.0.0-20220510131609-084cb0921b99
+	github.com/meson-network/peer_common v0.0.0-20220510134055-749441f4027c
 	gorm.io/driver/sqlite v1.2.6
 )
 
