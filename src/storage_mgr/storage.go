@@ -6,10 +6,8 @@ import (
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/configuration"
+	"github.com/meson-network/peer_common/storage"
 )
-
-const min_storage_size = 30           //30GB at least
-const max_storage_private_ratio = 0.5 //at most 50% can be used for node's private upload file space
 
 type StorageMgr struct {
 	Storage_folder string //absolute folder path of the root folder
@@ -39,14 +37,14 @@ func Init() error {
 		return errors.New("storage_size  not configured correctly")
 	}
 
-	if storage_size < min_storage_size {
+	if storage_size < storage.MIN_STOR_SIZE {
 		return errors.New("storage_size must be at least 30 GB")
 	}
 
 	storage_mgr_pointer = &StorageMgr{
 		Storage_folder: sf_absdir,
 		Total_size:     storage_size,
-		Private_size:   int(float64(storage_size) * max_storage_private_ratio),
+		Private_size:   int(float64(storage_size) * storage.MAX_STOR_PRIVATE_RATIO),
 	}
 
 	return nil

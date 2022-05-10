@@ -9,7 +9,7 @@ import (
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
-	"github.com/meson-network/peer-node/src/api/client"
+	"github.com/meson-network/peer-node/src/remote/client"
 	error_tool "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/http"
 	"github.com/meson-network/peer_common/dns"

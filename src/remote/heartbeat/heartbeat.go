@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/meson-network/peer-node/basic"
-	"github.com/meson-network/peer-node/src/api/client"
+	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/tools/http"
 	"github.com/meson-network/peer_common/heart_beat"
 )

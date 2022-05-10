@@ -8,7 +8,6 @@ require (
 	github.com/imroc/req v0.3.2
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/meson-network/peer_common v0.0.0-20220510043607-60b680f4567e
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.10.1
 	github.com/swaggo/echo-swagger v1.3.0
@@ -28,6 +27,7 @@ require (
 	github.com/coreservice-io/logrus_log v0.1.20
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/utils v0.1.10
+	github.com/meson-network/peer_common v0.0.0-20220510054941-815ddca6271e
 	gorm.io/driver/sqlite v1.2.6
 )
 
