@@ -85,6 +85,9 @@ func StartDownloader(
 		Type:                   file_mgr.TYPE_PUBLIC,
 	})
 
+	//dont forget to delete old fild otherwise you may append content after old content
+	os.Remove(des_path)
+
 	req, req_err := grab.NewRequest(des_path, remoteUrl)
 	if req_err != nil {
 		clean_download(url_hash, des_path)
@@ -132,7 +135,6 @@ func StartDownloader(
 				//save header
 				hj, hj_err := json.Marshal(resp.HTTPResponse.Header)
 				if hj_err != nil {
-					//basic.Logger.Errorln(hj_err)
 					clean_download(url_hash, des_path)
 					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 					return
@@ -140,7 +142,6 @@ func StartDownloader(
 
 				h_file_err := file.FileOverwrite(des_path+".header", string(hj))
 				if h_file_err != nil {
-					//basic.Logger.Errorln(h_file_err)
 					clean_download(url_hash, des_path)
 					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 					return
