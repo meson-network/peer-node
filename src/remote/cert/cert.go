@@ -3,7 +3,6 @@ package cert
 import (
 	"errors"
 	"io/ioutil"
-	"os"
 
 	"github.com/coreservice-io/job"
 	"github.com/coreservice-io/utils/path_util"
@@ -11,6 +10,7 @@ import (
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/remote/client"
 	error_tool "github.com/meson-network/peer-node/tools/errors"
+	"github.com/meson-network/peer-node/tools/file"
 	"github.com/meson-network/peer-node/tools/http"
 	"github.com/meson-network/peer_common/dns"
 )
@@ -96,12 +96,12 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 
 	//update the file
 	if change {
-		crt_file_err := file_overwrite(c.Crt_path, res.Crt)
+		crt_file_err := file.FileOverwrite(c.Crt_path, res.Crt)
 		if crt_file_err != nil {
 			return crt_file_err
 		}
 
-		key_file_err := file_overwrite(c.Key_path, res.Key)
+		key_file_err := file.FileOverwrite(c.Key_path, res.Key)
 		if key_file_err != nil {
 			return key_file_err
 		}
@@ -139,18 +139,4 @@ func (c *CertMgr) ScheduleUpdateJob(success_callback func(string, string)) {
 
 		},
 	)
-}
-
-func file_overwrite(path string, content string) error {
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, werr := f.WriteString(content)
-	if werr != nil {
-		return werr
-	}
-	return nil
 }

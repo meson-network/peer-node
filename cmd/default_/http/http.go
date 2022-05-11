@@ -34,16 +34,24 @@ func StartDefaultHttpSever() {
 			return ctx.HTML(http.StatusOK, "url_hash not defined")
 		}
 
-		basic.Logger.Infoln(ctx.Request().URL)
+		//basic.Logger.Infoln(ctx.Request().URL)
 		//basic.Logger.Infoln(file_mgr.UrlToPublicFileHash(ctx.Request().RequestURI))
 		//basic.Logger.Infoln(file_mgr.UrlToPublicFileRelPath(ctx.Request().RequestURI))
 
-		file_abs, file_abs_err := file_mgr.RequestPublicFile(url_hash)
+		file_abs, file_header_json, file_abs_err := file_mgr.RequestPublicFile(url_hash)
 
-		basic.Logger.Infoln(file_abs)
 		if file_abs_err != nil {
 			basic.Logger.Debugln(file_abs_err)
 			return ctx.HTML(404, "file not found")
+		}
+
+		//basic.Logger.Infoln("file_abs", file_abs)
+		//basic.Logger.Infoln("file_header_json", file_header_json)
+
+		for k, v := range file_header_json {
+			for _, item := range v {
+				ctx.Response().Header().Add(k, item)
+			}
 		}
 
 		return ctx.File(file_abs)

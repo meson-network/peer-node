@@ -1,7 +1,9 @@
 package file_mgr
 
 import (
+	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"path/filepath"
 	"time"
 
@@ -14,29 +16,46 @@ func UrlHashToPublicFileRelPath(url_hash string) string {
 	return filepath.Join(url_hash[0:4], url_hash[4:8], url_hash[8:16], url_hash)
 }
 
-func RequestPublicFile(url_hash string) (string, error) {
+//return abs_file_path file_header_json error
+func RequestPublicFile(url_hash string) (string, map[string][]string, error) {
 
 	file, err := GetFile(url_hash, true, true)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	if file == nil {
-		return "", errors.New("no such file")
+		return "", nil, errors.New("no such file")
 	}
 
 	SetLastReqTime(url_hash)
 
 	if file.Status != STATUS_DOWNLOADED {
-		return "", errors.New("file not downloaded")
+		return "", nil, errors.New("file not downloaded")
 	}
 
 	abs_file_path, abs_file_path_err := storage_mgr.GetInstance().FileExist("file", "public", file.Rel_path)
 	if abs_file_path_err != nil {
-		return "", errors.New("file not exist on disk")
+		return "", nil, errors.New("file not exist on disk")
 	}
 
-	return abs_file_path, nil
+	abs_file_header_path, abs_file_header_path_err := storage_mgr.GetInstance().FileExist("file", "public", file.Rel_path+".header")
+	if abs_file_header_path_err != nil {
+		return "", nil, errors.New("file header not exist on disk")
+	}
+
+	hfile, hfile_err := ioutil.ReadFile(abs_file_header_path)
+	if hfile_err != nil {
+		return "", nil, errors.New("file header read error")
+	}
+
+	header_json := make(map[string][]string)
+	header_json_err := json.Unmarshal([]byte(hfile), &header_json)
+	if header_json_err != nil {
+		return "", nil, errors.New("file header json error")
+	}
+
+	return abs_file_path, header_json, nil
 }
 
 func SetLastReqTime(url_hash string) {

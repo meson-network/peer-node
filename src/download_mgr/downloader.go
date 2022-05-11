@@ -1,6 +1,7 @@
 package download_mgr
 
 import (
+	"encoding/json"
 	"os"
 	"path"
 	"sync/atomic"
@@ -10,6 +11,7 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/storage_mgr"
+	"github.com/meson-network/peer-node/tools/file"
 )
 
 //todo put these consts into common as will be used for both server and peer
@@ -126,6 +128,25 @@ func StartDownloader(
 				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
 
 			} else {
+
+				//save header
+				hj, hj_err := json.Marshal(resp.HTTPResponse.Header)
+				if hj_err != nil {
+					//basic.Logger.Errorln(hj_err)
+					clean_download(url_hash, des_path)
+					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+					return
+				}
+
+				h_file_err := file.FileOverwrite(des_path+".header", string(hj))
+				if h_file_err != nil {
+					//basic.Logger.Errorln(h_file_err)
+					clean_download(url_hash, des_path)
+					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+					return
+				}
+
+				//update database
 				file_mgr.UpdateFile(map[string]interface{}{
 					"last_req_unixtime":      time.Now().Unix(),
 					"last_scan_unixtime":     time.Now().Unix(),
