@@ -37,7 +37,7 @@ func new_client() (*Client, error) {
 	}
 
 	endpoint := "https://server.mesontracking.com"
-	url := endpoint + "/api/token/check"
+	url := endpoint + "/api/user/token_check"
 	res := &api.API_META_STATUS{}
 	error := http.Get(url, token_str, res)
 	if error != nil {
