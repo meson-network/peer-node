@@ -9,8 +9,8 @@ import (
 
 	"github.com/cavaliergopher/grab/v3"
 	"github.com/meson-network/peer-node/basic"
+	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
-	"github.com/meson-network/peer-node/src/storage_mgr"
 	"github.com/meson-network/peer-node/tools/file"
 )
 
@@ -34,26 +34,25 @@ func clean_download(filehash string, file_path string) {
 
 func StartDownloader(
 	remoteUrl string,
-	url_hash string,
-	callback_succeed func(filehash string, file_local_abs_path string),
+	file_hash string,
+	callback_succeed func(filehash string, file_local_abs_path string, file_size int64),
 	callback_failed func(filehash string, download_code int),
 ) {
 
-	file_relpath := file_mgr.UrlHashToPublicFileRelPath(url_hash)
+	file_relpath := file_mgr.UrlHashToPublicFileRelPath(file_hash)
+	des_path := path.Join(cdn_cache_folder.GetInstance().GetCacheFileSaveFolderPath(), file_relpath)
 
-	des_path := path.Join(storage_mgr.GetInstance().Storage_folder, "file", "public", file_relpath)
-
-	old_file, file_err := file_mgr.GetFile(url_hash, true, true)
+	old_file, file_err := file_mgr.GetFile(file_hash, true, true)
 	if file_err != nil {
-		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
 		return
 	}
 
 	if old_file != nil {
 		if old_file.Status == file_mgr.STATUS_DOWNLOADED {
-			callback_succeed(url_hash, des_path)
+			callback_succeed(file_hash, des_path, old_file.Size_byte)
 		} else {
-			callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
+			callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
 		}
 		return
 	}
@@ -65,24 +64,21 @@ func StartDownloader(
 	}()
 
 	if total_downloaders >= max_downloaders {
-		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_BUSY)
+		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_BUSY)
 		return
 	}
 	///////////////////////////////////////
 
-	client := grab.NewClient()
-	basic.Logger.Debugln("download from :", remoteUrl)
-	basic.Logger.Debugln("download to :", des_path)
-
+	nowTime := time.Now().UTC().Unix()
 	file_mgr.CreateFile(&file_mgr.FileModel{
-		Url_hash:               url_hash,
-		Last_req_unixtime:      time.Now().Unix(),
-		Last_scan_unixtime:     time.Now().Unix(),
-		Last_download_unixtime: time.Now().Unix(),
+		file_hash:              file_hash,
+		Last_req_unixtime:      nowTime,
+		Last_scan_unixtime:     nowTime,
+		Last_download_unixtime: nowTime,
 		Size_byte:              0,
 		Rel_path:               file_relpath,
 		Status:                 file_mgr.STATUS_DOWNLOADING,
-		Type:                   file_mgr.TYPE_PUBLIC,
+		//Type:                   file_mgr.TYPE_PUBLIC,
 	})
 
 	//dont forget to delete old fild otherwise you may append content after old content
@@ -90,72 +86,90 @@ func StartDownloader(
 
 	req, req_err := grab.NewRequest(des_path, remoteUrl)
 	if req_err != nil {
-		clean_download(url_hash, des_path)
-		callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+		clean_download(file_hash, des_path)
+		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
+		return
+	}
+
+	client := grab.NewClient()
+	basic.Logger.Debugln("download from :", remoteUrl)
+	basic.Logger.Debugln("download to :", des_path)
+
+	resp := client.Do(req)
+	if err := resp.Err(); err != nil {
+		clean_download(file_hash, des_path)
+		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
+		return
+	}
+
+	//try to check size
+	if resp.HTTPResponse.ContentLength != -1 && resp.HTTPResponse.ContentLength > max_file_size_bytes {
+		clean_download(file_hash, des_path)
+		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
 		return
 	}
 
 	start_time := time.Now()
 	t := time.NewTicker(2 * time.Second)
 
-	resp := client.Do(req)
-
 	for {
 		select {
 		case <-t.C:
 			//check size limits
 			if resp.BytesComplete() > max_file_size_bytes {
-				clean_download(url_hash, des_path)
-				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
+				clean_download(file_hash, des_path)
+				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
 				return
 			}
 
 			//check too slow downloading
 			elapsed := time.Since(start_time)
 			if elapsed.Seconds() > 10 && total_downloaders > (max_downloaders*0.7) && resp.BytesComplete() < (min_speed_byte_per_sec*10) {
-				clean_download(url_hash, des_path)
-				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR_SLOW)
+				clean_download(file_hash, des_path)
+				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_SLOW)
 				return
 			}
 
+			nowTime = time.Now().UTC().Unix()
 			file_mgr.UpdateFile(map[string]interface{}{
-				"last_req_unixtime":      time.Now().Unix(),
-				"last_scan_unixtime":     time.Now().Unix(),
-				"last_download_unixtime": time.Now().Unix(),
+				"last_req_unixtime":      nowTime,
+				"last_scan_unixtime":     nowTime,
+				"last_download_unixtime": nowTime,
 				"size_byte":              resp.BytesComplete(),
-			}, url_hash)
+			}, file_hash)
 
 		case <-resp.Done:
 			if resp.Err() != nil {
-				clean_download(url_hash, des_path)
-				callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+				clean_download(file_hash, des_path)
+				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
 
 			} else {
 
 				//save header
 				hj, hj_err := json.Marshal(resp.HTTPResponse.Header)
 				if hj_err != nil {
-					clean_download(url_hash, des_path)
-					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+					clean_download(file_hash, des_path)
+					callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
 					return
 				}
 
 				h_file_err := file.FileOverwrite(des_path+".header", string(hj))
 				if h_file_err != nil {
-					clean_download(url_hash, des_path)
-					callback_failed(url_hash, NODE_DOWNLOAD_CODE_ERR)
+					clean_download(file_hash, des_path)
+					callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
 					return
 				}
 
 				//update database
+				nowTime = time.Now().UTC().Unix()
 				file_mgr.UpdateFile(map[string]interface{}{
-					"last_req_unixtime":      time.Now().Unix(),
-					"last_scan_unixtime":     time.Now().Unix(),
-					"last_download_unixtime": time.Now().Unix(),
+					"last_req_unixtime":      nowTime,
+					"last_scan_unixtime":     nowTime,
+					"last_download_unixtime": nowTime,
 					"size_byte":              resp.BytesComplete(),
 					"status":                 file_mgr.STATUS_DOWNLOADED,
-				}, url_hash)
-				callback_succeed(url_hash, des_path)
+				}, file_hash)
+				callback_succeed(file_hash, des_path, resp.BytesComplete())
 			}
 			return
 		}

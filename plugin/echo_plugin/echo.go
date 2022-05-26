@@ -19,6 +19,7 @@ import (
 
 type EchoServer struct {
 	*echo.Echo
+	PauseMoment     int64
 	Logger          log.Logger
 	Http_port       int
 	Tls             bool
@@ -74,6 +75,7 @@ func Init_(name string, serverConfig Config, OnPanicHanlder func(panic_err inter
 
 	echoServer := &EchoServer{
 		echo.New(),
+		0,
 		logger,
 		serverConfig.Port,
 		serverConfig.Tls,

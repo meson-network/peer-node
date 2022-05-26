@@ -36,6 +36,9 @@ func DeclareApi(httpServer *echo_plugin.EchoServer) {
 	//there won't be any token reward if fails
 	//there maybe credit punishment if node health fails(not active)
 	config_health(httpServer)
+
+	config_download(httpServer)
+	config_heart_beat_callback(httpServer)
 }
 
 func ConfigApi(httpServer *echo_plugin.EchoServer) {

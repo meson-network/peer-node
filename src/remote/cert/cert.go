@@ -5,13 +5,13 @@ import (
 	"io/ioutil"
 
 	"github.com/coreservice-io/job"
+	"github.com/coreservice-io/utils/hash_util"
 	"github.com/coreservice-io/utils/path_util"
-	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/remote/client"
 	error_tool "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/file"
-	"github.com/meson-network/peer-node/tools/http"
+	"github.com/meson-network/peer-node/tools/http/api"
 	"github.com/meson-network/peer_common/dns"
 )
 
@@ -26,6 +26,9 @@ func GetCertMgr() (*CertMgr, error) {
 	if cert_mgr != nil {
 		return cert_mgr, nil
 	}
+
+	//todo use default path
+	//todo if cert file not exist, create folder and cert file
 
 	rel_crt, err := configuration.Config.GetString("https_crt_path", "")
 	if err != nil || rel_crt == "" {
@@ -57,13 +60,32 @@ func GetCertMgr() (*CertMgr, error) {
 //success_callback func(string crt, string key)
 func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 
-	cient_, c_err := client.GetClient()
-	if c_err != nil {
-		basic.Logger.Fatalln(c_err)
+	//check hash
+	hashRes := &dns.Msg_Resp_CertHash{}
+	err := api.Get(client.EndPoint+"/api/node/cert/hash", client.Token, hashRes)
+	if err != nil {
+		return err
+	}
+	if hashRes.Meta_status <= 0 {
+		return errors.New(hashRes.Meta_message)
+	}
+
+	old_crt_content, read_err := ioutil.ReadFile(c.Crt_path)
+	if read_err != nil {
+		return read_err
+	}
+	old_key_content, read_err := ioutil.ReadFile(c.Key_path)
+	if read_err != nil {
+		return read_err
+	}
+
+	old_content_hash := hash_util.MD5HashString(string(old_crt_content) + string(old_key_content))
+	if old_content_hash == hashRes.Hash {
+		return nil
 	}
 
 	res := &dns.Msg_Resp_Cert{}
-	err := http.Get(cient_.EndPoint+"/api/node/cert", cient_.Token, res)
+	err = api.Get(client.EndPoint+"/api/node/cert", client.Token, res)
 
 	if err != nil {
 		return err
@@ -75,23 +97,14 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 
 	///////////////
 	change := false
-	old_crt_content, read_err := ioutil.ReadFile(c.Crt_path)
-	if read_err != nil {
-		return read_err
-	} else {
-		if string(old_crt_content) != res.Crt {
-			change = true
-		}
+	//read old .crt
+	if string(old_crt_content) != res.Crt {
+		change = true
 	}
 
 	//read old .key
-	old_key_content, read_err := ioutil.ReadFile(c.Key_path)
-	if read_err != nil {
-		return read_err
-	} else {
-		if string(old_key_content) != res.Key {
-			change = true
-		}
+	if string(old_key_content) != res.Key {
+		change = true
 	}
 
 	//update the file
@@ -124,7 +137,7 @@ func (c *CertMgr) ScheduleUpdateJob(success_callback func(string, string)) {
 		// onPanic callback, run if panic happened
 		error_tool.PanicHandler,
 		// job interval in seconds
-		3600,
+		3600, //
 		// job type
 		// job.TYPE_PANIC_REDO  auto restart if panic
 		// job.TYPE_PANIC_RETURN  stop if panic

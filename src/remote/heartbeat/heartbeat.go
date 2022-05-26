@@ -3,9 +3,8 @@ package heartbeat
 import (
 	"errors"
 
-	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/remote/client"
-	"github.com/meson-network/peer-node/tools/http"
+	"github.com/meson-network/peer-node/tools/http/api"
 	"github.com/meson-network/peer_common/heart_beat"
 )
 
@@ -19,15 +18,9 @@ func SetLastHeartTime(time int64) {
 	server_unix_time = time
 }
 
-func RequestHeartBeat(hb_req *heart_beat.Msg_Req_HeartBeat) (*heart_beat.Msg_Resp_HeartBeat, error) {
-
-	cient_, c_err := client.GetClient()
-	if c_err != nil {
-		basic.Logger.Fatalln(c_err)
-	}
-
+func SendHeartBeat(hb_req *heart_beat.Msg_Req_HeartBeat) (*heart_beat.Msg_Resp_HeartBeat, error) {
 	res := &heart_beat.Msg_Resp_HeartBeat{}
-	err := http.POST(cient_.EndPoint+"/api/node/heartbeat", cient_.Token, hb_req, res)
+	err := api.POST_(client.EndPoint+"/api/node/heartbeat", client.Token, hb_req, 30, res)
 	if err != nil {
 		return nil, err
 	}
