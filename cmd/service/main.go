@@ -14,7 +14,7 @@ import (
 
 func RunServiceCmd(clictx *cli.Context) {
 
-	daemon_name, err := configuration.Config.GetString("daemon_name", "")
+	daemon_name, err := configuration.Config.GetString("daemon_name", "meson-node")
 	if err != nil {
 		basic.Logger.Errorln("daemon_name [string] in config error," + err.Error())
 		return

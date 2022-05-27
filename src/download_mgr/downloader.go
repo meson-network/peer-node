@@ -4,32 +4,75 @@ import (
 	"encoding/json"
 	"os"
 	"path"
+	"strconv"
 	"sync/atomic"
 	"time"
 
 	"github.com/cavaliergopher/grab/v3"
+	"github.com/coreservice-io/utils/path_util"
+	"github.com/imroc/req"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/file"
 )
 
 //todo put these consts into common as will be used for both server and peer
-const NODE_DOWNLOAD_CODE_ERR = -1                   //general download failure
-const NODE_DOWNLOAD_CODE_ERR_BUSY = -2              //active shutdown cause of max_downloaders limited , system too busy
-const NODE_DOWNLOAD_CODE_ERR_SLOW = -3              //active shutdown cause of too slow download at high traffic time
-const NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING = -4 //active shutdown cause of someone else is downloading it
-const NODE_DOWNLOAD_CODE_ERR_OVERSIZE = -5          //active shutdown cause of single file size limit
+const NODE_DOWNLOAD_CODE_ERR = -10001                   //general download failure
+const NODE_DOWNLOAD_CODE_ERR_BUSY = -10002              //active shutdown cause of max_downloaders limited , system too busy
+const NODE_DOWNLOAD_CODE_ERR_SLOW = -10003              //active shutdown cause of too slow download at high traffic time
+const NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING = -10004 //active shutdown cause of someone else is downloading it
+const NODE_DOWNLOAD_CODE_ERR_OVERSIZE = -10005          //active shutdown cause of single file size limit
+const NODE_DOWNLOAD_CODE_ERR_DISK_SPACE = -10006        //active shutdown cause of single file size limit
 
 const max_downloaders = 10
 const max_file_size_bytes = 1024 * 1024 * 1024 //1GB limit
 const min_speed_byte_per_sec = 1024 * 250      //active shutdown if reach (max_downloaders*70%) and download speed is below 250kb/second sec
+const safe_seconds = 20
 
 var total_downloaders int64
 
 func clean_download(filehash string, file_path string) {
 	os.Remove(file_path)
 	file_mgr.DeleteFile(filehash)
+}
+
+func PreCheckTask(remoteUrl string) error {
+	if GetTotalDownloaderNum() >= max_downloaders {
+		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_BUSY, "too many running download task")
+	}
+
+	//todo check space
+	if true {
+		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_DISK_SPACE, "have not enough space")
+	}
+
+	//try to check size
+	r := req.New()
+	r.SetTimeout(time.Duration(15) * time.Second)
+	result, err := r.Get(remoteUrl)
+	if err != nil {
+		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR, "request origin err")
+	}
+	if result == nil {
+		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR, "request origin err")
+	}
+	defer func() {
+		if result.Response().Body != nil {
+			result.Response().Body.Close()
+		}
+	}()
+
+	value, exist := result.Response().Header["Content-Length"]
+	if exist && len(value) > 0 {
+		size, err := strconv.Atoi(value[0])
+		if err == nil && size > 0 && size > max_file_size_bytes {
+			return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_OVERSIZE, "file too big")
+		}
+	}
+
+	return nil
 }
 
 func StartDownloader(
@@ -50,7 +93,15 @@ func StartDownloader(
 
 	if old_file != nil {
 		if old_file.Status == file_mgr.STATUS_DOWNLOADED {
-			callback_succeed(file_hash, des_path, old_file.Size_byte)
+			//check file exist on disk
+			absPath := file_mgr.GetFileAbsPath(file_hash)
+			exist, err := path_util.AbsPathExist(absPath)
+			//file not exist on disk
+			if err != nil || !exist {
+				file_mgr.DeleteFile(file_hash)
+			} else {
+				callback_succeed(file_hash, des_path, old_file.Size_byte)
+			}
 		} else {
 			callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
 		}
@@ -71,7 +122,7 @@ func StartDownloader(
 
 	nowTime := time.Now().UTC().Unix()
 	file_mgr.CreateFile(&file_mgr.FileModel{
-		file_hash:              file_hash,
+		File_hash:              file_hash,
 		Last_req_unixtime:      nowTime,
 		Last_scan_unixtime:     nowTime,
 		Last_download_unixtime: nowTime,
@@ -102,13 +153,6 @@ func StartDownloader(
 		return
 	}
 
-	//try to check size
-	if resp.HTTPResponse.ContentLength != -1 && resp.HTTPResponse.ContentLength > max_file_size_bytes {
-		clean_download(file_hash, des_path)
-		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
-		return
-	}
-
 	start_time := time.Now()
 	t := time.NewTicker(2 * time.Second)
 
@@ -124,7 +168,7 @@ func StartDownloader(
 
 			//check too slow downloading
 			elapsed := time.Since(start_time)
-			if elapsed.Seconds() > 10 && total_downloaders > (max_downloaders*0.7) && resp.BytesComplete() < (min_speed_byte_per_sec*10) {
+			if elapsed.Seconds() > safe_seconds && total_downloaders > (max_downloaders*0.7) && resp.BytesComplete() < (min_speed_byte_per_sec*10) {
 				clean_download(file_hash, des_path)
 				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_SLOW)
 				return

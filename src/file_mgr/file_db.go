@@ -11,7 +11,7 @@ func CreateFile(file *FileModel) (*FileModel, error) {
 	if err := sqlite_plugin.GetInstance().Table("file").Create(file).Error; err != nil {
 		return nil, err
 	}
-	GetFile(file.file_hash, false, true)
+	GetFile(file.File_hash, false, true)
 	return file, nil
 }
 
@@ -25,7 +25,7 @@ func UpdateFile(newData map[string]interface{}, file_hash string) error {
 }
 
 func DeleteFile(file_hash string) error {
-	file := &FileModel{file_hash: file_hash}
+	file := &FileModel{File_hash: file_hash}
 	if err := sqlite_plugin.GetInstance().Table("file").Where("file_hash=?", file_hash).Delete(file).Error; err != nil {
 		return err
 	}

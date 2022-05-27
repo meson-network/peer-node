@@ -1,6 +1,7 @@
 package schedule_job
 
 import (
+	"os"
 	"time"
 
 	"github.com/coreservice-io/job"
@@ -13,7 +14,7 @@ import (
 
 const expireTime = 3600 * 6 //no access in 6 hours
 
-func ScheduleExpirationFile() {
+func ScanExpirationFile() {
 	const jobName = "ExpirationFile"
 
 	job.Start(
@@ -43,7 +44,7 @@ func reportExpiredFiles() error {
 	timeLine := nowTime - expireTime
 	offset := 0
 	for {
-		result, err := file_mgr.QueryFile(nil, &timeLine, &[]string{file_mgr.STATUS_DOWNLOADED}, 500, offset, false, false)
+		result, err := file_mgr.QueryFile(nil, &timeLine, &[]string{file_mgr.STATUS_DOWNLOADED}, nil, 500, offset, false, false)
 		if err != nil {
 			return err
 		}
@@ -55,7 +56,7 @@ func reportExpiredFiles() error {
 
 		expiredFiles := []string{}
 		for _, v := range result.Files {
-			expiredFiles = append(expiredFiles, v.file_hash)
+			expiredFiles = append(expiredFiles, v.File_hash)
 		}
 
 		//send to server
@@ -76,8 +77,10 @@ func reportExpiredFiles() error {
 
 		for _, v := range result.Files {
 			//todo delete file and header on disk
-
-			file_mgr.DeleteFile(v.file_hash)
+			absPath := file_mgr.GetFileAbsPath(v.File_hash)
+			os.Remove(absPath)
+			os.Remove(absPath + ".header")
+			file_mgr.DeleteFile(v.File_hash)
 		}
 	}
 }

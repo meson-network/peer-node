@@ -4,6 +4,8 @@
 package version_mgr
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
@@ -25,171 +28,114 @@ func (v *VersionMgr) CheckUpdate() {
 
 	//download new version
 	//need upgrade
+	if v.AutoUpdateFiledTime >= 3 {
+		basic.Logger.Infoln("New version auto update failed, please update by manual.")
+		return
+	}
 	basic.Logger.Infoln("New version detected, start to upgrade... ")
 
 	//new version download url
-
 	//check arch and os
 	arch, osInfo := GetOSInfo()
-
-	// 'https://meson.network/static/terminal/v0.1.2/meson-darwin-amd64.tar.gz'
+	// 'https://dashboard.meson.network/static_assets/node/v0.1.2/meson-darwin-amd64.tar.gz'
 	fileName := "meson" + "-" + osInfo + "-" + arch + ".tar.gz"
 	downloadPath := "/v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := "xxxx domain" + downloadPath
+	newVersionDownloadUrl := "https://dashboard.meson.network/static_assets/node/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
+	err := DownloadNewVersion(downloadPath)
+	if err != nil {
+		basic.Logger.Errorln("CheckUpdate DownloadNewVersion err:", err)
+		v.AutoUpdateFiledTime++
+		return
+	}
+
+	//restart
+	RestartNode()
 }
 
-func DownloadNewVersion(fileName string, downloadUrl string, newVersion string) error {
+func DownloadNewVersion(downloadUrl string) error {
 	//get
 	response, err := http.Get(downloadUrl)
 	if err != nil {
-		//logger.Error("get file url "+downloadUrl+" error", "err", err)
+		basic.Logger.Errorln(" DownloadNewVersion get file url "+downloadUrl+" error", "err", err)
 		return err
 	}
-	//creat folder and file
-	distDir := filepath.Dir(fileName)
-	err = os.MkdirAll(distDir, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
+
 	//defer file.Close()
 	if response.Body == nil {
-		os.Remove(fileName)
-		file.Close()
-		return errors.New("body is null")
+		return errors.New("DownloadNewVersion body is null")
 	}
 	defer response.Body.Close()
-	_, err = io.Copy(file, response.Body)
+
+	// gzip read
+	gr, err := gzip.NewReader(response.Body)
 	if err != nil {
-		os.Remove(fileName)
-		file.Close()
+		basic.Logger.Errorln("DownloadNewVersion gzip read new version file error", err)
 		return err
 	}
-	fileInfo, err := os.Stat(fileName)
-	if err != nil {
-		os.Remove(fileName)
-		file.Close()
-		return err
-	}
-	size := fileInfo.Size()
-	//logger.Debug("donwload file,fileInfo", "size", size)
+	defer gr.Close()
+	// tar read
+	tr := tar.NewReader(gr)
+	for {
+		h, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			basic.Logger.Errorln("DownloadNewVersion unzip new version file error", err)
+			return err
+		}
 
-	if size == 0 {
-		os.Remove(fileName)
-		file.Close()
-		return errors.New("download file size error")
-	}
-	file.Close()
+		arr := strings.Split(h.Name, "/")
+		nameArr := []string{}
+		for _, v := range arr {
+			if v != "" {
+				nameArr = append(nameArr, v)
+			}
+		}
+		if len(nameArr) <= 1 {
+			continue
+		}
+		name := filepath.Join(nameArr[1:]...)
 
-	////unzip tar.gz
-	//targetDir := strings.Replace(fileName, ".tar.gz", "", 1)
-	//// file read
-	//fr, err := os.Open(fileName)
-	//if err != nil {
-	//	logger.Error("open version file error", "err", err)
-	//	return err
-	//}
-	//defer fr.Close()
-	//// gzip read
-	//gr, err := gzip.NewReader(fr)
-	//if err != nil {
-	//	logger.Error("gzip read new version file error", "err", err)
-	//	return err
-	//}
-	//defer gr.Close()
-	//// tar read
-	//tr := tar.NewReader(gr)
-	//// 读取文件
-	//for {
-	//	h, err := tr.Next()
-	//	if err == io.EOF {
-	//		break
-	//	}
-	//	if err != nil {
-	//		logger.Error("unzip new version file error", "err", err)
-	//		return err
-	//	}
-	//	fileName := runpath.RunPath + "/" + h.Name
-	//	dirName := string([]rune(fileName)[0:strings.LastIndex(fileName, "/")])
-	//	err = os.MkdirAll(dirName, 0777)
-	//	if err != nil {
-	//		logger.Error("unzip new version file error-create dir", "err", err)
-	//		return err
-	//	}
-	//	if utils.IsDir(fileName) {
-	//		continue
-	//	}
-	//	fw, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0777 /*os.FileMode(h.Mode)*/)
-	//	//fw,err:=os.Create(fileName)
-	//	if err != nil {
-	//		logger.Error("unzip new version file error-create file", "err", err)
-	//		return err
-	//	}
-	//	defer fw.Close()
-	//	// 写文件
-	//	_, err = io.Copy(fw, tr)
-	//	if err != nil {
-	//		logger.Error("unzip new version file error-copy file", "err", err)
-	//		return err
-	//	}
-	//}
-	//logger.Debug("un tar.gz ok")
-	//
-	////cover old version file
-	//files, _ := ioutil.ReadDir(targetDir)
-	//for _, v := range files {
-	//	fileName := v.Name()
-	//	fmt.Println(v.Name())
-	//	if fileName == "config.txt" {
-	//		continue
-	//	}
-	//	oldFile := path.Join(runpath.RunPath, fileName)
-	//	newFile := path.Join(targetDir, fileName)
-	//	err := coverOldFile(newFile, oldFile)
-	//	if err != nil {
-	//		logger.Error("new version file error-cover file", "err", err)
-	//		continue
-	//	}
-	//}
-	//
-	//versionFile := path.Join(runpath.RunPath, "./v"+Version)
-	//os.Remove(versionFile)
-	//
-	//os.RemoveAll(targetDir)
-	//os.Remove(fileName)
-	//
-	//return nil
+		//skip config folder and pro.json
+		if name == "configs" || name == "configs/pro.json" {
+			continue
+		}
+
+		filePath := path_util.ExE_Path(name)
+		if h.FileInfo().IsDir() {
+			err = os.MkdirAll(filePath, 0777)
+			if err != nil {
+				basic.Logger.Errorln("DownloadNewVersion os.MkdirAll err", err, "filePath", filePath)
+				return err
+			}
+			continue
+		}
+
+		content, err := ioutil.ReadAll(tr)
+		if err != nil {
+			basic.Logger.Errorln("DownloadNewVersion ioutil.ReadAll err", err, "filePath", filePath)
+			return err
+		}
+
+		err = os.WriteFile(filePath, content, 0777)
+		if err != nil {
+			basic.Logger.Errorln("DownloadNewVersion os.WriteFile err:", err, "filePath", filePath)
+			return err
+		}
+	}
 
 	return nil
 }
 
-func coverOldFile(newFile string, oldFile string) error {
-	input, err := ioutil.ReadFile(newFile)
-	if err != nil {
-		return err
-	}
-	os.Remove(oldFile)
-	err = ioutil.WriteFile(oldFile, input, 777)
-	if err != nil {
-		fmt.Println("Error creating", oldFile)
-		fmt.Println(err)
-		return err
-	}
-	os.Chmod(oldFile, 0777)
-	return nil
-}
-
-func RestartTerminal() {
+func RestartNode() {
 	basic.Logger.Debugln("peer node restart cmd")
 
-	absPath, err := path_util.SmartExistPath("./peer-node")
+	absPath, err := path_util.SmartExistPath("./meson-node")
 	if err != nil {
-		basic.Logger.Errorln("RestartTerminal path_util.SmartExistPath err:", err)
+		basic.Logger.Errorln("RestartNode path_util.SmartExistPath err:", err)
 		return
 	}
 

@@ -14,7 +14,8 @@ import (
 const NodeVersion = "3.0.0"
 
 type VersionMgr struct {
-	CurrentVersion string
+	CurrentVersion      string
+	AutoUpdateFiledTime int
 }
 
 var instanceMap = map[string]*VersionMgr{}
@@ -41,7 +42,8 @@ func Init_(name string) error {
 		return fmt.Errorf("echo server instance <%s> has already initialized", name)
 	}
 	instanceMap[name] = &VersionMgr{
-		CurrentVersion: NodeVersion,
+		CurrentVersion:      NodeVersion,
+		AutoUpdateFiledTime: 0,
 	}
 	return nil
 }

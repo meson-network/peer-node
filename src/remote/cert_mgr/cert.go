@@ -1,8 +1,10 @@
-package cert
+package cert_mgr
 
 import (
 	"errors"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/coreservice-io/job"
 	"github.com/coreservice-io/utils/hash_util"
@@ -22,39 +24,43 @@ type CertMgr struct {
 
 var cert_mgr *CertMgr
 
-func GetCertMgr() (*CertMgr, error) {
-	if cert_mgr != nil {
-		return cert_mgr, nil
-	}
+func Init() error {
 
-	//todo use default path
-	//todo if cert file not exist, create folder and cert file
-
-	rel_crt, err := configuration.Config.GetString("https_crt_path", "")
+	//todo if cert file not exist, create folder
+	rel_crt, err := configuration.Config.GetString("https_crt_path", "assets/cert/public.crt")
 	if err != nil || rel_crt == "" {
-		return nil, errors.New("https_crt_path [string] in config.json err")
+		return errors.New("https_crt_path [string] in config.json err")
 	}
 
-	rel_key, err := configuration.Config.GetString("https_key_path", "")
+	rel_key, err := configuration.Config.GetString("https_key_path", "assets/cert/private.key")
 	if err != nil || rel_key == "" {
-		return nil, errors.New("https_key_path [string] in config.json err")
+		return errors.New("https_key_path [string] in config.json err")
 	}
 
-	crt_path, cert_path_err := path_util.SmartExistPath(rel_crt)
-	if cert_path_err != nil {
-		return nil, errors.New("https crt file path error," + cert_path_err.Error())
+	crtPath := path_util.ExE_Path(rel_crt)
+	crtFolder := filepath.Dir(crtPath)
+	err = os.MkdirAll(crtFolder, 0777)
+	if err != nil {
+		return err
 	}
 
-	key_path, key_path_err := path_util.SmartExistPath(rel_key)
-	if cert_path_err != nil {
-		return nil, errors.New("https key file path error," + key_path_err.Error())
+	keyPath := path_util.ExE_Path(rel_key)
+	keyFolder := filepath.Dir(keyPath)
+	err = os.MkdirAll(keyFolder, 0777)
+	if err != nil {
+		return err
 	}
 
 	cert_mgr = &CertMgr{
-		key_path,
-		crt_path,
+		Crt_path: crtPath,
+		Key_path: keyPath,
 	}
-	return cert_mgr, nil
+
+	return nil
+}
+
+func GetInstance() *CertMgr {
+	return cert_mgr
 }
 
 //success_callback func(string crt, string key)

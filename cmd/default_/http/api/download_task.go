@@ -6,12 +6,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/download_mgr"
+	"github.com/meson-network/peer-node/src/remote/download_callback"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer_common/download"
 )
 
 func config_download(httpServer *echo_plugin.EchoServer) {
 	httpServer.POST("/api/file/download_task", downloadTaskHandler, MidToken)
-	//httpServer.POST("/*", queryPullZone, middleware.ParseToken)
 }
 
 // @Summary      /api/health
@@ -36,8 +37,16 @@ func downloadTaskHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, res)
 	}
 
-	//todo use a channel to accept task
-	go download_mgr.StartDownloader(msg.Origin_url, msg.file_hash, download_mgr.SuccessCallback, download_mgr.FailedCallback)
+	//pre check
+	err = download_mgr.PreCheckTask(msg.Origin_url)
+	if err != nil {
+		eCode, eMsg := pErr.ResolveStatusError(err)
+		res.MetaStatus(eCode, eMsg.Error())
+		return ctx.JSON(http.StatusOK, res)
+	}
+
+	//do download
+	go download_mgr.StartDownloader(msg.Origin_url, msg.File_hash, download_callback.SuccessCallback, download_callback.FailedCallback)
 
 	res.MetaStatus(1, "success")
 	return ctx.JSON(http.StatusOK, res)

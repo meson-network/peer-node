@@ -2,20 +2,24 @@ package schedule_job
 
 import (
 	"github.com/coreservice-io/job"
+	"github.com/meson-network/peer-node/cmd/default_/http"
+	"github.com/meson-network/peer-node/src/remote/cert_mgr"
 )
 
-func CheckVersion() {
-	const jobName = "CheckVersion"
+func UpdateCert() {
+	const jobName = "UpdateCert"
 
 	job.Start(
 		//job process
 		jobName,
 		func() {
-			//heartbeat.SendHeartBeat()
+			cert_mgr.GetInstance().UpdateCert(func(crt, key string) {
+				http.ServerReloadCert()
+			})
 		},
 		//onPanic callback
 		nil, //todo upload panic
-		5,
+		3600,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

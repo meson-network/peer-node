@@ -17,7 +17,11 @@ func Init() error {
 		return errors.New("config error : token [string] in config.json ")
 	}
 
-	endpoint := "https://server.mesontracking.com"
+	endpoint, err := configuration.Config.GetString("endpoint", "https://api.meson.network")
+	if err != nil || endpoint == "" {
+		return errors.New("config error : endpoint [string] in config.json ")
+	}
+
 	url := endpoint + "/api/user/token_check"
 	res := &api.API_META_STATUS{}
 	err = api2.Get(url, token_str, res)

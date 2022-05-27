@@ -7,7 +7,7 @@ const STATUS_DOWNLOADING = "DOWNLOADING"
 //const TYPE_PRIVATE = "PRIVATE"
 
 type FileModel struct {
-	file_hash              string `json:"file_hash" gorm:"primaryKey"`
+	File_hash              string `json:"file_hash" gorm:"primaryKey"`
 	Last_req_unixtime      int64  `json:"last_req_unixtime" gorm:"index"`
 	Last_scan_unixtime     int64  `json:"last_scan_unixtime" gorm:"index"`
 	Last_download_unixtime int64  `json:"last_download_unixtime"`

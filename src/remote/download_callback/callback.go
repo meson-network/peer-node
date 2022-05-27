@@ -1,4 +1,4 @@
-package download_mgr
+package download_callback
 
 import (
 	"github.com/meson-network/peer-node/basic"
@@ -10,7 +10,7 @@ import (
 func SuccessCallback(filehash string, file_local_abs_path string, file_size int64) {
 	postData := &download.Msg_Req_Download_Callback_Success{
 		Origin_url: "",
-		file_hash:  filehash,
+		File_hash:  filehash,
 		File_size:  file_size,
 	}
 	result := &download.Msg_Resp_Download_Callback{}
@@ -27,7 +27,7 @@ func SuccessCallback(filehash string, file_local_abs_path string, file_size int6
 func FailedCallback(filehash string, download_code int) {
 	postData := &download.Msg_Req_Download_Callback_Failed{
 		Origin_url: "",
-		file_hash:  filehash,
+		File_hash:  filehash,
 	}
 	result := &download.Msg_Resp_Download_Callback{}
 	err := api.POST_(client.EndPoint+"/api/node/download/failed", client.Token, postData, 30, result)

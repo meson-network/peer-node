@@ -2,9 +2,9 @@ package http
 
 import (
 	"errors"
-	"net/http"
 	"strings"
 
+	"github.com/coreservice-io/dns-common/spec00"
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http/api"
@@ -72,26 +72,27 @@ func StartDefaultHttpSever() {
 
 		ctx.Set("fileName", fileName)
 
-		//get bindName
-		//bindName := parseBindName(c.Request().Host)
-		//check bindName legal
-
-		//ctx.Set("bindName", bindName)
+		//get pullzone
+		_, optionalStr, err := spec00.Parser(ctx.Request().Host)
+		if err != nil {
+			ctx.Error(errors.New("invalid request"))
+			return nil
+		}
+		if len(optionalStr) == 0 {
+			ctx.Error(errors.New("invalid request"))
+			return nil
+		}
+		pullZone := optionalStr[0]
 
 		//get fileHash
-		//fileHash := bindName + fileName //to hash
+		fileHash := peer_common.GenFileHash(pullZone, fileName) //to hash
 		//ctx.Set("fileHash", fileHash)
-
-		file_hash := ctx.Request().Header.Get("file_hash")
-		if file_hash == "" {
-			return ctx.HTML(http.StatusOK, "file_hash not defined")
-		}
 
 		//basic.Logger.Infoln(ctx.Request().URL)
 		//basic.Logger.Infoln(file_mgr.UrlToPublicFileHash(ctx.Request().RequestURI))
 		//basic.Logger.Infoln(file_mgr.UrlToPublicFileRelPath(ctx.Request().RequestURI))
 
-		file_abs, file_header_json, file_abs_err := file_mgr.RequestPublicFile(file_hash)
+		file_abs, file_header_json, file_abs_err := file_mgr.RequestPublicFile(fileHash)
 		if file_abs_err != nil {
 			errCode, err := pErr.ResolveStatusError(file_abs_err)
 			basic.Logger.Debugln("file_mgr.RequestPublicFile errCode:", errCode, "err:", err)
@@ -109,21 +110,21 @@ func StartDefaultHttpSever() {
 			//todo file missing
 			//redirect to server
 
-			return ctx.HTML(404, "file not found")
+			//return ctx.HTML(404, "file not found")
 		}
 
 		//basic.Logger.Infoln("file_abs", file_abs)
 		//basic.Logger.Infoln("file_header_json", file_header_json)
 
-		for k, v := range file_header_json {
-			for _, item := range v {
-				ctx.Response().Header().Add(k, item)
-			}
-		}
+		//for k, v := range file_header_json {
+		//	for _, item := range v {
+		//		ctx.Response().Header().Add(k, item)
+		//	}
+		//}
 
 		//todo get ignoreHeader
 		ignoreHeader := map[string]struct{}{}
-		err := httpServer.FileWithPause(ctx, file_abs, file_header_json, ignoreHeader)
+		err = httpServer.FileWithPause(ctx, file_abs, file_header_json, ignoreHeader)
 
 		return err
 	})

@@ -2,20 +2,21 @@ package schedule_job
 
 import (
 	"github.com/coreservice-io/job"
+	"github.com/meson-network/peer-node/src/file_mgr"
 )
 
-func CheckVersion() {
-	const jobName = "CheckVersion"
+func DeleteEmptyFolder() {
+	const jobName = "DeleteEmptyFolder"
 
 	job.Start(
 		//job process
 		jobName,
 		func() {
-			//heartbeat.SendHeartBeat()
+			file_mgr.LoopDeleteEmptyFolder()
 		},
 		//onPanic callback
 		nil, //todo upload panic
-		5,
+		2,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

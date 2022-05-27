@@ -21,3 +21,4 @@ cdn_cache/file/*
 !cdn_cache/file/file.readme.md
 /storage/
 /meson_cdn_cache/
+/build/

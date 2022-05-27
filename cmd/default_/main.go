@@ -1,6 +1,7 @@
 package default_
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/fatih/color"
@@ -8,22 +9,30 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
+	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/info"
-	"github.com/meson-network/peer-node/src/remote/cert"
-	"github.com/meson-network/peer-node/src/remote/client"
+	"github.com/meson-network/peer-node/src/remote/cert_mgr"
+	"github.com/meson-network/peer-node/src/remote/version_mgr"
+	"github.com/meson-network/peer-node/src/schedule_job"
 	"github.com/urfave/cli/v2"
 )
 
 func StartDefault(clictx *cli.Context) {
 
-	//RunMinio()
-	//
-	//return
+	err := cert_mgr.Init()
+	if err != nil {
+		basic.Logger.Fatalln("initCert error", err)
+	}
+
+	RunMinio()
+
+	return
 
 	color.Green(basic.Logo)
+	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
 
 	//init cdn cache folder
-	err := cdn_cache_folder.Init()
+	err = cdn_cache_folder.Init()
 	if err != nil {
 		basic.Logger.Fatalln("init cdn cache folder err:", err)
 	}
@@ -32,18 +41,20 @@ func StartDefault(clictx *cli.Context) {
 	plugin.InitPlugin()
 	///////////////////
 
-	//delete
+	//token check first
+	//c_err := client.Init()
+	//if c_err != nil {
+	//	basic.Logger.Fatalln(c_err)
+	//}
 
+	//clean not finished download job and files
+	file_mgr.CleanDownloadingFiles()
+
+	//check cache folder
 	err = cdn_cache_folder.GetInstance().CheckFolder(10)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}
-
-	//clean not finished download job and files
-
-	//scan db record clean files which not exist on disk
-
-	//scan folder clean file which not in db
 
 	//init node
 	err = info.InitNode()
@@ -51,21 +62,15 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln("initNode error", err)
 	}
 
-	//token check first
-	c_err := client.Init()
-	if c_err != nil {
-		basic.Logger.Fatalln(c_err)
-	}
-
 	////////init update cert
-	cert_m, cert_m_err := cert.GetCertMgr()
-	if cert_m_err != nil {
-		basic.Logger.Fatalln(cert_m_err)
+	err = cert_mgr.Init()
+	if err != nil {
+		basic.Logger.Fatalln("initCert error", err)
 	}
 
-	cert_update_err := cert_m.UpdateCert(nil)
+	cert_update_err := cert_mgr.GetInstance().UpdateCert(nil)
 	if cert_update_err != nil {
-		basic.Logger.Fatalln(cert_update_err)
+		basic.Logger.Fatalln("init certificate error", cert_update_err)
 	}
 	///////////////////////////////
 
@@ -96,19 +101,10 @@ func start_jobs() {
 	}
 
 	/////////
-	//todo get cert again???
-	cert_m, cert_m_err := cert.GetCertMgr()
-	if cert_m_err != nil {
-		basic.Logger.Fatalln(cert_m_err)
-	}
-	cert_m.ScheduleUpdateJob(func(crt, key string) {
-		http.ServerReloadCert()
-	})
+	schedule_job.CheckVersion()
+	schedule_job.HeartBeat()
+	schedule_job.ScanExpirationFile()
+	schedule_job.UpdateCert()
+	schedule_job.ScanLeakFile()
 
-	//test a download task
-	//download_mgr.DoTask(func(filehash string, file_local_abs_path string) {
-	//	basic.Logger.Infoln("sucess download task callback", filehash, file_local_abs_path)
-	//}, func(filehash string, download_code int) {
-	//	basic.Logger.Infoln("failed download task callback", filehash, download_code)
-	//})
 }

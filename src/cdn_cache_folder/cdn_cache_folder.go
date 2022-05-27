@@ -48,7 +48,7 @@ func Init() error {
 	}
 
 	//cdn_cache dir
-	sf, sf_err := configuration.Config.GetString("cdn_cache_folder", "meson_cdn_cache")
+	sf, sf_err := configuration.Config.GetString("cdn_cache_folder", "m_cache")
 	if sf_err != nil {
 		return errors.New("cdn_cache_folder not configured correctly")
 	}

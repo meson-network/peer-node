@@ -4,7 +4,7 @@ import (
 	"github.com/coreservice-io/job"
 )
 
-func ScheduleHeartBeat() {
+func HeartBeat() {
 	const jobName = "HeartBeat"
 
 	job.Start(

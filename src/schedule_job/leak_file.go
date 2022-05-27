@@ -2,20 +2,21 @@ package schedule_job
 
 import (
 	"github.com/coreservice-io/job"
+	"github.com/meson-network/peer-node/src/file_mgr"
 )
 
-func CheckVersion() {
-	const jobName = "CheckVersion"
+func ScanLeakFile() {
+	const jobName = "ScanLeakFile"
 
 	job.Start(
 		//job process
 		jobName,
 		func() {
-			//heartbeat.SendHeartBeat()
+			file_mgr.ScanLeakFiles()
 		},
 		//onPanic callback
 		nil, //todo upload panic
-		5,
+		24*3600,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

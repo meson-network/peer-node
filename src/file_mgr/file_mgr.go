@@ -16,7 +16,6 @@ func GetFileAbsPath(file_hash string) string {
 }
 
 func CleanDownloadingFiles() error {
-
 	result, err := QueryFile(nil, nil, &[]string{STATUS_DOWNLOADING}, nil, 0, 0, false, false)
 	if err != nil {
 		return err
@@ -33,31 +32,12 @@ func CleanDownloadingFiles() error {
 		os.Remove(fileAbsPath)
 		os.Remove(fileAbsPath + ".header")
 
-		DeleteFile(v.file_hash)
-		deleteEmptyFolder(fileAbsPath)
+		DeleteFile(v.File_hash)
+		DeleteEmptyFolder(fileAbsPath)
 	}
 
 	return nil
 
-}
-
-func deleteEmptyFolder(deletedFileAbsPath string) {
-	folder := filepath.Dir(deletedFileAbsPath)
-	for {
-		if strings.HasSuffix(folder, cdn_cache_folder.CacheFileFolder) {
-			return
-		}
-		dirEntry, err := os.ReadDir(folder)
-		if err == nil && len(dirEntry) == 0 {
-			err := os.Remove(folder)
-			if err != nil {
-				return
-			}
-			folder = filepath.Dir(folder)
-		} else {
-			return
-		}
-	}
 }
 
 type DiskFile struct {
@@ -65,8 +45,8 @@ type DiskFile struct {
 	fileName string
 }
 
-//scanLeakFiles Scan disk and delete files not in db
-func scanLeakFiles() {
+//ScanLeakFiles Scan disk and delete files not in db
+func ScanLeakFiles() {
 
 	files := []*DiskFile{}
 	rootPath := filepath.Join(cdn_cache_folder.GetInstance().Abs_path, cdn_cache_folder.CacheFileFolder)
@@ -89,7 +69,7 @@ func scanLeakFiles() {
 				basic.Logger.Errorln("scanLeakFiles remove file error:", err, "path:", path)
 
 			} else {
-				deleteEmptyFolder(path)
+				DeleteEmptyFolder(path)
 			}
 
 			return nil
@@ -103,7 +83,7 @@ func scanLeakFiles() {
 				basic.Logger.Errorln("scanLeakFiles remove file error:", err, "path:", path)
 
 			} else {
-				deleteEmptyFolder(path)
+				DeleteEmptyFolder(path)
 			}
 			return nil
 		}
@@ -121,7 +101,7 @@ func scanLeakFiles() {
 		if len(files) >= 100 {
 			checkFileLeak(files)
 			files = []*DiskFile{}
-			time.Sleep(5 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 
 		return nil
@@ -130,7 +110,7 @@ func scanLeakFiles() {
 	if len(files) > 0 {
 		checkFileLeak(files)
 		files = []*DiskFile{}
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 
 }
@@ -153,7 +133,7 @@ func checkFileLeak(files []*DiskFile) {
 
 	nameHashMap := map[string]struct{}{}
 	for _, v := range result.Files {
-		nameHashMap[v.file_hash] = struct{}{}
+		nameHashMap[v.File_hash] = struct{}{}
 	}
 
 	for _, file := range files {
@@ -164,7 +144,7 @@ func checkFileLeak(files []*DiskFile) {
 
 			basic.Logger.Debugln("deleted leak file", file.absPath)
 
-			deleteEmptyFolder(file.absPath)
+			DeleteEmptyFolder(file.absPath)
 		}
 	}
 }
