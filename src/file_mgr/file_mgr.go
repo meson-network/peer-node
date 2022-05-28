@@ -11,6 +11,12 @@ import (
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 )
 
+func RemoveFileFromDisk(fileHash string) {
+	fileAbsPath := GetFileAbsPath(fileHash)
+	os.Remove(fileAbsPath)
+	os.Remove(fileAbsPath + ".header")
+}
+
 func GetFileAbsPath(file_hash string) string {
 	return filepath.Join(cdn_cache_folder.GetInstance().Abs_path, UrlHashToPublicFileRelPath(file_hash), file_hash)
 }
@@ -27,7 +33,7 @@ func CleanDownloadingFiles() error {
 
 	for _, v := range result.Files {
 		//todo get abs path
-		fileAbsPath := cdn_cache_folder.GetInstance().GetCacheFileSaveFolderPath()
+		fileAbsPath := GetFileAbsPath(v.File_hash)
 
 		os.Remove(fileAbsPath)
 		os.Remove(fileAbsPath + ".header")

@@ -1,4 +1,4 @@
-package info
+package node_info
 
 import (
 	"github.com/coreservice-io/utils/rand_util"

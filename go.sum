@@ -203,6 +203,8 @@ github.com/coreservice-io/logrus_log v0.1.20 h1:wZAe/ddKLMvN6OJDctZP1D1AWU34r2Lf
 github.com/coreservice-io/logrus_log v0.1.20/go.mod h1:bEsSSRphetRNaKomr4kq59w5UUXvKW2YsI47gr2cw3s=
 github.com/coreservice-io/reference v0.0.8 h1:Fx1zU262ExmKs6EQhTITkgRCPlXfhrBN2V7hY5ga7Vk=
 github.com/coreservice-io/reference v0.0.8/go.mod h1:Kehi3lk+/a+hbK+4o+w4tUGlNdzezjewZ+1uKOkcP4Q=
+github.com/coreservice-io/safe_go v0.1.4 h1:jEr2dFgjaffXM8bjHxIo62ukCG54GL350L6u+kuDUJA=
+github.com/coreservice-io/safe_go v0.1.4/go.mod h1:mic9xep3Vv+0DLsQgKN0MlmmmuCGMaw4G4NM03l+coM=
 github.com/coreservice-io/utils v0.1.10 h1:wNDlTOdoZyrt59W4CFqa7P4hsOlgiQL2VaqFzUMZDqI=
 github.com/coreservice-io/utils v0.1.10/go.mod h1:1+QwZe3yIuRmP3k9W1iJx777rGfhMVb+n3Za3QZogbA=
 github.com/cosnicolaou/pbzip2 v1.0.1 h1:f5Ix000Rtl9tr0Ne33wNLtljGl2nAyR4ZirJrz9qg+0=

@@ -6,7 +6,7 @@
   "https_crt_path":"assets/cert/public.crt",
   "https_key_path":"assets/cert/private.key",
 
-  "cdn_cache_folder":"meson_cdn_cache",
+  "cdn_cache_folder":"m_cache",
   "cdn_cache_size":30,
 
   "api_doc_gen_search_dir":"cmd/default_/http/api",
@@ -17,5 +17,5 @@
   "local_log_level": "DEBU",
 
   "storage": true,
-  "storage_folder": "meson_storage"
+  "storage_folder": "m_storage"
 }

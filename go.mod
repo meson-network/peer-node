@@ -20,6 +20,7 @@ require (
 require (
 	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/cheggaaa/pb/v3 v3.0.8
+	github.com/coreservice-io/dns-common v0.0.23
 	github.com/coreservice-io/echo_middleware v0.1.17
 	github.com/coreservice-io/gorm_log v0.1.4
 	github.com/coreservice-io/hub v0.0.4
@@ -27,6 +28,7 @@ require (
 	github.com/coreservice-io/log v0.1.18
 	github.com/coreservice-io/logrus_log v0.1.20
 	github.com/coreservice-io/reference v0.0.8
+	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.10
 	github.com/meson-network/peer_common v0.0.0-20220510134055-749441f4027c
 	github.com/minio/minio v0.0.0-20220525024045-d8101573be91
@@ -64,7 +66,6 @@ require (
 	github.com/coreos/go-oidc v2.1.0+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
-	github.com/coreservice-io/dns-common v0.0.23 // indirect
 	github.com/cosnicolaou/pbzip2 v1.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

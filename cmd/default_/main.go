@@ -10,8 +10,9 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
-	"github.com/meson-network/peer-node/src/info"
+	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/cert_mgr"
+	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/remote/version_mgr"
 	"github.com/meson-network/peer-node/src/schedule_job"
 	"github.com/urfave/cli/v2"
@@ -19,20 +20,18 @@ import (
 
 func StartDefault(clictx *cli.Context) {
 
-	err := cert_mgr.Init()
-	if err != nil {
-		basic.Logger.Fatalln("initCert error", err)
-	}
-
-	RunMinio()
-
-	return
+	//err := cert_mgr.Init()
+	//if err != nil {
+	//	basic.Logger.Fatalln("initCert error", err)
+	//}
+	//RunMinio()
+	//return
 
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
 
 	//init cdn cache folder
-	err = cdn_cache_folder.Init()
+	err := cdn_cache_folder.Init()
 	if err != nil {
 		basic.Logger.Fatalln("init cdn cache folder err:", err)
 	}
@@ -42,10 +41,10 @@ func StartDefault(clictx *cli.Context) {
 	///////////////////
 
 	//token check first
-	//c_err := client.Init()
-	//if c_err != nil {
-	//	basic.Logger.Fatalln(c_err)
-	//}
+	c_err := client.Init()
+	if c_err != nil {
+		basic.Logger.Fatalln(c_err)
+	}
 
 	//clean not finished download job and files
 	file_mgr.CleanDownloadingFiles()
@@ -57,7 +56,7 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//init node
-	err = info.InitNode()
+	err = node_info.InitNode()
 	if err != nil {
 		basic.Logger.Fatalln("initNode error", err)
 	}

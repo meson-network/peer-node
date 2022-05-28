@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
+	"github.com/meson-network/peer-node/src/speed_tester_file"
 	"github.com/meson-network/peer-node/tools/http/api"
 )
 
@@ -40,6 +41,12 @@ func pauseHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, res)
 	}
 
+	err = speed_tester_file.CheckTesterFile()
+	if err != nil {
+		res.MetaStatus(-3, err.Error())
+		return ctx.JSON(http.StatusOK, res)
+	}
+
 	echo_plugin.GetInstance().SetPauseSeconds(int64(pauseTime))
 
 	res.MetaStatus(1, "success")
@@ -51,7 +58,7 @@ func pauseHandler(ctx echo.Context) error {
 // @Tags         health
 // @Produce      json
 // @Success      200 {object} MSG_RESP_HEALTH "server unix time"
-// @Router       /api/speed_tester/pause/{second} [get]
+// @Router       /api/speed_tester/test [get]
 func testHandler(ctx echo.Context) error {
 	//check token
 	err := CheckToken(ctx)
@@ -59,8 +66,7 @@ func testHandler(ctx echo.Context) error {
 		return ctx.HTML(http.StatusUnauthorized, "")
 	}
 
-	//check file exist
-	//todo send file
+	testFilePath := speed_tester_file.GetSpeedTesterFilePath()
 
-	return ctx.File("")
+	return ctx.File(testFilePath)
 }

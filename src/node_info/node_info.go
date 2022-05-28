@@ -1,4 +1,4 @@
-package info
+package node_info
 
 type NodeInfo struct {
 	Port int `json:"port"`
