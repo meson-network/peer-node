@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/download_mgr"
-	"github.com/meson-network/peer-node/src/remote/download_callback"
+	"github.com/meson-network/peer-node/src/remote/client"
 	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer_common/download"
 )
@@ -46,7 +46,7 @@ func downloadTaskHandler(ctx echo.Context) error {
 	}
 
 	//do download
-	go download_mgr.StartDownloader(msg.Origin_url, msg.File_hash, download_callback.SuccessCallback, download_callback.FailedCallback)
+	go download_mgr.StartDownloader(msg.Origin_url, msg.File_hash, client.SuccessCallback, client.FailedCallback)
 
 	res.MetaStatus(1, "success")
 	return ctx.JSON(http.StatusOK, res)

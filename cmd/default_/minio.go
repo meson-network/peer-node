@@ -6,7 +6,7 @@ import (
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/configuration"
-	"github.com/meson-network/peer-node/src/remote/cert_mgr"
+	"github.com/meson-network/peer-node/src/cert_mgr"
 	minio "github.com/minio/minio/cmd"
 )
 

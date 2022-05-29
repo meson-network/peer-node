@@ -3,16 +3,15 @@ package file_request
 import (
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/coreservice-io/dns-common/spec00"
 	"github.com/coreservice-io/safe_go"
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
+	"github.com/meson-network/peer-node/src/access_key_mgr"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
-	"github.com/meson-network/peer-node/src/remote/file_missing"
 	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer_common"
 )
@@ -20,38 +19,6 @@ import (
 func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 	// https://spec00-xxsdfsdffsdf-06-pzname.xxx.com/path1/path2/path3/1.jpg
 	httpServer.GET("/*", func(ctx echo.Context) error {
-		//todo validate access_token
-		//get random key in path
-		v := strings.Split(ctx.Request().RequestURI, peer_common.MesonAccessTokenMark)
-		accessKey := ""
-		if len(v) == 2 && v[1] != "" {
-			accessKey = v[1]
-		} else {
-			//return c.String(http.StatusUnauthorized, "invalid random key")
-			ctx.Error(errors.New("invalid access key"))
-			return nil
-		}
-		//check random key
-		clientToken, timeStamp, err := ParserAccessToken(accessKey)
-		if err != nil {
-			ctx.Error(errors.New("invalid access key"))
-			return nil
-		}
-		if clientToken != client.Token {
-			ctx.Error(errors.New("invalid access key"))
-			return nil
-		}
-		if time.Now().UTC().Unix() > timeStamp+300 || time.Now().UTC().Unix() < timeStamp-300 { //+- 5 minutes
-			ctx.Error(errors.New("invalid access key"))
-			return nil
-		}
-
-		//get fileName
-		fileName := v[0]
-		//check fileName legal
-
-		//ctx.Set("fileName", fileName)
-
 		//get pullzone
 		_, optionalStr, err := spec00.Parser(ctx.Request().Host)
 		if err != nil {
@@ -64,9 +31,39 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 		}
 		pullZone := optionalStr[0]
 
+		//validate access_token
+		//get random key in path
+		v := strings.Split(ctx.Request().RequestURI, peer_common.MesonAccessKeyMark)
+		accessKey := ""
+		if len(v) == 1 {
+			//no mark, no key
+			//redirect to server
+			redirectUrl := "https://pz-" + pullZone + ".meson.network" + v[0]
+			return ctx.Redirect(302, redirectUrl)
+		} else if len(v) == 2 && v[1] == "" {
+			//have mark, no key
+			filePath := strings.Replace(ctx.Request().RequestURI, peer_common.MesonAccessKeyMark, "", 1)
+			//redirect to server
+			redirectUrl := "https://pz-" + pullZone + ".meson.network" + filePath
+			return ctx.Redirect(302, redirectUrl)
+		} else if len(v) == 2 && v[1] != "" {
+			//have key
+			//check random key
+			accessKey = v[1]
+			if !access_key_mgr.GetInstance().CheckRandomKey(accessKey) {
+				ctx.Error(errors.New("invalid access key"))
+			}
+		} else {
+			ctx.Error(errors.New("invalid access key"))
+			return nil
+		}
+
+		//get fileName
+		fileName := v[0]
+		//todo check fileName legal
+
 		//get fileHash
 		fileHash := peer_common.GenFileHash(pullZone, fileName) //to hash
-		//ctx.Set("fileHash", fileHash)
 
 		basic.Logger.Debugln(ctx.Request().URL)
 		basic.Logger.Debugln("pullzone:", pullZone)
@@ -103,7 +100,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 			//notify server file missing
 			if fileIsMissing {
 				safe_go.Go(func(args ...interface{}) {
-					file_missing.FileMissing(fileHash)
+					client.FileMissing(fileHash)
 				}, nil)
 			}
 
@@ -121,9 +118,4 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 		err = httpServer.FileWithPause(ctx, file_abs, file_header_json, ignoreHeader)
 		return err
 	})
-}
-
-func ParserAccessToken(accessToken string) (nodeToken string, timeStamp int64, err error) {
-
-	return "", 0, err
 }

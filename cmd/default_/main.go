@@ -2,19 +2,23 @@ package default_
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
+	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
+	"github.com/meson-network/peer-node/src/access_key_mgr"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
+	"github.com/meson-network/peer-node/src/cert_mgr"
+	"github.com/meson-network/peer-node/src/common/dbkv"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/node_info"
-	"github.com/meson-network/peer-node/src/remote/cert_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
-	"github.com/meson-network/peer-node/src/remote/version_mgr"
 	"github.com/meson-network/peer-node/src/schedule_job"
+	"github.com/meson-network/peer-node/src/version_mgr"
 	"github.com/urfave/cli/v2"
 )
 
@@ -41,16 +45,38 @@ func StartDefault(clictx *cli.Context) {
 	///////////////////
 
 	//token check first
-	c_err := client.Init()
-	if c_err != nil {
-		basic.Logger.Fatalln(c_err)
+	err = client.Init()
+	if err != nil {
+		basic.Logger.Fatalln(err)
+	}
+
+	//version_mgr
+	err = version_mgr.Init()
+	if err != nil {
+		basic.Logger.Fatalln(err)
+	}
+
+	//accessKey
+	curKey := ""
+	preKey := ""
+	accKey, err := dbkv.GetKey(sqlite_plugin.GetInstance(), "access_key", false, false)
+	if err == nil && accKey != "" {
+		keys := strings.Split(accKey, ",")
+		if len(keys) == 2 {
+			curKey = keys[0]
+			preKey = keys[1]
+		}
+	}
+	err = access_key_mgr.Init(curKey, preKey)
+	if err != nil {
+		basic.Logger.Fatalln(err)
 	}
 
 	//clean not finished download job and files
 	file_mgr.CleanDownloadingFiles()
 
 	//check cache folder
-	err = cdn_cache_folder.GetInstance().CheckFolder(10)
+	err = cdn_cache_folder.GetInstance().CheckFolder(1)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}
@@ -101,9 +127,10 @@ func start_jobs() {
 
 	/////////
 	schedule_job.CheckVersion()
-	schedule_job.HeartBeat()
 	schedule_job.ScanExpirationFile()
 	schedule_job.UpdateCert()
 	schedule_job.ScanLeakFile()
+	schedule_job.RenewAccessKey()
 
+	schedule_job.HeartBeat()
 }

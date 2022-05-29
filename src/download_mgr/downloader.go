@@ -122,13 +122,13 @@ func StartDownloader(
 
 	nowTime := time.Now().UTC().Unix()
 	file_mgr.CreateFile(&file_mgr.FileModel{
-		File_hash:              file_hash,
-		Last_req_unixtime:      nowTime,
-		Last_scan_unixtime:     nowTime,
-		Last_download_unixtime: nowTime,
-		Size_byte:              0,
-		Rel_path:               file_relpath,
-		Status:                 file_mgr.STATUS_DOWNLOADING,
+		File_hash:         file_hash,
+		Last_req_unixtime: nowTime,
+		//Last_scan_unixtime:     nowTime,
+		//Last_download_unixtime: nowTime,
+		Size_byte: 0,
+		Rel_path:  file_relpath,
+		Status:    file_mgr.STATUS_DOWNLOADING,
 		//Type:                   file_mgr.TYPE_PUBLIC,
 	})
 
@@ -176,10 +176,10 @@ func StartDownloader(
 
 			nowTime = time.Now().UTC().Unix()
 			file_mgr.UpdateFile(map[string]interface{}{
-				"last_req_unixtime":      nowTime,
-				"last_scan_unixtime":     nowTime,
-				"last_download_unixtime": nowTime,
-				"size_byte":              resp.BytesComplete(),
+				"last_req_unixtime": nowTime,
+				//"last_scan_unixtime":     nowTime,
+				//"last_download_unixtime": nowTime,
+				"size_byte": resp.BytesComplete(),
 			}, file_hash)
 
 		case <-resp.Done:

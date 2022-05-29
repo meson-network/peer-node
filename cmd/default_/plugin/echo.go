@@ -6,7 +6,7 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
-	"github.com/meson-network/peer-node/src/remote/cert_mgr"
+	"github.com/meson-network/peer-node/src/cert_mgr"
 	tool_errors "github.com/meson-network/peer-node/tools/errors"
 )
 

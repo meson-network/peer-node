@@ -87,7 +87,7 @@ func QueryFile(file_hash *string, less_than_req_unixtime *int64, status *[]strin
 	}
 
 	if less_than_req_unixtime != nil {
-		query.Where("less_than_req_unixtime < ?", *less_than_req_unixtime)
+		query.Where("last_req_unixtime < ?", *less_than_req_unixtime)
 	}
 
 	if status != nil {

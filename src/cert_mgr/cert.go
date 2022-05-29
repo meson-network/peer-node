@@ -13,8 +13,6 @@ import (
 	"github.com/meson-network/peer-node/src/remote/client"
 	error_tool "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/file"
-	"github.com/meson-network/peer-node/tools/http/api"
-	"github.com/meson-network/peer_common/dns"
 )
 
 type CertMgr struct {
@@ -67,13 +65,9 @@ func GetInstance() *CertMgr {
 func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 
 	//check hash
-	hashRes := &dns.Msg_Resp_CertHash{}
-	err := api.Get(client.EndPoint+"/api/node/cert/hash", client.Token, hashRes)
+	certHash, err := client.GetCertHash()
 	if err != nil {
 		return err
-	}
-	if hashRes.Meta_status <= 0 {
-		return errors.New(hashRes.Meta_message)
 	}
 
 	old_crt_content, read_err := ioutil.ReadFile(c.Crt_path)
@@ -86,47 +80,42 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 	}
 
 	old_content_hash := hash_util.MD5HashString(string(old_crt_content) + string(old_key_content))
-	if old_content_hash == hashRes.Hash {
+	if old_content_hash == certHash {
 		return nil
 	}
 
-	res := &dns.Msg_Resp_Cert{}
-	err = api.Get(client.EndPoint+"/api/node/cert", client.Token, res)
-
+	//need update
+	crt, key, err := client.GetCert()
 	if err != nil {
 		return err
-	}
-
-	if res.Meta_status <= 0 {
-		return errors.New(res.Meta_message)
 	}
 
 	///////////////
 	change := false
 	//read old .crt
-	if string(old_crt_content) != res.Crt {
+	if string(old_crt_content) != crt {
 		change = true
 	}
 
 	//read old .key
-	if string(old_key_content) != res.Key {
+	if string(old_key_content) != key {
 		change = true
 	}
 
 	//update the file
 	if change {
-		crt_file_err := file.FileOverwrite(c.Crt_path, res.Crt)
+		crt_file_err := file.FileOverwrite(c.Crt_path, crt)
 		if crt_file_err != nil {
 			return crt_file_err
 		}
 
-		key_file_err := file.FileOverwrite(c.Key_path, res.Key)
+		key_file_err := file.FileOverwrite(c.Key_path, key)
 		if key_file_err != nil {
 			return key_file_err
 		}
 
 		if success_callback != nil {
-			success_callback(res.Crt, res.Key)
+			success_callback(crt, key)
 		}
 	}
 

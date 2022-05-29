@@ -1,51 +1,62 @@
 package node_info
 
-type NodeInfo struct {
-	Port int `json:"port"`
+import (
+	"fmt"
+	"time"
 
-	Cpu_cores      uint64  `json:"cpu_cores"`
-	Cpu_percentage float64 `json:"cpu_percentage"`
-	Mem_total      uint64  `json:"mem_total"`
-	Mem_used       uint64  `json:"mem_used"`
-	Op_sys         string  `json:"op_sys"`
-	Disk_total     uint64  `json:"disk_total"`
-	Disk_available uint64  `json:"disk_available"`
+	"github.com/meson-network/peer-node/src/cdn_cache_folder"
+	"github.com/meson-network/peer_common/heart_beat"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/host"
+	"github.com/shirou/gopsutil/v3/mem"
+)
+
+type NodeInfo struct {
+	Stor_total_bytes int64 `json:"stor_total_bytes"`
+	Stor_used_bytes  int64 `json:"stor_used_bytes"`
+
+	heart_beat.HardwareInfo
 }
 
-func GetMachineStatus() {
-	//if s.Status == nil {
-	//	s.Status = &meson_msg.TerminalStatesMsg{}
-	//}
-	//
-	//if h, err := host.Info(); err == nil {
-	//	s.Status.OS = fmt.Sprintf("%v:%v(%v):%v", h.OS, h.Platform, h.PlatformFamily, h.PlatformVersion)
-	//}
-	//
-	//if s.Status.CPU == "" {
-	//	if c, err := cpu.Info(); err == nil {
-	//		s.Status.CPU = c[0].ModelName
-	//	}
-	//}
-	//
-	////need update data
-	////memory
-	//if v, err := mem.VirtualMemory(); err == nil {
-	//	s.Status.MemTotal = int64(v.Total)
-	//	s.Status.MemAvailable = int64(v.Available)
-	//}
-	//
-	////cpu usage
-	//if percent, err := cpu.Percent(time.Second, false); err != nil || len(percent) <= 0 {
-	//	basic.Logger.Debugln("failed to get cup usage", "err", err)
-	//} else {
-	//	s.Status.CpuUsage = percent[0]
-	//}
-	//
-	//s.Status.Version = versionMgr.GetInstance().CurrentVersion
-	//
-	////disk
-	//total, used, _ := diskMgr.GetInstance().GetSpaceInfo()
-	//s.Status.CdnDiskTotal = total
-	//s.Status.CdnDiskUsed = used
+var info = &NodeInfo{}
 
+func GetNodeInfo() *NodeInfo {
+	refreshInfo()
+	return info
+}
+
+func refreshInfo() {
+	//hardware
+	//cpu
+	if c, err := cpu.Info(); err == nil {
+		info.Cpu = c[0].ModelName
+		info.Cpu_count = int64(len(c))
+	}
+
+	//cpu usage
+	if percent, err := cpu.Percent(time.Second, false); err == nil || len(percent) > 0 {
+		info.Cpu_percentage = percent[0]
+	}
+
+	//system info
+	if h, err := host.Info(); err == nil {
+		info.Op_sys = fmt.Sprintf("%v:%v(%v):%v", h.OS, h.Platform, h.PlatformFamily, h.PlatformVersion)
+	}
+
+	//memory
+	if v, err := mem.VirtualMemory(); err == nil {
+		info.Mem_total_bytes = int64(v.Total)
+		info.Mem_used_bytes = int64(v.Used)
+	}
+
+	//disk
+	if d, err := disk.Usage("/"); err == nil {
+		info.Disk_total_bytes = int64(d.Total)
+		info.Disk_used_bytes = int64(d.Used)
+	}
+
+	//cdn cache space
+	info.Stor_total_bytes = cdn_cache_folder.GetInstance().Cache_provide_size
+	info.Stor_used_bytes = cdn_cache_folder.GetInstance().Cache_used_size
 }

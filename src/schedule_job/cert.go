@@ -3,7 +3,7 @@ package schedule_job
 import (
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/cmd/default_/http"
-	"github.com/meson-network/peer-node/src/remote/cert_mgr"
+	"github.com/meson-network/peer-node/src/cert_mgr"
 )
 
 func UpdateCert() {
@@ -19,7 +19,7 @@ func UpdateCert() {
 		},
 		//onPanic callback
 		nil, //todo upload panic
-		3600,
+		60,  //todo 3600 in production
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

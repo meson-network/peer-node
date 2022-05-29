@@ -1,54 +1,105 @@
 package dbkv
 
 import (
+	"errors"
+
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/reference_plugin"
+	"github.com/meson-network/peer-node/tools/smart_cache"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func SetDBKV(tx *gorm.DB, keystr string, value string) error {
-	err := tx.Table("dbkv").Clauses(clause.OnConflict{UpdateAll: true}).Create(&DBKVModel{Key: keystr, Value: value}).Error
-	if err != nil {
-		return err
+	value, err := GetKey(tx, keystr, false, false)
+	if err == nil {
+		//exist update
+		err := tx.Table("dbkv").Where("`key`=?", keystr).Update("value", value).Error
+		if err != nil {
+			return err
+		}
+		//refresh
+		GetKey(tx, keystr, false, true)
+		return nil
+	} else {
+		//create
+		err := tx.Table("dbkv").Create(&DBKVModel{Key: keystr, Value: value}).Error
+		if err != nil {
+			return err
+		}
+		//refresh
+		GetKey(tx, keystr, false, true)
+		return nil
 	}
-	GetDBKV(tx, keystr, true)
-	return nil
 }
 
 func DeleteDBKV(tx *gorm.DB, keystr string) error {
 	if err := tx.Table("dbkv").Where(" `key` = ?", keystr).Delete(&DBKVModel{}).Error; err != nil {
 		return err
 	}
-	GetDBKV(tx, keystr, true)
+	GetKey(tx, keystr, false, true)
 	return nil
 }
 
-func GetDBKV(tx *gorm.DB, keyStr string, updateCache bool) (*DBKVModel, error) {
+func GetKey(tx *gorm.DB, key string, fromCache bool, updateCache bool) (string, error) {
+	result, err := QueryDBKV(tx, nil, &[]string{key}, fromCache, updateCache)
+	if err != nil {
+		return "", err
+	}
+	if len(result.Kv) == 0 {
+		return "", errors.New("key not exist")
+	}
+	return result.Kv[0].Value, nil
+}
 
-	key := "dbkv" + ":" + keyStr
+type QueryKvResult struct {
+	Kv         []*DBKVModel
+	TotalCount int64
+}
 
-	result, _ := reference_plugin.GetInstance().Get(key)
-	if result != nil {
-		basic.Logger.Debugln("GetDBKV hit from reference")
-		return result.(*DBKVModel), nil
+func QueryDBKV(tx *gorm.DB, id *int64, keys *[]string, fromCache bool, updateCache bool) (*QueryKvResult, error) {
+
+	//gen_key
+	ck := smart_cache.NewConnectKey("dbkv")
+	ck.C_Int64_Ptr("id", id).
+		C_Str_Array_Ptr("keys", keys)
+
+	key := ck.String()
+
+	if fromCache {
+		// try to get from reference_plugin
+		result := smart_cache.Ref_Get(reference_plugin.GetInstance(), key)
+		if result != nil {
+			basic.Logger.Debugln("QueryUser hit from reference_plugin")
+			return result.(*QueryKvResult), nil
+		}
 	}
 
-	//after cache miss ,try from sqlite
-	basic.Logger.Debugln("GetDBKV try from database")
+	//after cache miss ,try from remote database
+	basic.Logger.Debugln("QueryDBKV try from database")
 
-	queryResults := []*DBKVModel{}
-	err := tx.Table("dbkv").Where("`key` = ?", keyStr).Find(&queryResults).Error
+	queryResult := &QueryKvResult{
+		Kv:         []*DBKVModel{},
+		TotalCount: 0,
+	}
 
+	query := tx.Table("dbkv")
+	if id != nil {
+		query.Where("id = ?", *id)
+	}
+	if keys != nil {
+		query.Where("dbkv.key IN ?", *keys)
+	}
+
+	query.Count(&queryResult.TotalCount)
+
+	err := query.Find(&queryResult.Kv).Error
 	if err != nil {
-		basic.Logger.Errorln("GetDBKV err :", err)
+		basic.Logger.Errorln("QueryDBKV err :", err)
 		return nil, err
 	} else {
-		var result *DBKVModel = nil
-		if len(queryResults) != 0 {
-			result = queryResults[0]
+		if updateCache {
+			smart_cache.Ref_Set(reference_plugin.GetInstance(), key, queryResult)
 		}
-		reference_plugin.GetInstance().Set(key, result, 900)
-		return result, nil
+		return queryResult, nil
 	}
 }

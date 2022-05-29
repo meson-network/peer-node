@@ -2,21 +2,21 @@ package schedule_job
 
 import (
 	"github.com/coreservice-io/job"
-	"github.com/meson-network/peer-node/src/version_mgr"
+	"github.com/meson-network/peer-node/src/access_key_mgr"
 )
 
-func CheckVersion() {
-	const jobName = "CheckVersion"
+func RenewAccessKey() {
+	const jobName = "RenewAccessKey"
 
 	job.Start(
 		//job process
 		jobName,
 		func() {
-			version_mgr.GetInstance().CheckUpdate()
+			access_key_mgr.GetInstance().GenNewRandomKey()
 		},
 		//onPanic callback
 		nil, //todo upload panic
-		60,
+		300,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic
