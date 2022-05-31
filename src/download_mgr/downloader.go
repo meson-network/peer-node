@@ -44,7 +44,8 @@ func PreCheckTask(remoteUrl string) error {
 	}
 
 	//todo check space
-	if true {
+	freeSize := cdn_cache_folder.GetInstance().GetFreeSize()
+	if freeSize < cdn_cache_folder.FreeSpaceLine {
 		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_DISK_SPACE, "have not enough space")
 	}
 
@@ -214,6 +215,7 @@ func StartDownloader(
 					"status":                 file_mgr.STATUS_DOWNLOADED,
 				}, file_hash)
 				callback_succeed(file_hash, des_path, resp.BytesComplete())
+				cdn_cache_folder.GetInstance().AddCacheUsedSize(resp.BytesComplete())
 			}
 			return
 		}

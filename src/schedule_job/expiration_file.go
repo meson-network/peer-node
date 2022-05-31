@@ -2,10 +2,13 @@ package schedule_job
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/basic"
+	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
+	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/tools/http/api"
@@ -22,6 +25,8 @@ func ScanExpirationFile() {
 		jobName,
 		func() {
 			reportExpiredFiles()
+			//sync cache folder size
+			syncCacheFolderSize()
 		},
 		//onPanic callback
 		nil, //todo upload panic
@@ -81,6 +86,19 @@ func reportExpiredFiles() error {
 			os.Remove(absPath)
 			os.Remove(absPath + ".header")
 			file_mgr.DeleteFile(v.File_hash)
+			cdn_cache_folder.GetInstance().ReduceCacheUsedSize(v.Size_byte)
 		}
 	}
+}
+
+func syncCacheFolderSize() {
+	var size int64
+	err := sqlite_plugin.GetInstance().Debug().Table("file").Select("sum(size_byte)").Where("status='DOWNLOADED'").Scan(&size).Error
+	if err != nil {
+		if !strings.Contains(err.Error(), "converting NULL to int64 is unsupported") {
+			basic.Logger.Errorln("syncCacheFolderSize err:", err)
+		}
+		return
+	}
+	cdn_cache_folder.GetInstance().SetCacheUsedSize(size)
 }

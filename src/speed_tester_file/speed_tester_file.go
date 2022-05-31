@@ -17,7 +17,7 @@ func GetSpeedTesterFilePath() string {
 func CheckTesterFile() error {
 	absPath := path_util.ExE_Path(fileName)
 	f, err := os.Stat(absPath)
-	if err != nil || f.Size() != 32*1024*1600 {
+	if err != nil || f.Size() != 32*1024*3200 { //100M
 		genErr := genSpeedTesterFile()
 		if genErr != nil {
 			return genErr
@@ -41,8 +41,8 @@ func genSpeedTesterFile() error {
 	}
 	defer f.Close()
 
-	// 1600 round gen a 50M file
-	for j := 0; j < 1600; j++ {
+	// 1600 round gen a 100M file
+	for j := 0; j < 3200; j++ {
 		_, err = f.Write(data)
 		if err != nil {
 			return err

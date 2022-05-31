@@ -10,6 +10,7 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
+	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
 	pErr "github.com/meson-network/peer-node/tools/errors"
@@ -70,7 +71,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 		basic.Logger.Debugln("file:", fileName)
 		basic.Logger.Debugln("hash:", fileHash)
 
-		file_abs, file_header_json, file_abs_err := file_mgr.RequestPublicFile(fileHash)
+		file_abs, file_header_json, file_info, file_abs_err := file_mgr.RequestPublicFile(fileHash)
 		if file_abs_err != nil {
 			errCode, err := pErr.ResolveStatusError(file_abs_err)
 			basic.Logger.Errorln("file_mgr.RequestPublicFile errCode:", errCode, "err:", err)
@@ -87,6 +88,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 				fileIsMissing = true
 				//delete from db
 				file_mgr.DeleteFile(fileHash)
+				cdn_cache_folder.GetInstance().ReduceCacheUsedSize(file_info.Size_byte)
 			case -10005 - 10006 - 10007:
 				//-10005 file header not exist
 				//-10006 read file header error
@@ -95,6 +97,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 				//delete from db and disk
 				file_mgr.DeleteFile(fileHash)
 				file_mgr.RemoveFileFromDisk(fileHash)
+				cdn_cache_folder.GetInstance().ReduceCacheUsedSize(file_info.Size_byte)
 			}
 
 			//notify server file missing

@@ -61,10 +61,10 @@ func pauseHandler(ctx echo.Context) error {
 // @Router       /api/speed_tester/test [get]
 func testHandler(ctx echo.Context) error {
 	//check token
-	err := CheckToken(ctx)
-	if err != nil {
-		return ctx.HTML(http.StatusUnauthorized, "")
-	}
+	//err := CheckToken(ctx)
+	//if err != nil {
+	//	return ctx.HTML(http.StatusUnauthorized, "")
+	//}
 
 	testFilePath := speed_tester_file.GetSpeedTesterFilePath()
 

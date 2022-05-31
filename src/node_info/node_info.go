@@ -58,5 +58,5 @@ func refreshInfo() {
 
 	//cdn cache space
 	info.Stor_total_bytes = cdn_cache_folder.GetInstance().Cache_provide_size
-	info.Stor_used_bytes = cdn_cache_folder.GetInstance().Cache_used_size
+	info.Stor_used_bytes = cdn_cache_folder.GetInstance().GetMesonCacheUsedSize()
 }

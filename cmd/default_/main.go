@@ -18,6 +18,7 @@ import (
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/schedule_job"
+	"github.com/meson-network/peer-node/src/speed_tester_file"
 	"github.com/meson-network/peer-node/src/version_mgr"
 	"github.com/urfave/cli/v2"
 )
@@ -73,13 +74,17 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//clean not finished download job and files
-	file_mgr.CleanDownloadingFiles()
+	err = file_mgr.CleanDownloadingFiles()
+	if err != nil {
+		basic.Logger.Fatalln(err)
+	}
 
 	//check cache folder
 	err = cdn_cache_folder.GetInstance().CheckFolder(1)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}
+	speed_tester_file.CheckTesterFile()
 
 	//init node
 	err = node_info.InitNode()

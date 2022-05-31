@@ -18,47 +18,47 @@ func UrlHashToPublicFileRelPath(file_hash string) string {
 }
 
 //return abs_file_path file_header_json error
-func RequestPublicFile(file_hash string) (string, map[string][]string, error) {
+func RequestPublicFile(file_hash string) (string, map[string][]string, *FileModel, error) {
 
 	file, err := GetFile(file_hash, true, true)
 	if err != nil {
-		return "", nil, pErr.NewStatusError(-10001, err.Error())
+		return "", nil, nil, pErr.NewStatusError(-10001, err.Error())
 	}
 
 	if file == nil {
-		return "", nil, pErr.NewStatusError(-10002, "no such file")
+		return "", nil, nil, pErr.NewStatusError(-10002, "no such file")
 	}
 
 	if file.Status != STATUS_DOWNLOADED {
-		return "", nil, pErr.NewStatusError(-10003, "file not downloaded")
+		return "", nil, file, pErr.NewStatusError(-10003, "file not downloaded")
 	}
 
 	absPath := GetFileAbsPath(file_hash)
 	exist, err := path_util.AbsPathExist(absPath)
 	if err != nil || !exist {
-		return "", nil, pErr.NewStatusError(-10004, "file not exist on disk")
+		return "", nil, file, pErr.NewStatusError(-10004, "file not exist on disk")
 	}
 
 	headerAbsPath := absPath + ".header"
 	exist, err = path_util.AbsPathExist(headerAbsPath)
 	if err != nil || !exist {
-		return "", nil, pErr.NewStatusError(-10005, "file header not exist on disk")
+		return "", nil, file, pErr.NewStatusError(-10005, "file header not exist on disk")
 	}
 
 	hfile, hfile_err := ioutil.ReadFile(headerAbsPath)
 	if hfile_err != nil {
-		return "", nil, pErr.NewStatusError(-10006, "file header read error")
+		return "", nil, file, pErr.NewStatusError(-10006, "file header read error")
 	}
 
 	header_json := make(map[string][]string)
 	header_json_err := json.Unmarshal([]byte(hfile), &header_json)
 	if header_json_err != nil {
-		return "", nil, pErr.NewStatusError(-10007, "file header json error")
+		return "", nil, file, pErr.NewStatusError(-10007, "file header json error")
 	}
 
 	SetLastReqTime(file_hash)
 
-	return absPath, header_json, nil
+	return absPath, header_json, file, nil
 }
 
 func SetLastReqTime(file_hash string) {

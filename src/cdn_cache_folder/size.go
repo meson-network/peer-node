@@ -13,25 +13,31 @@ import (
 
 var data = make([]byte, 32*1024, 32*1024) // Initialize an empty byte slice
 
-func (cf *CdnCacheFolder) getFreeSize() int64 {
+func (cf *CdnCacheFolder) GetFreeSize() int64 {
 	cf.sizeLock.RLock()
 	defer cf.sizeLock.RUnlock()
 	return cf.Cache_provide_size - cf.Cache_used_size
 }
 
-func (cf *CdnCacheFolder) addCacheUsedSize(size int64) {
+func (cf *CdnCacheFolder) SetCacheUsedSize(size int64) {
+	cf.sizeLock.Lock()
+	defer cf.sizeLock.Unlock()
+	cf.Cache_used_size = size
+}
+
+func (cf *CdnCacheFolder) AddCacheUsedSize(size int64) {
 	cf.sizeLock.Lock()
 	defer cf.sizeLock.Unlock()
 	cf.Cache_used_size += size
 }
 
-func (cf *CdnCacheFolder) reduceCacheUsedSize(size int64) {
+func (cf *CdnCacheFolder) ReduceCacheUsedSize(size int64) {
 	cf.sizeLock.Lock()
 	defer cf.sizeLock.Unlock()
 	cf.Cache_used_size -= size
 }
 
-func (cf *CdnCacheFolder) getMesonCacheUsedSize() int64 {
+func (cf *CdnCacheFolder) GetMesonCacheUsedSize() int64 {
 	cf.sizeLock.RLock()
 	defer cf.sizeLock.RUnlock()
 	return cf.Cache_used_size

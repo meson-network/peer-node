@@ -39,6 +39,7 @@ func DeclareApi(httpServer *echo_plugin.EchoServer) {
 
 	config_download(httpServer)
 	config_heart_beat_callback(httpServer)
+	config_speed_tester(httpServer)
 }
 
 func ConfigApi(httpServer *echo_plugin.EchoServer) {
