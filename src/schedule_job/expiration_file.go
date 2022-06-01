@@ -92,13 +92,18 @@ func reportExpiredFiles() error {
 }
 
 func syncCacheFolderSize() {
-	var size int64
-	err := sqlite_plugin.GetInstance().Debug().Table("file").Select("sum(size_byte)").Where("status='DOWNLOADED'").Scan(&size).Error
+	//var size int64
+	var size struct {
+		TotalSize int64 `json:"total_size"`
+	}
+	err := sqlite_plugin.GetInstance().Table("file").Select("sum(size_byte) as total_size").Where("status='DOWNLOADED'").Take(&size).Error
 	if err != nil {
 		if !strings.Contains(err.Error(), "converting NULL to int64 is unsupported") {
 			basic.Logger.Errorln("syncCacheFolderSize err:", err)
 		}
 		return
 	}
-	cdn_cache_folder.GetInstance().SetCacheUsedSize(size)
+	//basic.Logger.Infoln(size)
+
+	cdn_cache_folder.GetInstance().SetCacheUsedSize(size.TotalSize)
 }
