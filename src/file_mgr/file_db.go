@@ -95,7 +95,7 @@ func QueryFile(file_hash *string, less_than_req_unixtime *int64, status *[]strin
 	}
 
 	if file_hashs != nil {
-		query.Where("status IN ?", *file_hashs)
+		query.Where("file_hash IN ?", *file_hashs)
 	}
 
 	query.Count(&queryResult.TotalCount)
@@ -114,7 +114,7 @@ func QueryFile(file_hash *string, less_than_req_unixtime *int64, status *[]strin
 	} else {
 		if updateRef {
 			basic.Logger.Debugln("GetFile updateRef")
-			reference_plugin.GetInstance().Set(key, queryResult, 1800) //30 mins, long cache time to make things fast
+			reference_plugin.GetInstance().Set(key, queryResult, 5) //30 mins, long cache time to make things fast //todo 5sec for test
 		}
 		return queryResult, nil
 	}

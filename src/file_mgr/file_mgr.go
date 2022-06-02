@@ -18,7 +18,7 @@ func RemoveFileFromDisk(fileHash string) {
 }
 
 func GetFileAbsPath(file_hash string) string {
-	return filepath.Join(cdn_cache_folder.GetInstance().Abs_path, UrlHashToPublicFileRelPath(file_hash), file_hash)
+	return filepath.Join(cdn_cache_folder.GetInstance().Abs_path, cdn_cache_folder.CacheFileFolder, UrlHashToPublicFileRelPath(file_hash))
 }
 
 func CleanDownloadingFiles() error {
@@ -130,6 +130,7 @@ func checkFileLeak(files []*DiskFile) {
 	result, err := QueryFile(nil, nil, nil, &fileNames, 0, 0, false, false)
 	if err != nil {
 		basic.Logger.Errorln("checkFileLeak QueryFile err:", err)
+		return
 	}
 
 	//all file find in db

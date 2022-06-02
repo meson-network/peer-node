@@ -79,7 +79,7 @@ func PreCheckTask(remoteUrl string) error {
 func StartDownloader(
 	remoteUrl string,
 	file_hash string,
-	callback_succeed func(filehash string, file_local_abs_path string, file_size int64),
+	callback_succeed func(filehash string, file_size int64),
 	callback_failed func(filehash string, download_code int),
 ) {
 
@@ -101,12 +101,13 @@ func StartDownloader(
 			if err != nil || !exist {
 				file_mgr.DeleteFile(file_hash)
 			} else {
-				callback_succeed(file_hash, des_path, old_file.Size_byte)
+				callback_succeed(file_hash, old_file.Size_byte)
+				return
 			}
 		} else {
 			callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OTHER_DOWNLOADING)
+			return
 		}
-		return
 	}
 
 	////////system limit checker//////////
@@ -214,7 +215,7 @@ func StartDownloader(
 					"size_byte":              resp.BytesComplete(),
 					"status":                 file_mgr.STATUS_DOWNLOADED,
 				}, file_hash)
-				callback_succeed(file_hash, des_path, resp.BytesComplete())
+				callback_succeed(file_hash, resp.BytesComplete())
 				cdn_cache_folder.GetInstance().AddCacheUsedSize(resp.BytesComplete())
 			}
 			return

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/coreservice-io/job"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
 	"github.com/meson-network/peer-node/src/node_info"
@@ -45,5 +46,8 @@ func sendHeartBeat() {
 		Version:    version_mgr.NodeVersion,
 		Access_key: accessKey,
 	}
-	client.SendHeartBeat(postData)
+	_, err := client.SendHeartBeat(postData)
+	if err != nil {
+		basic.Logger.Errorln("SendHeartBeat err:", err)
+	}
 }

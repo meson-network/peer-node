@@ -136,6 +136,7 @@ func start_jobs() {
 	schedule_job.UpdateCert()
 	schedule_job.ScanLeakFile()
 	schedule_job.RenewAccessKey()
+	schedule_job.DeleteEmptyFolder()
 
 	schedule_job.HeartBeat()
 }

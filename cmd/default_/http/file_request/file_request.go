@@ -53,6 +53,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 			accessKey = v[1]
 			if !access_key_mgr.GetInstance().CheckRandomKey(accessKey) {
 				ctx.Error(errors.New("invalid access key"))
+				return nil
 			}
 		} else {
 			ctx.Error(errors.New("invalid access key"))

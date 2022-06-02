@@ -34,7 +34,11 @@ func (cf *CdnCacheFolder) AddCacheUsedSize(size int64) {
 func (cf *CdnCacheFolder) ReduceCacheUsedSize(size int64) {
 	cf.sizeLock.Lock()
 	defer cf.sizeLock.Unlock()
-	cf.Cache_used_size -= size
+	newSize := cf.Cache_used_size - size
+	if newSize < 0 {
+		newSize = 0
+	}
+	cf.Cache_used_size = newSize
 }
 
 func (cf *CdnCacheFolder) GetMesonCacheUsedSize() int64 {
