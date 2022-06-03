@@ -12,6 +12,7 @@ import (
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/tools/http/api"
+	commonApi "github.com/meson-network/peer_common/api"
 	"github.com/meson-network/peer_common/cached_file"
 )
 
@@ -68,7 +69,7 @@ func reportExpiredFiles() error {
 		postData := &cached_file.Msg_Req_FileExpire{
 			Expired_files: expiredFiles,
 		}
-		res := &cached_file.Msg_Resp_FileExpire{}
+		res := &commonApi.API_META_STATUS{}
 		err = api.POST_(client.EndPoint+"/api/node/file/expire", client.Token, postData, 30, res)
 		if err != nil {
 			basic.Logger.Errorln("reportExpiredFiles post error:", err)

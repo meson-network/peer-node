@@ -8,6 +8,7 @@ import (
 	"github.com/meson-network/peer-node/src/download_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
 	pErr "github.com/meson-network/peer-node/tools/errors"
+	common_api "github.com/meson-network/peer_common/api"
 	"github.com/meson-network/peer_common/download"
 )
 
@@ -23,7 +24,7 @@ func config_download(httpServer *echo_plugin.EchoServer) {
 // @Router       /api/file/download_task [get]
 func downloadTaskHandler(ctx echo.Context) error {
 	var msg download.Msg_Req_Download_Task
-	res := &download.Msg_Resp_Download_Task{}
+	res := &common_api.API_META_STATUS{}
 
 	if err := ctx.Bind(&msg); err != nil {
 		res.MetaStatus(-1, "post data error")
