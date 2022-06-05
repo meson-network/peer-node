@@ -82,7 +82,7 @@ func reportExpiredFiles() error {
 		}
 
 		for _, v := range result.Files {
-			//todo delete file and header on disk
+			//delete file and header on disk
 			absPath := file_mgr.GetFileAbsPath(v.File_hash)
 			os.Remove(absPath)
 			os.Remove(absPath + ".header")
