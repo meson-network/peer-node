@@ -6,12 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/coreservice-io/job"
 	"github.com/coreservice-io/utils/hash_util"
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/remote/client"
-	error_tool "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/file"
 )
 
@@ -120,31 +118,4 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 	}
 
 	return nil
-}
-
-func (c *CertMgr) ScheduleUpdateJob(success_callback func(string, string)) {
-	job.Start(
-		"update_cert_job",
-		// job process
-		func() {
-			c.UpdateCert(success_callback)
-		},
-		// onPanic callback, run if panic happened
-		error_tool.PanicHandler,
-		// job interval in seconds
-		3600, //
-		// job type
-		// job.TYPE_PANIC_REDO  auto restart if panic
-		// job.TYPE_PANIC_RETURN  stop if panic
-		job.TYPE_PANIC_REDO,
-		// check continue callback, the job will stop running if return false
-		// the job will keep running if this callback is nil
-		func(job *job.Job) bool {
-			return true
-		},
-		// onFinish callback
-		func(inst *job.Job) {
-
-		},
-	)
 }

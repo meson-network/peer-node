@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"runtime"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,7 +32,8 @@ func PanicHandler(panic_err interface{}) {
 		errStr = "recovered (default) panic"
 	}
 
-	recordPanicStack(errStr, string(debug.Stack()))
+	_ = errStr
+	//recordPanicStack(errStr, string(debug.Stack()))
 }
 
 func ScheduleUploadPanic() {

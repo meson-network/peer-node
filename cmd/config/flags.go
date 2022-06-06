@@ -37,9 +37,5 @@ func GetFlags() (allflags []cli.Flag) {
 		allflags = append(allflags, &cli.BoolFlag{Name: name, Required: false})
 	}
 
-	//other custom flags
-	allflags = append(allflags, &cli.StringFlag{Name: "addpath", Required: false})
-	allflags = append(allflags, &cli.StringFlag{Name: "removepath", Required: false})
-
 	return
 }

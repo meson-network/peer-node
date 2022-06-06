@@ -1,21 +1,10 @@
 {
-  "token":"",
-  "endpoint": "https://api.meson.network",
-
-  "https_port": 443,
-  "https_crt_path":"assets/cert/public.crt",
-  "https_key_path":"assets/cert/private.key",
-
-  "cdn_cache_folder":"m_cache",
-  "cdn_cache_size":30,
-
-  "api_doc_gen_search_dir":"cmd/default_/http/api",
-  "api_doc_gen_mainfile":"api.go",
-  "api_doc_gen_output_dir":"cmd/default_/http/api_docs",
-
-  "daemon_name":"node-service",
-  "local_log_level": "DEBU",
-
+  "cache_folder": "m_cache",
+  "cache_size": 30,
+  "https_port": 10443,
   "storage": true,
-  "storage_folder": "m_storage"
+  "storage_folder": "m_storage",
+  "storage_api_port": 20443,
+  "storage_console_port": 20444,
+  "token": "muterbgdgvyrsnctplwvkyyb"
 }

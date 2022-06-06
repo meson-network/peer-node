@@ -3,6 +3,7 @@ package schedule_job
 import (
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 )
 
 func DeleteEmptyFolder() {
@@ -15,7 +16,7 @@ func DeleteEmptyFolder() {
 			file_mgr.LoopDeleteEmptyFolder()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		2,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

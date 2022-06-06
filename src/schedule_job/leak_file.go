@@ -3,6 +3,7 @@ package schedule_job
 import (
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 )
 
 func ScanLeakFile() {
@@ -15,7 +16,7 @@ func ScanLeakFile() {
 			file_mgr.ScanLeakFiles()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		24*3600,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

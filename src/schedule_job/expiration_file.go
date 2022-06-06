@@ -11,6 +11,7 @@ import (
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/http/api"
 	commonApi "github.com/meson-network/peer_common/api"
 	"github.com/meson-network/peer_common/cached_file"
@@ -30,7 +31,7 @@ func ScanExpirationFile() {
 			syncCacheFolderSize()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		600,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
@@ -87,6 +88,7 @@ func reportExpiredFiles() error {
 			os.Remove(absPath)
 			os.Remove(absPath + ".header")
 			file_mgr.DeleteFile(v.File_hash)
+			file_mgr.DeleteEmptyFolder(absPath)
 			cdn_cache_folder.GetInstance().ReduceCacheUsedSize(v.Size_byte)
 		}
 	}

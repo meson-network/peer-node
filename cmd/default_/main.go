@@ -15,6 +15,7 @@ import (
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/common/dbkv"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	"github.com/meson-network/peer-node/src/minio_server"
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/schedule_job"
@@ -115,6 +116,11 @@ func StartDefault(clictx *cli.Context) {
 
 	//start jobs
 	go start_jobs()
+
+	err = minio_server.RunMinio()
+	if err != nil {
+		basic.Logger.Errorln("storage error:", err)
+	}
 
 	for {
 		//never quit

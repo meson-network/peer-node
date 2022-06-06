@@ -38,19 +38,19 @@ func Init() error {
 		return nil
 	}
 
-	cdn_cache_size, cdn_cache_size_err := configuration.Config.GetInt("cdn_cache_size", defaultCdnCacheSizeGB)
+	cdn_cache_size, cdn_cache_size_err := configuration.Config.GetInt("cache_size", defaultCdnCacheSizeGB)
 	if cdn_cache_size_err != nil || cdn_cache_size == 0 {
-		return errors.New("cdn_cache_size not configured correctly")
+		return errors.New("cache_size not configured correctly")
 	}
 
 	if cdn_cache_size < cdn_cache.MIN_CACHE_SIZE {
-		return fmt.Errorf("cdn_cache_size must be at least %d GB", cdn_cache.MIN_CACHE_SIZE)
+		return fmt.Errorf("cache_size must be at least %d GB", cdn_cache.MIN_CACHE_SIZE)
 	}
 
 	//cdn_cache dir
-	sf, sf_err := configuration.Config.GetString("cdn_cache_folder", "m_cache")
+	sf, sf_err := configuration.Config.GetString("cache_folder", "m_cache")
 	if sf_err != nil {
-		return errors.New("cdn_cache_folder not configured correctly")
+		return errors.New("cache_folder not configured correctly")
 	}
 
 	absPath := ""
@@ -75,7 +75,7 @@ func Init() error {
 		return err
 	}
 	if !info.IsDir() {
-		return errors.New("cdn_cache_folder path is not a directory")
+		return errors.New("cache_folder path is not a directory")
 	}
 
 	//err = dm.checkAllFileInDb(onFileMissing)

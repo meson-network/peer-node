@@ -21,9 +21,9 @@ mkdir build
 echo "Compiling MAC     x86_64 version"
 DIR="meson-darwin-amd64" && GOOS=darwin GOARCH=amd64 go build -o "./build/${DIR}/meson" && generate_tar ${DIR}
 
-echo "Compiling Windows x86_64 version"
+#echo "Compiling Windows x86_64 version"
 #DIR="meson-windows-386" && GOOS=windows GOARCH=386   go build -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
-DIR="meson-windows-amd64" && GOOS=windows GOARCH=amd64 go build -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
+#DIR="meson-windows-amd64" && GOOS=windows GOARCH=amd64 go build -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
 
 #echo "Compiling Linux   x86_64 version"
 #DIR="meson-linux-386"   &&  GOOS=linux GOARCH=386   go build -o "./build/${DIR}/meson" && generate_tar ${DIR}

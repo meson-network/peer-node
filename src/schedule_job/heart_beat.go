@@ -10,6 +10,7 @@ import (
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/version_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer_common/heart_beat"
 )
 
@@ -23,7 +24,7 @@ func HeartBeat() {
 			sendHeartBeat()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		30,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

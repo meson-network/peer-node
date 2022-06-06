@@ -2,8 +2,11 @@ package schedule_job
 
 import (
 	"github.com/coreservice-io/job"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/src/cert_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
+	minio "github.com/minio/minio/cmd"
 )
 
 func UpdateCert() {
@@ -13,13 +16,24 @@ func UpdateCert() {
 		//job process
 		jobName,
 		func() {
-			cert_mgr.GetInstance().UpdateCert(func(crt, key string) {
-				http.ServerReloadCert()
+			err := cert_mgr.GetInstance().UpdateCert(func(crt, key string) {
+				err := http.ServerReloadCert()
+				if err != nil {
+					basic.Logger.Errorln("schedule UpdateCert http.ServerReloadCert error:", err)
+				}
+				basic.Logger.Debugln("minio.GetCertManger().ReloadCerts()")
+				im := minio.GetCertManger()
+				if im != nil {
+					im.ReloadCerts()
+				}
 			})
+			if err != nil {
+				basic.Logger.Errorln("schedule UpdateCert error:", err)
+			}
 		},
 		//onPanic callback
-		nil, //todo upload panic
-		60,  //todo 3600 in production
+		pErr.PanicHandler, //todo upload panic
+		3600,              //todo 3600 in production
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

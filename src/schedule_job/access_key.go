@@ -3,6 +3,7 @@ package schedule_job
 import (
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 )
 
 func RenewAccessKey() {
@@ -15,7 +16,7 @@ func RenewAccessKey() {
 			access_key_mgr.GetInstance().GenNewRandomKey()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		300,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

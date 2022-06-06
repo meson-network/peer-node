@@ -3,6 +3,7 @@ package schedule_job
 import (
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/src/version_mgr"
+	pErr "github.com/meson-network/peer-node/tools/errors"
 )
 
 func CheckVersion() {
@@ -15,7 +16,7 @@ func CheckVersion() {
 			version_mgr.GetInstance().CheckUpdate()
 		},
 		//onPanic callback
-		nil, //todo upload panic
+		pErr.PanicHandler, //todo upload panic
 		60,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

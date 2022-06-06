@@ -32,6 +32,7 @@ require (
 	github.com/coreservice-io/utils v0.1.10
 	github.com/meson-network/peer_common v0.0.0-20220510134055-749441f4027c
 	github.com/minio/minio v0.0.0-20220525024045-d8101573be91
+	github.com/shirou/gopsutil/v3 v3.22.4
 	gorm.io/driver/sqlite v1.2.6
 )
 
@@ -216,7 +217,6 @@ require (
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/secure-io/sio-go v0.3.1 // indirect
-	github.com/shirou/gopsutil/v3 v3.22.4 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -273,6 +273,7 @@ require (
 
 replace (
 	github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
+	github.com/minio/console => /Users/bruce/workspace/go/project/minio-console
 	//github.com/minio/minio => github.com/meson-network/minio v0.0.0-20220525024045-d8101573be91
 	github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 )
