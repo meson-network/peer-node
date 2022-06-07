@@ -60,6 +60,7 @@ func RunMinio() error {
 	if apiPort <= 0 || apiPort > 65535 {
 		return errors.New("api port error")
 	}
+	ApiPort = strconv.Itoa(apiPort)
 
 	consolePort, err := configuration.Config.GetInt("storage_console_port", 0)
 	if err != nil {
@@ -75,16 +76,16 @@ func RunMinio() error {
 		return errors.New("get node domain error," + err.Error())
 	}
 
-	//minio_server=&MinioServer{
-	//	StorageFolder:storage_folder_abs_path,
-	//	CertFolder:certFolder,
-	//	ApiPort :strconv.Itoa(apiPort),
-	//	ConsolePort :strconv.Itoa(consolePort),
-	//	Domain:nodeDomain,
-	//}
+	password, err := configuration.Config.GetString("storage_password", "")
+	if err != nil {
+		return errors.New("storage_console_port [int] in config error," + err.Error())
+	}
+	if password == "" {
+		return errors.New("storage password not exist")
+	}
 
-	os.Setenv("MINIO_ROOT_USER", "minioadmin")
-	os.Setenv("MINIO_ROOT_PASSWORD", "123456admin")
+	os.Setenv("MINIO_ROOT_USER", "mesonadmin")
+	os.Setenv("MINIO_ROOT_PASSWORD", password)
 
 	minio.Main([]string{"", "server", storage_folder_abs_path, "--address", nodeDomain + ":" + strconv.Itoa(apiPort), "--console-address", ":" + strconv.Itoa(consolePort), "--certs-dir", certFolder})
 	return nil

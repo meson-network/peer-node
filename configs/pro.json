@@ -1,10 +1,11 @@
 {
-  "cache_folder": "m_cache",
-  "cache_size": 30,
-  "https_port": 10443,
+  "cache_folder": "./m_cache",
+  "cache_size": 0,
+  "https_port": 0,
   "storage": true,
-  "storage_folder": "m_storage",
-  "storage_api_port": 20443,
-  "storage_console_port": 20444,
-  "token": "muterbgdgvyrsnctplwvkyyb"
+  "storage_folder": "./m_storage",
+  "storage_api_port": 10443,
+  "storage_console_port": 10444,
+  "storage_password": "",
+  "token": ""
 }

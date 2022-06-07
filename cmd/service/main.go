@@ -160,6 +160,7 @@ func checkToken() {
 		}
 		fmt.Println("token:", token)
 		configuration.Config.Set("token", token)
+		configuration.Config.Set("storage_password", token)
 		break
 	}
 }

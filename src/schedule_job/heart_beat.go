@@ -1,12 +1,14 @@
 package schedule_job
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
+	"github.com/meson-network/peer-node/src/minio_server"
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/version_mgr"
@@ -42,13 +44,36 @@ func sendHeartBeat() {
 	accessKey, _ := access_key_mgr.GetInstance().GetRandomKey()
 	portStr := echo_plugin.GetInstance().Http_port
 	postData := &heart_beat.Msg_Req_HeartBeat{
-		Node_id:    node_info.GetNodeId(),
-		Port:       strconv.Itoa(portStr),
-		Version:    version_mgr.NodeVersion,
-		Access_key: accessKey,
+		Node_id:      node_info.GetNodeId(),
+		Port:         strconv.Itoa(portStr),
+		Storage_port: minio_server.ApiPort,
+		Version:      version_mgr.NodeVersion,
+		Access_key:   accessKey,
 	}
-	_, err := client.SendHeartBeat(postData)
+	result, err := client.SendHeartBeat(postData)
 	if err != nil {
 		basic.Logger.Errorln("SendHeartBeat err:", err)
+		return
+	}
+	switch result.Meta_status {
+	case -10001: //post data error
+		basic.Logger.Errorln("hb, post data error")
+	case -10002: //heart request too fast
+		basic.Logger.Errorln("hb, request too fast")
+	case -10003: //version error
+		basic.Logger.Errorln("hb, this version has expired, please download a new version")
+	case -10004: //token error
+		basic.Logger.Errorln("hb, token error, please set correct token in config")
+	case -10005: //same ip exist
+		basic.Logger.Errorln("hb, multiple nodes use the same ip")
+		os.Exit(0)
+	case -10006: //ip can't resolve
+		basic.Logger.Errorln("hb, ip resolve error")
+	case -10007: //ip to spec00 host error
+		basic.Logger.Errorln("hb, ip to host error")
+	case -10008 - 10009: //ping back error
+		basic.Logger.Errorln("hb, ping back error")
+	case -10010 - 10011: //internal error
+		basic.Logger.Errorln("hb, remote internal error")
 	}
 }

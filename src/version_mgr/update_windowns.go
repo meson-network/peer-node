@@ -138,7 +138,7 @@ func DownloadNewVersion(downloadUrl string) error {
 func RestartNode() {
 	basic.Logger.Debugln("peer node restart cmd")
 
-	absPath, err := path_util.SmartExistPath("./peer-node.exe")
+	absPath, err := path_util.SmartExistPath("./meson.exe")
 	if err != nil {
 		basic.Logger.Errorln("RestartTerminal path_util.SmartExistPath err:", err)
 		return
