@@ -24,3 +24,5 @@ cdn_cache/file/*
 /build/
 /m_cache/
 /m_storage/
+s_tester.bin
+

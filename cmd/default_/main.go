@@ -75,7 +75,7 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//check cache folder
-	err = cdn_cache_folder.GetInstance().CheckFolder(5)
+	err = cdn_cache_folder.GetInstance().CheckFolder(1)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}
