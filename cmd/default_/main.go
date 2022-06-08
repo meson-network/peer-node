@@ -26,13 +26,6 @@ import (
 
 func StartDefault(clictx *cli.Context) {
 
-	//err := cert_mgr.Init()
-	//if err != nil {
-	//	basic.Logger.Fatalln("initCert error", err)
-	//}
-	//RunMinio()
-	//return
-
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
 
@@ -50,6 +43,7 @@ func StartDefault(clictx *cli.Context) {
 	err = client.Init()
 	if err != nil {
 		basic.Logger.Fatalln(err)
+		//todo os.Exit(0)
 	}
 
 	//version_mgr
@@ -81,7 +75,7 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//check cache folder
-	err = cdn_cache_folder.GetInstance().CheckFolder(1)
+	err = cdn_cache_folder.GetInstance().CheckFolder(5)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}

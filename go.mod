@@ -30,8 +30,8 @@ require (
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.10
-	github.com/meson-network/peer_common v0.0.0-20220510134055-749441f4027c
-	github.com/minio/minio v0.0.0-20220525024045-d8101573be91
+	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
+	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/shirou/gopsutil/v3 v3.22.4
 	gorm.io/driver/sqlite v1.2.6
 )
@@ -162,17 +162,17 @@ require (
 	github.com/miekg/dns v1.1.48 // indirect
 	github.com/minio/cli v1.22.0 // indirect
 	github.com/minio/colorjson v1.0.2 // indirect
-	github.com/minio/console v0.17.2 // indirect
+	github.com/minio/console v0.18.1 // indirect
 	github.com/minio/csvparser v1.0.0 // indirect
-	github.com/minio/dperf v0.3.6 // indirect
+	github.com/minio/dperf v0.4.0 // indirect
 	github.com/minio/filepath v1.0.0 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/kes v0.19.2 // indirect
 	github.com/minio/madmin-go v1.3.14 // indirect
 	github.com/minio/mc v0.0.0-20220512134321-aa60a8db1e4d // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/minio-go/v7 v7.0.26 // indirect
-	github.com/minio/pkg v1.1.23 // indirect
+	github.com/minio/minio-go/v7 v7.0.27 // indirect
+	github.com/minio/pkg v1.1.24 // indirect
 	github.com/minio/selfupdate v0.4.0 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/simdjson-go v0.4.2 // indirect
@@ -272,8 +272,8 @@ require (
 )
 
 replace (
-	github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
-	github.com/minio/console => /Users/bruce/workspace/go/project/minio-console
-	//github.com/minio/minio => github.com/meson-network/minio v0.0.0-20220525024045-d8101573be91
-	github.com/minio/minio => /Users/bruce/workspace/go/project/minio
+	//github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
+	github.com/minio/console => github.com/meson-network/minio-console v0.90.1
+	github.com/minio/minio => github.com/meson-network/minio v0.0.1
+//github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 )

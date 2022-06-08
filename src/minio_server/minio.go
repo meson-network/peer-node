@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/coreservice-io/utils/path_util"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
@@ -86,6 +87,10 @@ func RunMinio() error {
 
 	os.Setenv("MINIO_ROOT_USER", "mesonadmin")
 	os.Setenv("MINIO_ROOT_PASSWORD", password)
+
+	basic.Logger.Infoln("storage path:", storage_folder_abs_path)
+	basic.Logger.Infoln("--address:", nodeDomain+":"+strconv.Itoa(apiPort))
+	basic.Logger.Infoln("--console-address:", ":"+strconv.Itoa(consolePort))
 
 	minio.Main([]string{"", "server", storage_folder_abs_path, "--address", nodeDomain + ":" + strconv.Itoa(apiPort), "--console-address", ":" + strconv.Itoa(consolePort), "--certs-dir", certFolder})
 	return nil

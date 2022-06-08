@@ -68,18 +68,22 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 		return err
 	}
 
-	old_crt_content, read_err := ioutil.ReadFile(c.Crt_path)
-	if read_err != nil {
-		return read_err
-	}
-	old_key_content, read_err := ioutil.ReadFile(c.Key_path)
-	if read_err != nil {
-		return read_err
-	}
+	crtExist, _ := path_util.AbsPathExist(c.Crt_path)
+	keyExist, _ := path_util.AbsPathExist(c.Key_path)
+	if crtExist && keyExist {
+		old_crt_content, read_err := ioutil.ReadFile(c.Crt_path)
+		if read_err != nil {
+			return read_err
+		}
+		old_key_content, read_err := ioutil.ReadFile(c.Key_path)
+		if read_err != nil {
+			return read_err
+		}
 
-	old_content_hash := hash_util.MD5HashString(string(old_crt_content) + string(old_key_content))
-	if old_content_hash == certHash {
-		return nil
+		old_content_hash := hash_util.MD5HashString(string(old_crt_content) + string(old_key_content))
+		if old_content_hash == certHash {
+			return nil
+		}
 	}
 
 	//need update
@@ -88,33 +92,18 @@ func (c *CertMgr) UpdateCert(success_callback func(string, string)) error {
 		return err
 	}
 
-	///////////////
-	change := false
-	//read old .crt
-	if string(old_crt_content) != crt {
-		change = true
+	crt_file_err := file.FileOverwrite(c.Crt_path, crt)
+	if crt_file_err != nil {
+		return crt_file_err
 	}
 
-	//read old .key
-	if string(old_key_content) != key {
-		change = true
+	key_file_err := file.FileOverwrite(c.Key_path, key)
+	if key_file_err != nil {
+		return key_file_err
 	}
 
-	//update the file
-	if change {
-		crt_file_err := file.FileOverwrite(c.Crt_path, crt)
-		if crt_file_err != nil {
-			return crt_file_err
-		}
-
-		key_file_err := file.FileOverwrite(c.Key_path, key)
-		if key_file_err != nil {
-			return key_file_err
-		}
-
-		if success_callback != nil {
-			success_callback(crt, key)
-		}
+	if success_callback != nil {
+		success_callback(crt, key)
 	}
 
 	return nil
