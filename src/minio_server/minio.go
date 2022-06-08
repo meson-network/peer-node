@@ -88,13 +88,13 @@ func RunMinio() error {
 	os.Setenv("MINIO_ROOT_USER", "mesonadmin")
 	os.Setenv("MINIO_ROOT_PASSWORD", password)
 	os.Setenv("MINIO_SERVER_URL", "https://"+nodeDomain+":"+strconv.Itoa(apiPort))
-	os.Setenv("MINIO_BROWSER_REDIRECT_URL", "https://"+nodeDomain+":"+strconv.Itoa(consolePort))
 
 	basic.Logger.Infoln("storage path:", storage_folder_abs_path)
 	basic.Logger.Infoln("--address:", nodeDomain+":"+strconv.Itoa(apiPort))
 	basic.Logger.Infoln("--console-address:", ":"+strconv.Itoa(consolePort))
 
-	minio.Main([]string{"", "server", storage_folder_abs_path, "--certs-dir", certFolder})
+	minio.Main([]string{"peer-node", "server", storage_folder_abs_path, "--address", ":" + strconv.Itoa(apiPort), "--console-address", ":" + strconv.Itoa(consolePort), "--certs-dir", certFolder})
+
 	return nil
 }
 
