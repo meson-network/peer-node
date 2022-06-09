@@ -17,6 +17,7 @@ import (
 	"github.com/meson-network/peer-node/src/file_mgr"
 	"github.com/meson-network/peer-node/src/minio_server"
 	"github.com/meson-network/peer-node/src/node_info"
+	"github.com/meson-network/peer-node/src/precheck_config"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/schedule_job"
 	"github.com/meson-network/peer-node/src/speed_tester_file"
@@ -28,6 +29,8 @@ func StartDefault(clictx *cli.Context) {
 
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
+
+	precheck_config.CheckConfig()
 
 	//init cdn cache folder
 	err := cdn_cache_folder.Init()
@@ -75,7 +78,7 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//check cache folder
-	err = cdn_cache_folder.GetInstance().CheckFolder(1)
+	err = cdn_cache_folder.GetInstance().CheckFolder(5)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}

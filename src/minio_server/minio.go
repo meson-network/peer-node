@@ -7,22 +7,11 @@ import (
 	"strconv"
 
 	"github.com/coreservice-io/utils/path_util"
-	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
 	minio "github.com/minio/minio/cmd"
 )
-
-//type MinioServer struct {
-//	StorageFolder string //folder abs path
-//	CertFolder    string // cert file abs path
-//	ApiPort       string
-//	ConsolePort   string
-//	Domain        string
-//}
-//
-//var minio_server *MinioServer
 
 var ApiPort string
 
@@ -89,45 +78,11 @@ func RunMinio() error {
 	os.Setenv("MINIO_ROOT_PASSWORD", password)
 	os.Setenv("MINIO_SERVER_URL", "https://"+nodeDomain+":"+strconv.Itoa(apiPort))
 
-	basic.Logger.Infoln("storage path:", storage_folder_abs_path)
-	basic.Logger.Infoln("--address:", nodeDomain+":"+strconv.Itoa(apiPort))
-	basic.Logger.Infoln("--console-address:", ":"+strconv.Itoa(consolePort))
+	//basic.Logger.Infoln("storage path:", storage_folder_abs_path)
+	//basic.Logger.Infoln("--address:", nodeDomain+":"+strconv.Itoa(apiPort))
+	//basic.Logger.Infoln("--console-address:", ":"+strconv.Itoa(consolePort))
 
 	minio.Main([]string{"peer-node", "server", storage_folder_abs_path, "--address", ":" + strconv.Itoa(apiPort), "--console-address", ":" + strconv.Itoa(consolePort), "--certs-dir", certFolder})
 
 	return nil
 }
-
-//func RunMinio() error {
-//
-//	runStorage, err := configuration.Config.GetBool("storage", true)
-//	if err != nil {
-//		return errors.New("storage [bool] in config error," + err.Error())
-//	}
-//	if !runStorage {
-//		return nil
-//	}
-//
-//	//read config
-//	//folder
-//	storage_folder, err := configuration.Config.GetString("storage_folder", "m_storage")
-//	if err != nil {
-//		return errors.New("storage_folder [string] in config error," + err.Error())
-//	}
-//	if storage_folder == "" {
-//		storage_folder = "m_storage"
-//	}
-//	absPath := ""
-//	if filepath.IsAbs(storage_folder) {
-//		absPath = storage_folder
-//	} else {
-//		absPath = path_util.ExE_Path(storage_folder)
-//	}
-//
-//	crt := cert_mgr.GetInstance().Crt_path
-//	certFolder := filepath.Dir(crt)
-//
-//	//minio.Main([]string{"", "server", absPath, "--address", "localhost:8080", "--console-address", "localhost:8081", "--certs-dir", certFolder})
-//	minio.Main([]string{"", "server", absPath, "--address", "spec00-fekcdikbhgkjhxx.mesontracking.com:20443", "--certs-dir", certFolder})
-//	return nil
-//}
