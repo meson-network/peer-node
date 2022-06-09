@@ -1,17 +1,48 @@
 package service
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/kardianos/service"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/plugin/daemon_plugin"
 	"github.com/meson-network/peer-node/src/precheck_config"
 	"github.com/urfave/cli/v2"
+	"os"
 )
 
-func RunServiceCmd(clictx *cli.Context) {
+var logger service.Logger
+
+//func main() {
+//	svcConfig := &service.Config{
+//		Name:        "peer-node",
+//		DisplayName: "Go Service Example: Stop Pause",
+//		Description: "This is an example Go service that pauses on stop.",
+//	}
+//
+//	prg := &program{}
+//	s, err := service.New(prg, svcConfig)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	if len(os.Args) > 1 {
+//		err = service.Control(s, os.Args[1])
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//		return
+//	}
+//
+//	logger, err = s.Logger(nil)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	err = s.Run()
+//	if err != nil {
+//		logger.Error(err)
+//	}
+//}
+
+func RunServiceCmd(clictx *cli.Context, s service.Service) {
 
 	daemon_name, err := configuration.Config.GetString("daemon_name", "meson-node")
 	if err != nil {
@@ -54,43 +85,67 @@ func RunServiceCmd(clictx *cli.Context) {
 		basic.Logger.Fatalln("init daemon service error:", err)
 	}
 
-	var status string
+	//var status string
 	var e error
 	switch action {
 	case "install":
 		//check config
 		precheck_config.CheckConfig()
-		status, e = daemon_plugin.GetInstance(daemon_name).Install()
+		err = s.Install()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
+		//status, e = daemon_plugin.GetInstance(daemon_name).Install()
 		basic.Logger.Debugln("cmd install")
 	case "remove":
-		daemon_plugin.GetInstance(daemon_name).Stop()
-		status, e = daemon_plugin.GetInstance(daemon_name).Remove()
+		//daemon_plugin.GetInstance(daemon_name).Stop()
+		//status, e = daemon_plugin.GetInstance(daemon_name).Remove()
+		err = s.Uninstall()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
 		basic.Logger.Debugln("cmd remove")
 	case "start":
 		//check config
 		precheck_config.CheckConfig()
-		status, e = daemon_plugin.GetInstance(daemon_name).Start()
+		err = s.Start()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
+		//status, e = daemon_plugin.GetInstance(daemon_name).Start()
 		basic.Logger.Debugln("cmd start")
 	case "stop":
-		status, e = daemon_plugin.GetInstance(daemon_name).Stop()
+		err = s.Stop()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
+		//status, e = daemon_plugin.GetInstance(daemon_name).Stop()
 		basic.Logger.Debugln("cmd stop")
 	case "restart":
-		daemon_plugin.GetInstance(daemon_name).Stop()
+		err = s.Restart()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
+		//daemon_plugin.GetInstance(daemon_name).Stop()
 		//check config
-		precheck_config.CheckConfig()
-		status, e = daemon_plugin.GetInstance(daemon_name).Start()
+		//precheck_config.CheckConfig()
+		//status, e = daemon_plugin.GetInstance(daemon_name).Start()
 		basic.Logger.Debugln("cmd restart")
 	case "status":
-		status, e = daemon_plugin.GetInstance(daemon_name).Status()
-		basic.Logger.Debugln("cmd status")
+		status, err := s.Status()
+		if err != nil {
+			basic.Logger.Errorln(err)
+		}
+		//status, e = daemon_plugin.GetInstance(daemon_name).Status()
+		basic.Logger.Debugln("cmd status:", status)
 	default:
 		basic.Logger.Debugln("no sub command")
 		return
 	}
 
 	if e != nil {
-		fmt.Println(status, "\nError: ", e)
+		//fmt.Println(status, "\nError: ", e)
 		os.Exit(1)
 	}
-	fmt.Println(status)
+	//fmt.Println(status)
 }

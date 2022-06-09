@@ -30,6 +30,8 @@ require (
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.10
+	github.com/jcmturner/gokrb5/v8 v8.4.2
+	github.com/kardianos/service v1.2.1
 	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/shirou/gopsutil/v3 v3.22.4
@@ -129,7 +131,7 @@ require (
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
-	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
+	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
