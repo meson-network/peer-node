@@ -75,5 +75,8 @@ func sendHeartBeat() {
 		basic.Logger.Errorln("hb, ping back error")
 	case -10010 - 10011: //internal error
 		basic.Logger.Errorln("hb, remote internal error")
+	case -10099: //internal error
+		basic.Logger.Errorln("hb, error code 10099 force stop")
+		os.Exit(0)
 	}
 }

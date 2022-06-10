@@ -49,6 +49,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Shopify/sarama v1.30.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
+	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/alecthomas/participle v0.2.1 // indirect
 	github.com/apache/thrift v0.15.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect

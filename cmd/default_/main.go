@@ -27,8 +27,6 @@ import (
 
 func StartDefault(clictx *cli.Context) {
 
-	basic.Logger.Infoln("111111111111111")
-
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
 
@@ -48,7 +46,6 @@ func StartDefault(clictx *cli.Context) {
 	err = client.Init()
 	if err != nil {
 		basic.Logger.Fatalln(err)
-		//todo os.Exit(0)
 	}
 
 	//version_mgr

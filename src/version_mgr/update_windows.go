@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
@@ -25,9 +26,12 @@ func (v *VersionMgr) CheckUpdate() {
 		return
 	}
 
+	basic.Logger.Infoln("New version detected, please update by manual.")
+	return
+
 	//download new version
 	//need upgrade
-	if v.AutoUpdateFiledTime >= 3 {
+	if v.AutoUpdateFiledTime > updateRetryTimeLimit || v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
 		basic.Logger.Infoln("New version auto update failed, please update by manual.")
 		return
 	}
@@ -40,19 +44,27 @@ func (v *VersionMgr) CheckUpdate() {
 
 	// 'https://meson.network/static/terminal/v0.1.2/meson-windows-amd64.zip'
 	fileName := "meson" + "-" + osInfo + "-" + arch + ".zip"
-	downloadPath := "/v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := "xxxx domain" + downloadPath
+	downloadPath := "v" + latestVersion + "/" + fileName
+	newVersionDownloadUrl := "https://dashboard.meson.network/static_assets/node/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
-	err := DownloadNewVersion(downloadPath)
+	err := DownloadNewVersion(newVersionDownloadUrl)
 	if err != nil {
 		basic.Logger.Errorln("CheckUpdate DownloadNewVersion err:", err)
+		v.LastFailedTime = time.Now().UTC().Unix()
 		v.AutoUpdateFiledTime++
 		return
 	}
 
 	//restart
-	RestartNode()
+	//restart
+	err = RestartNode()
+	if err != nil {
+		basic.Logger.Errorln("CheckUpdate RestartNode err:", err)
+		v.LastFailedTime = time.Now().UTC().Unix()
+		v.AutoUpdateFiledTime++
+		return
+	}
 }
 
 func DownloadNewVersion(downloadUrl string) error {
@@ -125,28 +137,43 @@ func DownloadNewVersion(downloadUrl string) error {
 			return err
 		}
 
-		err = os.WriteFile(filePath, content, 0777)
+		err = os.Remove(filePath)
 		if err != nil {
-			basic.Logger.Errorln("DownloadNewVersion os.WriteFile err:", err, "filePath", filePath)
+			basic.Logger.Errorln("Error remove old file", filePath, "err:", err)
+			fmt.Println(err)
 			return err
 		}
+		err = ioutil.WriteFile(filePath, content, 777)
+		if err != nil {
+			basic.Logger.Errorln("Error creating", filePath, "err:", err)
+			return err
+		}
+		os.Chmod(filePath, 0777)
+
+		//err = os.WriteFile(filePath, content, 0777)
+		//if err != nil {
+		//	basic.Logger.Errorln("DownloadNewVersion os.WriteFile err:", err, "filePath", filePath)
+		//	return err
+		//}
 	}
 
 	return nil
 }
 
-func RestartNode() {
+func RestartNode() error {
 	basic.Logger.Debugln("peer node restart cmd")
 
 	absPath, err := path_util.SmartExistPath("./meson.exe")
 	if err != nil {
 		basic.Logger.Errorln("RestartTerminal path_util.SmartExistPath err:", err)
-		return
+		return err
 	}
 
 	cmd := exec.Command("cmd", "/C", fmt.Sprintf("%s service restart", absPath))
 	err = cmd.Run()
 	if err != nil {
 		basic.Logger.Errorln("restart peer node error:", err)
+		return err
 	}
+	return nil
 }

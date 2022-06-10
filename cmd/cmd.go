@@ -4,20 +4,17 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	ilog "github.com/coreservice-io/log"
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/config"
-	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/default_/http/api"
 	"github.com/meson-network/peer-node/cmd/log"
 	"github.com/meson-network/peer-node/cmd/service"
 	"github.com/meson-network/peer-node/configuration"
+	"github.com/meson-network/peer-node/plugin/daemon_plugin"
 	"github.com/urfave/cli/v2"
-
-	daemonService "github.com/kardianos/service"
 )
 
 const CMD_NAME_DEFAULT = "default"
@@ -26,37 +23,8 @@ const CMD_NAME_LOG = "log"
 const CMD_NAME_SERVICE = "service"
 const CMD_NAME_CONFIG = "config"
 
-type program struct{}
-
-func (p *program) Start(s daemonService.Service) error {
-	// Start should not block. Do the actual work async.
-	go p.run()
-	return nil
-}
-func (p *program) run() {
-	// Do work here
-	default_.StartDefault(nil)
-}
-func (p *program) Stop(s daemonService.Service) error {
-	// Stop should not block. Return with a few seconds.
-	<-time.After(time.Second * 5)
-	return nil
-}
-
 ////////config to do cmd ///////////
 func ConfigCmd() *cli.App {
-
-	svcConfig := &daemonService.Config{
-		Name:        "peer-node",
-		DisplayName: "Go Service Example: Stop Pause",
-		Description: "This is an example Go service that pauses on stop.",
-	}
-
-	prg := &program{}
-	s, err := daemonService.New(prg, svcConfig)
-	if err != nil {
-		basic.Logger.Fatalln(err)
-	}
 
 	//check is dev or pro
 	isDev := false
@@ -96,9 +64,23 @@ func ConfigCmd() *cli.App {
 		basic.Logger.Panicln(conferr)
 	}
 
+	daemon_name, err := configuration.Config.GetString("daemon_name", "meson-node")
+	if err != nil {
+		basic.Logger.Fatalln("daemon_name [string] in config error," + err.Error())
+	}
+
+	if daemon_name == "" {
+		basic.Logger.Fatalln("daemon_name in config should not be vacant")
+	}
+
+	err = daemon_plugin.Init(daemon_name, &service.Program{})
+	if err != nil {
+		basic.Logger.Fatalln("daemon_plugin.Init error:", err)
+	}
+	s := daemon_plugin.GetInstance(daemon_name)
+
 	return &cli.App{
 		Action: func(clictx *cli.Context) error {
-			//default_.StartDefault(clictx)
 			s.Run()
 			return nil
 		},

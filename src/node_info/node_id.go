@@ -2,6 +2,7 @@ package node_info
 
 import (
 	"github.com/coreservice-io/utils/rand_util"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
 	"github.com/meson-network/peer-node/src/common/dbkv"
 )
@@ -13,7 +14,10 @@ func GetNodeId() string {
 }
 
 func InitNode() error {
-	db_node_id, _ := dbkv.GetKey(sqlite_plugin.GetInstance(), "node_id", false, false)
+	db_node_id, err := dbkv.GetKey(sqlite_plugin.GetInstance(), "node_id", false, false)
+	if err != nil {
+		basic.Logger.Errorln("InitNode dbkv.GetKey get node_id error:", err)
+	}
 
 	if db_node_id == "" {
 		//create a node_id in dbkv
