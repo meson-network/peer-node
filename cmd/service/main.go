@@ -2,7 +2,6 @@ package service
 
 import (
 	"os"
-	"time"
 
 	"github.com/kardianos/service"
 	"github.com/meson-network/peer-node/basic"
@@ -24,8 +23,8 @@ func (p *Program) run() {
 }
 func (p *Program) Stop(s service.Service) error {
 	// Stop should not block. Return with a few seconds.
-	basic.Logger.Infoln("service will stop in 5 seconds...")
-	<-time.After(time.Second * 5)
+	//basic.Logger.Infoln("service will stop in 5 seconds...")
+	//<-time.After(time.Second * 5)
 	return nil
 }
 
