@@ -23,11 +23,11 @@ mkdir build
 
 echo "Compiling Windows x86_64 version"
 #DIR="meson-windows-386" && GOOS=windows GOARCH=386   go build -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
-DIR="meson-windows-amd64" && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
+DIR="meson-windows-amd64" && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -a -o "./build/${DIR}/meson.exe" && generate_zip ${DIR}
 
 echo "Compiling Linux   x86_64 version"
 #DIR="meson-linux-386"   &&  GOOS=linux GOARCH=386   go build -o "./build/${DIR}/meson" && generate_tar ${DIR}
 DIR="meson-linux-amd64" &&  GOOS=linux GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static" go build -a -o "./build/${DIR}/meson" && generate_tar ${DIR}
 
 echo "Compiling ARM64    version"
-DIR="meson-linux-arm64" &&  GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -o "./build/${DIR}/meson" && generate_tar ${DIR}
+DIR="meson-linux-arm64" &&  GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-static"  go build -a -o "./build/${DIR}/meson" && generate_tar ${DIR}
