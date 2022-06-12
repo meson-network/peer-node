@@ -12,7 +12,6 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/swaggo/echo-swagger v1.3.0
 	github.com/swaggo/swag v1.8.1
-	github.com/takama/daemon v1.0.0
 	github.com/urfave/cli/v2 v2.4.0
 	gorm.io/gorm v1.23.4
 )
@@ -30,6 +29,7 @@ require (
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.10
+	github.com/kardianos/service v1.2.1
 	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/shirou/gopsutil/v3 v3.22.4
@@ -273,7 +273,7 @@ require (
 
 replace (
 	//github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
-	github.com/minio/console => github.com/meson-network/minio-console v0.90.1
+	github.com/minio/console => github.com/meson-network/minio-console v0.90.2
 	github.com/minio/minio => github.com/meson-network/minio v0.0.1
 //github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 )

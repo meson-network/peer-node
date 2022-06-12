@@ -209,11 +209,11 @@ func StartDownloader(
 				//update database
 				nowTime = time.Now().UTC().Unix()
 				file_mgr.UpdateFile(map[string]interface{}{
-					"last_req_unixtime":      nowTime,
-					"last_scan_unixtime":     nowTime,
-					"last_download_unixtime": nowTime,
-					"size_byte":              resp.BytesComplete(),
-					"status":                 file_mgr.STATUS_DOWNLOADED,
+					"last_req_unixtime": nowTime,
+					//"last_scan_unixtime":     nowTime,
+					//"last_download_unixtime": nowTime,
+					"size_byte": resp.BytesComplete(),
+					"status":    file_mgr.STATUS_DOWNLOADED,
 				}, file_hash)
 				callback_succeed(file_hash, resp.BytesComplete())
 				cdn_cache_folder.GetInstance().AddCacheUsedSize(resp.BytesComplete())

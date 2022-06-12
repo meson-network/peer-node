@@ -9,11 +9,11 @@ import (
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/cmd/config"
-	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/default_/http/api"
 	"github.com/meson-network/peer-node/cmd/log"
 	"github.com/meson-network/peer-node/cmd/service"
 	"github.com/meson-network/peer-node/configuration"
+	"github.com/meson-network/peer-node/plugin/daemon_plugin"
 	"github.com/urfave/cli/v2"
 )
 
@@ -25,6 +25,7 @@ const CMD_NAME_CONFIG = "config"
 
 ////////config to do cmd ///////////
 func ConfigCmd() *cli.App {
+
 	//check is dev or pro
 	isDev := false
 	confShow := false
@@ -63,9 +64,24 @@ func ConfigCmd() *cli.App {
 		basic.Logger.Panicln(conferr)
 	}
 
+	daemon_name, err := configuration.Config.GetString("daemon_name", "meson-node")
+	if err != nil {
+		basic.Logger.Fatalln("daemon_name [string] in config error," + err.Error())
+	}
+
+	if daemon_name == "" {
+		basic.Logger.Fatalln("daemon_name in config should not be vacant")
+	}
+
+	err = daemon_plugin.Init(daemon_name, &service.Program{})
+	if err != nil {
+		basic.Logger.Fatalln("daemon_plugin.Init error:", err)
+	}
+	s := daemon_plugin.GetInstance(daemon_name)
+
 	return &cli.App{
 		Action: func(clictx *cli.Context) error {
-			default_.StartDefault(clictx)
+			s.Run()
 			return nil
 		},
 
@@ -124,7 +140,7 @@ func ConfigCmd() *cli.App {
 						Name:  "install",
 						Usage: "install meson node in service",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},
@@ -133,7 +149,7 @@ func ConfigCmd() *cli.App {
 						Name:  "remove",
 						Usage: "remove meson node from service",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},
@@ -142,7 +158,7 @@ func ConfigCmd() *cli.App {
 						Name:  "start",
 						Usage: "run",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},
@@ -151,7 +167,7 @@ func ConfigCmd() *cli.App {
 						Name:  "stop",
 						Usage: "stop",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},
@@ -160,7 +176,7 @@ func ConfigCmd() *cli.App {
 						Name:  "restart",
 						Usage: "restart",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},
@@ -169,7 +185,7 @@ func ConfigCmd() *cli.App {
 						Name:  "status",
 						Usage: "show process status",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx)
+							service.RunServiceCmd(clictx, s)
 							return nil
 						},
 					},

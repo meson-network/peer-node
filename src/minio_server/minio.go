@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/coreservice-io/utils/path_util"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/remote/client"
@@ -24,6 +25,7 @@ func RunMinio() error {
 		return nil
 	}
 
+	basic.Logger.Infoln("Meson Storage enable, init node storage...")
 	//read config
 	//folder
 	storage_folder, err := configuration.Config.GetString("storage_folder", "m_storage")
@@ -74,13 +76,26 @@ func RunMinio() error {
 		return errors.New("storage password not exist")
 	}
 
-	os.Setenv("MINIO_ROOT_USER", "mesonadmin")
-	os.Setenv("MINIO_ROOT_PASSWORD", password)
-	os.Setenv("MINIO_SERVER_URL", "https://"+nodeDomain+":"+strconv.Itoa(apiPort))
+	err = os.Setenv("MINIO_ROOT_USER", "mesonadmin")
+	if err != nil {
+		return errors.New("storage set env 'MINIO_ROOT_USER' error:" + err.Error())
+	}
+	err = os.Setenv("MINIO_ROOT_PASSWORD", password)
+	if err != nil {
+		return errors.New("storage set env 'MINIO_ROOT_PASSWORD' error:" + err.Error())
+	}
+	err = os.Setenv("MINIO_SERVER_URL", "https://"+nodeDomain+":"+strconv.Itoa(apiPort))
+	if err != nil {
+		return errors.New("storage set env 'MINIO_SERVER_URL' error:" + err.Error())
+	}
 
 	//basic.Logger.Infoln("storage path:", storage_folder_abs_path)
 	//basic.Logger.Infoln("--address:", nodeDomain+":"+strconv.Itoa(apiPort))
 	//basic.Logger.Infoln("--console-address:", ":"+strconv.Itoa(consolePort))
+
+	basic.Logger.Infoln("Meson Storage api port:", apiPort)
+	basic.Logger.Infoln("Meson Storage console port:", consolePort)
+	basic.Logger.Infoln("Meson Storage console url:", "https://"+nodeDomain+":"+strconv.Itoa(apiPort))
 
 	minio.Main([]string{"peer-node", "server", storage_folder_abs_path, "--address", ":" + strconv.Itoa(apiPort), "--console-address", ":" + strconv.Itoa(consolePort), "--certs-dir", certFolder})
 

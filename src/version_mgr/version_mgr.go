@@ -8,11 +8,15 @@ import (
 	"github.com/meson-network/peer_common/version"
 )
 
-const NodeVersion = "3.0.0"
+const NodeVersion = "3.0.3"
+
+const updateRetryIntervalSec = 12 * 3600
+const updateRetryTimeLimit = 7
 
 type VersionMgr struct {
 	CurrentVersion      string
 	AutoUpdateFiledTime int
+	LastFailedTime      int64
 }
 
 var instanceMap = map[string]*VersionMgr{}
@@ -41,6 +45,7 @@ func Init_(name string) error {
 	instanceMap[name] = &VersionMgr{
 		CurrentVersion:      NodeVersion,
 		AutoUpdateFiledTime: 0,
+		LastFailedTime:      0,
 	}
 	return nil
 }

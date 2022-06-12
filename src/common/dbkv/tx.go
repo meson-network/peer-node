@@ -10,11 +10,12 @@ import (
 )
 
 func SetDBKV(tx *gorm.DB, keystr string, value string) error {
-	value, err := GetKey(tx, keystr, false, false)
-	if err == nil {
+	result, err := QueryDBKV(tx, nil, &[]string{keystr}, false, false)
+	if err == nil && len(result.Kv) > 0 {
 		//exist update
-		err := tx.Table("dbkv").Where("`key`=?", keystr).Update("value", value).Error
+		err := tx.Table("dbkv").Where("`key`=?", keystr).Updates(map[string]interface{}{"value": value}).Error
 		if err != nil {
+			basic.Logger.Errorln("SetDBKV update error:", err)
 			return err
 		}
 		//refresh
@@ -24,6 +25,7 @@ func SetDBKV(tx *gorm.DB, keystr string, value string) error {
 		//create
 		err := tx.Table("dbkv").Create(&DBKVModel{Key: keystr, Value: value}).Error
 		if err != nil {
+			basic.Logger.Errorln("SetDBKV create error:", err)
 			return err
 		}
 		//refresh
