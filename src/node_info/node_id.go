@@ -16,10 +16,11 @@ func GetNodeId() string {
 func InitNode() error {
 	db_node_id, err := dbkv.GetKey(sqlite_plugin.GetInstance(), "node_id", false, false)
 	if err != nil {
-		basic.Logger.Errorln("InitNode dbkv.GetKey get node_id error:", err)
+		basic.Logger.Debugln("InitNode dbkv.GetKey get node_id error:", err)
 	}
 
 	if db_node_id == "" {
+		basic.Logger.Infoln("Node id not exist, gen new node id...")
 		//create a node_id in dbkv
 		node_id = rand_util.GenRandStr(16)
 		db_err := dbkv.SetDBKV(sqlite_plugin.GetInstance(), "node_id", node_id)

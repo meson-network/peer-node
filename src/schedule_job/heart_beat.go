@@ -62,11 +62,12 @@ func sendHeartBeat() {
 		basic.Logger.Errorln("hb, request too fast")
 	case -10003: //version error
 		basic.Logger.Errorln("hb, this version has expired, please download a new version")
+		os.Exit(0)
 	case -10004: //token error
 		basic.Logger.Errorln("hb, token error, please set correct token in config")
 	case -10005: //same ip exist
 		basic.Logger.Errorln("hb, multiple nodes use the same ip")
-		os.Exit(0)
+		//os.Exit(0)
 	case -10006: //ip can't resolve
 		basic.Logger.Errorln("hb, ip resolve error")
 	case -10007: //ip to spec00 host error

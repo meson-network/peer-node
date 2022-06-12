@@ -37,7 +37,7 @@ func RunServiceCmd(clictx *cli.Context, s service.Service) {
 
 	}
 
-	basic.Logger.Infoln("exefile:" + exe_path + " to be service target")
+	basic.Logger.Debugln("exefile:" + exe_path + " to be service target")
 
 	//check command
 	subCmds := clictx.Command.Names()
@@ -54,18 +54,16 @@ func RunServiceCmd(clictx *cli.Context, s service.Service) {
 		precheck_config.CheckConfig()
 		err := s.Install()
 		if err != nil {
-			basic.Logger.Errorln(err)
+			basic.Logger.Errorln("install service error:", err)
 		} else {
 			basic.Logger.Infoln("service installed")
 		}
-		//status, e = daemon_plugin.GetInstance(daemon_name).Install()
 
 	case "remove":
-		//daemon_plugin.GetInstance(daemon_name).Stop()
-		//status, e = daemon_plugin.GetInstance(daemon_name).Remove()
+
 		err := s.Uninstall()
 		if err != nil {
-			basic.Logger.Errorln(err)
+			basic.Logger.Errorln("remove service error:", err)
 		} else {
 			basic.Logger.Infoln("service removed")
 		}
@@ -75,39 +73,32 @@ func RunServiceCmd(clictx *cli.Context, s service.Service) {
 		precheck_config.CheckConfig()
 		err := s.Start()
 		if err != nil {
-			basic.Logger.Errorln(err)
+			basic.Logger.Errorln("start service error:", err)
 		} else {
 			basic.Logger.Infoln("service started")
 		}
-		//status, e = daemon_plugin.GetInstance(daemon_name).Start()
 
 	case "stop":
 		err := s.Stop()
 		if err != nil {
-			basic.Logger.Errorln(err)
+			basic.Logger.Errorln("stop service error:", err)
 		} else {
 			basic.Logger.Infoln("service stopped")
 		}
-		//status, e = daemon_plugin.GetInstance(daemon_name).Stop()
 
 	case "restart":
 		err := s.Restart()
 		if err != nil {
-			basic.Logger.Errorln(err)
+			basic.Logger.Errorln("restart service error:", err)
 		} else {
 			basic.Logger.Infoln("service restarted")
 		}
-		//daemon_plugin.GetInstance(daemon_name).Stop()
-		//check config
-		//precheck_config.CheckConfig()
-		//status, e = daemon_plugin.GetInstance(daemon_name).Start()
 
 	case "status":
 		status, err := s.Status()
 		if err != nil {
 			basic.Logger.Errorln(err)
 		}
-		//status, e = daemon_plugin.GetInstance(daemon_name).Status()
 		switch status {
 		case service.StatusRunning:
 			basic.Logger.Infoln("service status:", "RUNNING")

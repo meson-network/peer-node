@@ -12,7 +12,6 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/swaggo/echo-swagger v1.3.0
 	github.com/swaggo/swag v1.8.1
-	github.com/takama/daemon v1.0.0
 	github.com/urfave/cli/v2 v2.4.0
 	gorm.io/gorm v1.23.4
 )
@@ -30,7 +29,6 @@ require (
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.10
-	github.com/jcmturner/gokrb5/v8 v8.4.2
 	github.com/kardianos/service v1.2.1
 	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
@@ -49,7 +47,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Shopify/sarama v1.30.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
-	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/alecthomas/participle v0.2.1 // indirect
 	github.com/apache/thrift v0.15.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
@@ -132,7 +129,7 @@ require (
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
-	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
+	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -276,7 +273,7 @@ require (
 
 replace (
 	//github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
-	github.com/minio/console => github.com/meson-network/minio-console v0.90.1
+	github.com/minio/console => github.com/meson-network/minio-console v0.90.2
 	github.com/minio/minio => github.com/meson-network/minio v0.0.1
 //github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 )

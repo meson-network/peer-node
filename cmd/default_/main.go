@@ -29,6 +29,7 @@ func StartDefault(clictx *cli.Context) {
 
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
+	basic.Logger.Infoln("Node starting, version: ", "v"+version_mgr.NodeVersion)
 
 	precheck_config.CheckConfig()
 
@@ -77,6 +78,7 @@ func StartDefault(clictx *cli.Context) {
 	}
 
 	//check cache folder
+	basic.Logger.Infoln("Checking cdn cache folder...")
 	err = cdn_cache_folder.GetInstance().CheckFolder(5)
 	if err != nil {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
@@ -84,12 +86,14 @@ func StartDefault(clictx *cli.Context) {
 	speed_tester_file.CheckTesterFile()
 
 	//init node
+	basic.Logger.Infoln("Init node id...")
 	err = node_info.InitNode()
 	if err != nil {
 		basic.Logger.Fatalln("initNode error", err)
 	}
 
 	////////init update cert
+	basic.Logger.Infoln("Init node certificate...")
 	err = cert_mgr.Init()
 	if err != nil {
 		basic.Logger.Fatalln("initCert error", err)

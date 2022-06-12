@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/coreservice-io/utils/rand_util"
+	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
 	"github.com/meson-network/peer-node/src/common/dbkv"
 )
@@ -53,7 +54,10 @@ func (r *AccessKeyMgr) GenNewRandomKey() string {
 		r.previousKey = r.currentKey
 	}
 	r.currentKey = randKey
-	dbkv.SetDBKV(sqlite_plugin.GetInstance(), "access_key", r.currentKey+","+r.previousKey)
+	err := dbkv.SetDBKV(sqlite_plugin.GetInstance(), "access_key", r.currentKey+","+r.previousKey)
+	if err != nil {
+		basic.Logger.Errorln("GenNewRandomKey dbkv.SetDBKV error:", err)
+	}
 	return randKey
 }
 

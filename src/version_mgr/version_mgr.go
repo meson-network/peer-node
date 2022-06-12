@@ -8,7 +8,7 @@ import (
 	"github.com/meson-network/peer_common/version"
 )
 
-const NodeVersion = "3.0.0"
+const NodeVersion = "3.0.3"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 7

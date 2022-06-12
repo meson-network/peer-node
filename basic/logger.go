@@ -20,5 +20,5 @@ func InitLogger() {
 		panic("Error:" + llerr.Error())
 	}
 
-	Logger.Infoln("logs_path:", logs_path)
+	Logger.Debugln("logs_path:", logs_path)
 }
