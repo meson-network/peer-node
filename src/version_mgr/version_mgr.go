@@ -8,7 +8,7 @@ import (
 	"github.com/meson-network/peer_common/version"
 )
 
-const NodeVersion = "3.0.3"
+const NodeVersion = "3.0.4"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 7
@@ -72,6 +72,8 @@ func GetOSInfo() (arch string, osInfo string) {
 	switch runtime.GOARCH {
 	case "386":
 		arch = "386"
+	case "arm64":
+		arch = "arm64"
 	}
 
 	osInfo = "linux"
