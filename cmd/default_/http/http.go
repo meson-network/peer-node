@@ -13,12 +13,6 @@ func StartDefaultHttpSever() {
 	api.ConfigApi(httpServer)
 	api.DeclareApi(httpServer)
 
-	//for handling private storage
-	//httpServer.GET("/_personal_/*", func(ctx echo.Context) error {
-	//	//storage_mgr.GetInstance()
-	//	return ctx.HTML(http.StatusOK, "personal data")
-	//})
-
 	//for handling cache file request
 	// https://spec00-xxsdfsdffsdf-06-pzname.xxx.com/path1/path2/path3/1.jpg
 	file_request.HandleFileRequest(httpServer)

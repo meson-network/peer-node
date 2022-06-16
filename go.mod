@@ -8,8 +8,6 @@ require (
 	github.com/imroc/req v0.3.2
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/spf13/cast v1.4.1
-	github.com/spf13/viper v1.10.1
 	github.com/swaggo/echo-swagger v1.3.0
 	github.com/swaggo/swag v1.8.1
 	github.com/urfave/cli/v2 v2.4.0
@@ -22,16 +20,16 @@ require (
 	github.com/coreservice-io/dns-common v0.0.23
 	github.com/coreservice-io/echo_middleware v0.1.17
 	github.com/coreservice-io/gorm_log v0.1.4
-	github.com/coreservice-io/hub v0.0.4
 	github.com/coreservice-io/job v0.1.20
 	github.com/coreservice-io/log v0.1.18
 	github.com/coreservice-io/logrus_log v0.1.20
 	github.com/coreservice-io/reference v0.0.8
 	github.com/coreservice-io/safe_go v0.1.4
-	github.com/coreservice-io/utils v0.1.10
+	github.com/coreservice-io/utils v0.1.12
 	github.com/kardianos/service v1.2.1
 	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
+	github.com/pelletier/go-toml v1.9.4
 	github.com/shirou/gopsutil/v3 v3.22.4
 	gorm.io/driver/sqlite v1.2.6
 )
@@ -83,7 +81,6 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/fgprof v0.9.2 // indirect
 	github.com/fraugster/parquet-go v0.10.0 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
@@ -123,7 +120,6 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/raft v1.3.9 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
@@ -151,7 +147,6 @@ require (
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
-	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
@@ -195,7 +190,6 @@ require (
 	github.com/nsqio/go-nsq v1.0.8 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/philhofer/fwd v1.1.2-0.20210722190033-5c56ac6d0bb9 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -218,11 +212,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/secure-io/sio-go v0.3.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/spf13/afero v1.6.0 // indirect
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/streadway/amqp v1.0.0 // indirect
-	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

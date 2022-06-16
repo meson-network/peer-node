@@ -6,14 +6,12 @@ import (
 	"strings"
 
 	ilog "github.com/coreservice-io/log"
-	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
+	"github.com/meson-network/peer-node/basic/conf"
 	"github.com/meson-network/peer-node/cmd/config"
+	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/default_/http/api"
 	"github.com/meson-network/peer-node/cmd/log"
-	"github.com/meson-network/peer-node/cmd/service"
-	"github.com/meson-network/peer-node/configuration"
-	"github.com/meson-network/peer-node/plugin/daemon_plugin"
 	"github.com/urfave/cli/v2"
 )
 
@@ -26,62 +24,41 @@ const CMD_NAME_CONFIG = "config"
 ////////config to do cmd ///////////
 func ConfigCmd() *cli.App {
 
-	//check is dev or pro
-	isDev := false
-	confShow := false
+	//////////init config/////////////
+	toml_conf_path := "configs/default.toml"
+
 	real_args := []string{}
-
 	for _, arg := range os.Args {
+		arg_lower := strings.ToLower(arg)
+		if strings.HasPrefix(arg_lower, "-conf=") || strings.HasPrefix(arg_lower, "--conf=") {
 
-		s := strings.ToLower(arg)
-		if strings.Contains(s, "-mode=dev") || strings.Contains(s, "--mode=dev") {
-			isDev = true
+			toml_target := strings.Trim(arg_lower, "-conf=")
+			toml_target = strings.Trim(toml_target, "--conf=")
+			toml_conf_path = "configs/" + toml_target + ".toml"
+			fmt.Println("toml_conf_path", toml_conf_path)
 			continue
 		}
-
-		if strings.Contains(s, "-mode=pro") || strings.Contains(s, "--mode=pro") {
-			isDev = false
-			continue
-		}
-
-		if strings.Contains(s, "-conf=show") || strings.Contains(s, "--conf=show") {
-			confShow = true
-			continue
-		}
-
-		if strings.Contains(s, "-conf=hide") || strings.Contains(s, "--conf=hide") {
-			confShow = false
-			continue
-		}
-
 		real_args = append(real_args, arg)
 	}
 
 	os.Args = real_args
 
-	conferr := iniConfig(isDev, confShow)
-	if conferr != nil {
-		basic.Logger.Panicln(conferr)
+	conf_err := conf.Init_config(toml_conf_path)
+	if conf_err != nil {
+		basic.Logger.Fatalln("config err", conf_err)
 	}
 
-	daemon_name, err := configuration.Config.GetString("daemon_name", "meson-node")
-	if err != nil {
-		basic.Logger.Fatalln("daemon_name [string] in config error," + err.Error())
-	}
+	configuration := conf.Get_config()
 
-	if daemon_name == "" {
-		basic.Logger.Fatalln("daemon_name in config should not be vacant")
-	}
-
-	err = daemon_plugin.Init(daemon_name, &service.Program{})
-	if err != nil {
-		basic.Logger.Fatalln("daemon_plugin.Init error:", err)
-	}
-	s := daemon_plugin.GetInstance(daemon_name)
+	/////set loglevel//////
+	basic.Logger.SetLevel(ilog.ParseLogLevel(configuration.Toml_config.Log_level))
+	////////////////////////////////
 
 	return &cli.App{
 		Action: func(clictx *cli.Context) error {
-			s.Run()
+			OS_service_start(configuration.Toml_config.Daemon_name, "run", func() {
+				default_.StartDefault(clictx)
+			})
 			return nil
 		},
 
@@ -113,7 +90,7 @@ func ConfigCmd() *cli.App {
 						Usage: "show configs",
 						Action: func(clictx *cli.Context) error {
 							fmt.Println("======== start of config ========")
-							configs, _ := configuration.Config.GetConfigAsString()
+							configs, _ := conf.Get_config().Read_config_file()
 							fmt.Println(configs)
 							fmt.Println("======== end  of  config ========")
 							return nil
@@ -123,9 +100,9 @@ func ConfigCmd() *cli.App {
 					{
 						Name:  "set",
 						Usage: "set config",
-						Flags: config.GetFlags(),
+						Flags: append(config.Cli_get_flags(), &cli.StringFlag{Name: "config", Required: false}),
 						Action: func(clictx *cli.Context) error {
-							config.ConfigSetting(clictx)
+							config.Cli_set_config(clictx)
 							return nil
 						},
 					},
@@ -138,18 +115,18 @@ func ConfigCmd() *cli.App {
 					//service install
 					{
 						Name:  "install",
-						Usage: "install meson node in service",
+						Usage: "install service",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "install", nil)
 							return nil
 						},
 					},
 					//service remove
 					{
 						Name:  "remove",
-						Usage: "remove meson node from service",
+						Usage: "remove service",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "remove", nil)
 							return nil
 						},
 					},
@@ -158,7 +135,7 @@ func ConfigCmd() *cli.App {
 						Name:  "start",
 						Usage: "run",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "start", nil)
 							return nil
 						},
 					},
@@ -167,7 +144,7 @@ func ConfigCmd() *cli.App {
 						Name:  "stop",
 						Usage: "stop",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "stop", nil)
 							return nil
 						},
 					},
@@ -176,7 +153,7 @@ func ConfigCmd() *cli.App {
 						Name:  "restart",
 						Usage: "restart",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "restart", nil)
 							return nil
 						},
 					},
@@ -185,7 +162,7 @@ func ConfigCmd() *cli.App {
 						Name:  "status",
 						Usage: "show process status",
 						Action: func(clictx *cli.Context) error {
-							service.RunServiceCmd(clictx, s)
+							OS_service_start(configuration.Toml_config.Daemon_name, "status", nil)
 							return nil
 						},
 					},
@@ -193,76 +170,4 @@ func ConfigCmd() *cli.App {
 			},
 		},
 	}
-}
-
-////////end config to do app ///////////
-func readDefaultConfig(isDev bool, confShow bool) (*configuration.VConfig, string, error) {
-	var defaultConfigPath string
-	var err error
-	if isDev {
-		basic.Logger.Infoln("======== using dev mode ========")
-		defaultConfigPath, err = path_util.SmartExistPath("configs/dev.json")
-		if err != nil {
-			basic.Logger.Errorln("no dev.json under /configs folder , use --mode=pro to run pro mode")
-			return nil, "", err
-		}
-	} else {
-		basic.Logger.Infoln("======== using pro mode ========")
-		defaultConfigPath, err = path_util.SmartExistPath("configs/pro.json")
-		if err != nil {
-			basic.Logger.Errorln("no pro.json under /configs folder , use --mode=dev to run dev mode")
-			return nil, "", err
-		}
-	}
-
-	if confShow {
-		basic.Logger.Infoln("using config:", defaultConfigPath)
-	}
-
-	config, err := configuration.ReadConfig(defaultConfigPath)
-	if err != nil {
-		basic.Logger.Errorln("config err", err)
-		return nil, "", err
-	}
-
-	return config, defaultConfigPath, nil
-}
-
-func iniConfig(isDev bool, confShow bool) error {
-	//path_util.ExEPathPrintln()
-	////read default config
-	config, _, err := readDefaultConfig(isDev, confShow)
-	if err != nil {
-		return err
-	}
-
-	configuration.Config = config
-	logerr := setLoggerLevel()
-	if logerr != nil {
-		return logerr
-	}
-
-	if confShow {
-		basic.Logger.Infoln("======== start of config ========")
-		configs, _ := config.GetConfigAsString()
-		basic.Logger.Infoln(configs)
-		basic.Logger.Infoln("======== end  of  config ========")
-	}
-
-	return nil
-}
-
-func setLoggerLevel() error {
-	logLevel := "INFO"
-	if configuration.Config != nil {
-		var err error
-		logLevel, err = configuration.Config.GetString("local_log_level", "INFO")
-		if err != nil {
-			return err
-		}
-	}
-
-	l := ilog.ParseLogLevel(logLevel)
-	basic.Logger.SetLevel(l)
-	return nil
 }

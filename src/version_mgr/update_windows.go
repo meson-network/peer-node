@@ -111,7 +111,7 @@ func DownloadNewVersion(downloadUrl string) error {
 		name := filepath.Join(nameArr[1:]...)
 
 		//skip config folder and pro.json
-		if name == "configs" || name == "configs/pro.json" {
+		if name == "configs" || name == "configs/default.toml" {
 			continue
 		}
 
@@ -150,11 +150,6 @@ func DownloadNewVersion(downloadUrl string) error {
 		}
 		os.Chmod(filePath, 0777)
 
-		//err = os.WriteFile(filePath, content, 0777)
-		//if err != nil {
-		//	basic.Logger.Errorln("DownloadNewVersion os.WriteFile err:", err, "filePath", filePath)
-		//	return err
-		//}
 	}
 
 	return nil

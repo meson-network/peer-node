@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/meson-network/peer-node/basic"
-	"github.com/meson-network/peer-node/configuration"
+	"github.com/meson-network/peer-node/basic/conf"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	api2 "github.com/meson-network/peer-node/tools/http/api"
 	"github.com/meson-network/peer_common/api"
@@ -17,22 +17,19 @@ func CheckConfig() {
 	checkPort()
 	checkProvideCacheSize()
 
-	configuration.Config.WriteConfig()
+	conf.Get_config().Save_config()
 }
 
 func checkToken() {
-	endpoint, err := configuration.Config.GetString("endpoint", "https://api.meson.network")
-	if err != nil || endpoint == "" {
-		basic.Logger.Errorln("endpoint [string] in config error," + err.Error())
+	toml_conf := conf.Get_config().Toml_config
+
+	endpoint := toml_conf.EndPoint
+	if endpoint == "" {
+		basic.Logger.Errorln("[end_point] in config error")
 		return
 	}
 
-	token, err := configuration.Config.GetString("token", "")
-	if err != nil {
-		basic.Logger.Errorln("daemon_name [string] in config error," + err.Error())
-		return
-	}
-
+	token := toml_conf.Token
 	needInputToken := false
 	for {
 		if needInputToken {
@@ -54,7 +51,7 @@ func checkToken() {
 		//check token
 		url := endpoint + "/api/user/token_check"
 		res := &api.API_META_STATUS{}
-		err = api2.Get(url, token, res)
+		err := api2.Get(url, token, res)
 		if err != nil {
 			fmt.Println("check token error:", err)
 			needInputToken = true
@@ -66,18 +63,17 @@ func checkToken() {
 			continue
 		}
 		fmt.Println("token:", token)
-		configuration.Config.Set("token", token)
-		configuration.Config.Set("storage_password", token)
+
+		toml_conf.Token = token
+		toml_conf.Storage.Password = token
 		break
 	}
 }
 
 func checkPort() {
-	port, err := configuration.Config.GetInt("https_port", 0)
-	if err != nil {
-		basic.Logger.Errorln("https_port [int] in config error," + err.Error())
-		return
-	}
+
+	toml_conf := conf.Get_config().Toml_config
+	port := toml_conf.Https_port
 
 	for {
 		if port <= 0 || port > 65535 || echo_plugin.IsForbiddenPort(port) {
@@ -85,7 +81,7 @@ func checkPort() {
 			fmt.Printf("CAN NOT use port %d ,please input port, \n", port)
 		} else {
 			fmt.Println("port:", port)
-			configuration.Config.Set("https_port", port)
+			toml_conf.Https_port = port
 			break
 		}
 		var myPortStr string
@@ -94,17 +90,18 @@ func checkPort() {
 		if myPortStr == "" {
 			port = 443
 		} else {
+			var err error
 			port, err = strconv.Atoi(myPortStr)
+			if err != nil {
+				fmt.Println("input error:", err)
+			}
 		}
 	}
 }
 
 func checkProvideCacheSize() {
-	cdnCacheSize, err := configuration.Config.GetInt("cache_size", 0)
-	if err != nil {
-		basic.Logger.Errorln("cdn_cache_size [string] in config error," + err.Error())
-		return
-	}
+	toml_conf := conf.Get_config().Toml_config
+	cdnCacheSize := toml_conf.Cache.Size
 
 	for {
 		if cdnCacheSize < cdn_cache.MIN_CACHE_SIZE {
@@ -112,7 +109,7 @@ func checkProvideCacheSize() {
 			fmt.Printf("cache_size must be at least %d GB \n", cdn_cache.MIN_CACHE_SIZE)
 		} else {
 			fmt.Println("cache_size:", cdnCacheSize)
-			configuration.Config.Set("cache_size", cdnCacheSize)
+			toml_conf.Cache.Size = cdnCacheSize
 			break
 		}
 		var sizeStr string
@@ -121,7 +118,11 @@ func checkProvideCacheSize() {
 		if sizeStr == "" {
 			cdnCacheSize = cdn_cache.MIN_CACHE_SIZE
 		} else {
+			var err error
 			cdnCacheSize, err = strconv.Atoi(sizeStr)
+			if err != nil {
+				fmt.Println("input error:", err)
+			}
 		}
 	}
 }

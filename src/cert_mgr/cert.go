@@ -1,14 +1,12 @@
 package cert_mgr
 
 import (
-	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/coreservice-io/utils/hash_util"
 	"github.com/coreservice-io/utils/path_util"
-	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/tools/file"
 )
@@ -21,21 +19,12 @@ type CertMgr struct {
 var cert_mgr *CertMgr
 
 func Init() error {
-
-	//todo if cert file not exist, create folder
-	rel_crt, err := configuration.Config.GetString("https_crt_path", "assets/cert/public.crt")
-	if err != nil || rel_crt == "" {
-		return errors.New("https_crt_path [string] in config.json err")
-	}
-
-	rel_key, err := configuration.Config.GetString("https_key_path", "assets/cert/private.key")
-	if err != nil || rel_key == "" {
-		return errors.New("https_key_path [string] in config.json err")
-	}
+	rel_crt := "assets/cert/public.crt"
+	rel_key := "assets/cert/private.key"
 
 	crtPath := path_util.ExE_Path(rel_crt)
 	crtFolder := filepath.Dir(crtPath)
-	err = os.MkdirAll(crtFolder, 0777)
+	err := os.MkdirAll(crtFolder, 0777)
 	if err != nil {
 		return err
 	}

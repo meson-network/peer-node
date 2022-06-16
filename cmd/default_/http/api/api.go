@@ -2,10 +2,10 @@ package api
 
 import (
 	"github.com/meson-network/peer-node/basic"
+	"github.com/meson-network/peer-node/basic/conf"
 
 	"github.com/coreservice-io/utils/path_util"
 	_ "github.com/meson-network/peer-node/cmd/default_/http/api_docs"
-	"github.com/meson-network/peer-node/configuration"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/swaggo/swag/gen"
@@ -48,32 +48,28 @@ func ConfigApi(httpServer *echo_plugin.EchoServer) {
 
 func Gen_Api_Docs() {
 
-	api_doc_gen_search_dir, _ := configuration.Config.GetString("api_doc_gen_search_dir", "")
-	api_doc_gen_mainfile, _ := configuration.Config.GetString("api_doc_gen_mainfile", "")
-	api_doc_gen_output_dir, _ := configuration.Config.GetString("api_doc_gen_output_dir", "")
+	toml_config := conf.Get_config().Toml_config
 
-	if api_doc_gen_search_dir == "" ||
-		api_doc_gen_mainfile == "" ||
-		api_doc_gen_output_dir == "" {
-		basic.Logger.Errorln("api_doc_gen_search_dir|api_doc_gen_mainfile|api_doc_gen_output_dir config errors")
+	api_f, api_f_exist, _ := path_util.SmartPathExist(toml_config.Api.Doc_gen_search_dir)
+	if !api_f_exist {
+		basic.Logger.Errorln("api_doc_gen_search_dir folder not exist:" + toml_config.Api.Doc_gen_search_dir)
+		return
+	}
+	api_doc_f, api_doc_f_exist, _ := path_util.SmartPathExist(toml_config.Api.Doc_gen_output_dir)
+	if !api_doc_f_exist {
+		basic.Logger.Errorln("api_doc_gen_output_dir folder not exist:" + toml_config.Api.Doc_gen_output_dir)
 		return
 	}
 
-	api_f, api_f_err := path_util.SmartExistPath(api_doc_gen_search_dir)
-	if api_f_err != nil {
-		basic.Logger.Errorln("api_doc_gen_search_dir folder not exist")
-		return
-	}
-	api_doc_f, api_doc_f_err := path_util.SmartExistPath(api_doc_gen_output_dir)
-	if api_doc_f_err != nil {
-		basic.Logger.Errorln("api_doc_gen_output_dir folder not exist")
+	if toml_config.Api.Doc_gen_mainfile == "" {
+		basic.Logger.Errorln("doc_gen_mainfile can not be empty")
 		return
 	}
 
 	config := &gen.Config{
 		SearchDir:       api_f,
 		OutputDir:       api_doc_f,
-		MainAPIFile:     api_doc_gen_mainfile,
+		MainAPIFile:     toml_config.Api.Doc_gen_mainfile,
 		OutputTypes:     []string{"go", "json", "yaml"},
 		ParseDependency: true,
 	}

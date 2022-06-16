@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/coreservice-io/utils/path_util"
-	"github.com/meson-network/peer-node/configuration"
+	"github.com/meson-network/peer-node/basic/conf"
 	"github.com/meson-network/peer_common/cdn_cache"
 )
 
@@ -18,17 +18,12 @@ const CacheFileFolder = "files"
 const eachHoldFileSize = 200 * 1024 * 1024
 const FreeSpaceLine = 1 * 1024 * 1024 * 1024 //1GB
 
-const defaultCdnCacheSizeGB = 40
-
 type CdnCacheFolder struct {
-	Abs_path string //absolute folder path of the root folder
-	//Total_size_config  int    //total size in G bytes used for whole cdn_cache space
-	Cache_provide_size int64 //size cdn cache can use in byte
-	Cache_used_size    int64 //size cdn cache used in byte
+	Abs_path           string //absolute folder path of the root folder
+	Cache_provide_size int64  //size cdn cache can use in byte
+	Cache_used_size    int64  //size cdn cache used in byte
 
 	sizeLock sync.RWMutex
-
-	//Private_size   int    //size in G bytes used for node's owner personal uploader space
 }
 
 var cdn_cache_mgr_pointer *CdnCacheFolder
@@ -38,26 +33,28 @@ func Init() error {
 		return nil
 	}
 
-	cdn_cache_size, cdn_cache_size_err := configuration.Config.GetInt("cache_size", defaultCdnCacheSizeGB)
-	if cdn_cache_size_err != nil || cdn_cache_size == 0 {
-		return errors.New("cache_size not configured correctly")
+	toml_conf := conf.Get_config().Toml_config
+
+	if toml_conf.Cache.Size <= 0 {
+		return errors.New("[cache.size_GB] not configured correctly")
 	}
 
-	if cdn_cache_size < cdn_cache.MIN_CACHE_SIZE {
-		return fmt.Errorf("cache_size must be at least %d GB", cdn_cache.MIN_CACHE_SIZE)
+	if toml_conf.Cache.Size < cdn_cache.MIN_CACHE_SIZE {
+		return fmt.Errorf("[cache.size_GB] must be at least %d GB", cdn_cache.MIN_CACHE_SIZE)
 	}
 
 	//cdn_cache dir
-	sf, sf_err := configuration.Config.GetString("cache_folder", "m_cache")
-	if sf_err != nil {
-		return errors.New("cache_folder not configured correctly")
+	cacheFolder := toml_conf.Cache.Folder
+	if cacheFolder == "" { //todo set a default value or return error
+		cacheFolder = "m_cache"
+		//return errors.New("[cache.folder] not configured correctly")
 	}
 
 	absPath := ""
-	if filepath.IsAbs(sf) {
-		absPath = sf
+	if filepath.IsAbs(cacheFolder) {
+		absPath = cacheFolder
 	} else {
-		absPath = path_util.ExE_Path(sf)
+		absPath = path_util.ExE_Path(cacheFolder)
 	}
 
 	err := os.MkdirAll(absPath, 0777)
@@ -92,9 +89,8 @@ func Init() error {
 
 	cdn_cache_mgr_pointer = &CdnCacheFolder{
 		Abs_path:           absPath,
-		Cache_provide_size: int64(cdn_cache_size) * 1024 * 1024 * 1024,
+		Cache_provide_size: int64(toml_conf.Cache.Size) * 1024 * 1024 * 1024,
 		Cache_used_size:    0,
-		//Private_size:   int(float64(storage_size) * cdn_cache.MAX_STOR_PERSONAL_RATIO),
 	}
 
 	return nil

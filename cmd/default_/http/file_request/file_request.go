@@ -109,8 +109,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 			}
 
 			//redirect to server
-			//https://pz-pullzone.meson.network/fileName  todo: file missing url
-			//redirectUrl := "https://pz-" + pullZone + ".meson.network" + fileName
+			//https://endpoint/api/file_missing/{pullzone}/{*}  todo: file missing url
 			redirectUrl := client.EndPoint + "/api/file_missing/" + pullZone + fileName
 			return ctx.Redirect(302, redirectUrl)
 		}

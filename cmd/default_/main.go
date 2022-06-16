@@ -27,10 +27,12 @@ import (
 
 func StartDefault(clictx *cli.Context) {
 
+	//log some info
 	color.Green(basic.Logo)
 	color.Green(fmt.Sprintf("Node Version: v%s", version_mgr.NodeVersion))
 	basic.Logger.Infoln("Node starting, version: ", "v"+version_mgr.NodeVersion)
 
+	//check config
 	precheck_config.CheckConfig()
 
 	//init cdn cache folder

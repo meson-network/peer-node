@@ -10,17 +10,5 @@ func initReference() error {
 		return err
 	}
 
-	// cache1 instance
-	err = reference_plugin.Init_("ref1")
-	if err != nil {
-		return err
-	}
-
-	// cache2 instance
-	err = reference_plugin.Init_("ref2")
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
