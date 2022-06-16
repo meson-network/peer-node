@@ -10,7 +10,6 @@ import (
 //httpServer example
 func StartDefaultHttpSever() {
 	httpServer := echo_plugin.GetInstance()
-	api.ConfigApi(httpServer)
 	api.DeclareApi(httpServer)
 
 	//for handling cache file request

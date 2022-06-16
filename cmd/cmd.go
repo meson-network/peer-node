@@ -10,7 +10,6 @@ import (
 	"github.com/meson-network/peer-node/basic/conf"
 	"github.com/meson-network/peer-node/cmd/config"
 	"github.com/meson-network/peer-node/cmd/default_"
-	"github.com/meson-network/peer-node/cmd/default_/http/api"
 	"github.com/meson-network/peer-node/cmd/log"
 	"github.com/urfave/cli/v2"
 )
@@ -72,14 +71,14 @@ func ConfigCmd() *cli.App {
 					return nil
 				},
 			},
-			{
-				Name:  CMD_NAME_GEN_API,
-				Usage: "api command",
-				Action: func(clictx *cli.Context) error {
-					api.Gen_Api_Docs()
-					return nil
-				},
-			},
+			//{
+			//	Name:  CMD_NAME_GEN_API,
+			//	Usage: "api command",
+			//	Action: func(clictx *cli.Context) error {
+			//		api.Gen_Api_Docs()
+			//		return nil
+			//	},
+			//},
 			{
 				Name:  CMD_NAME_CONFIG,
 				Usage: "config command",

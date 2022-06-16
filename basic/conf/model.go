@@ -6,15 +6,8 @@ type TomlConfig struct {
 	Token       string  `toml:"token"`
 	Https_port  int     `toml:"https_port"`
 	EndPoint    string  `toml:"end_point"`
-	Api         API     `toml:"api"`
 	Cache       Cache   `toml:"cache"`
 	Storage     Storage `toml:"storage"`
-}
-
-type API struct {
-	Doc_gen_search_dir string `toml:"doc_gen_search_dir"`
-	Doc_gen_mainfile   string `toml:"doc_gen_mainfile"`
-	Doc_gen_output_dir string `toml:"doc_gen_output_dir"`
 }
 
 type Cache struct {
