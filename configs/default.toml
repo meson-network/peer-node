@@ -4,11 +4,6 @@ token =''
 https_port = 0
 end_point='https://api.meson.network'
 
-[api]
-doc_gen_search_dir = 'cmd/default_/http/api'
-doc_gen_mainfile = 'api.go'
-doc_gen_output_dir = 'cmd/default_/http/api_docs'
-
 [cache]
 enable = true
 folder ="./m_cache"

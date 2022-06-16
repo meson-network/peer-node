@@ -21,7 +21,7 @@ import (
 )
 
 func (v *VersionMgr) CheckUpdate() {
-	isLatestVersion, latestVersion, _ := v.IsLatestVersion()
+	isLatestVersion, latestVersion, downloadHost, _ := v.IsLatestVersion()
 	if isLatestVersion {
 		return
 	}
@@ -45,7 +45,7 @@ func (v *VersionMgr) CheckUpdate() {
 	// 'https://meson.network/static/terminal/v0.1.2/meson-windows-amd64.zip'
 	fileName := "meson" + "-" + osInfo + "-" + arch + ".zip"
 	downloadPath := "v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := "https://dashboard.meson.network/static_assets/node/" + downloadPath
+	newVersionDownloadUrl := downloadHost + "/static_assets/node/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
 	err := DownloadNewVersion(newVersionDownloadUrl)
@@ -158,9 +158,13 @@ func DownloadNewVersion(downloadUrl string) error {
 func RestartNode() error {
 	basic.Logger.Debugln("peer node restart cmd")
 
-	absPath, err := path_util.SmartExistPath("./meson.exe")
+	absPath, exist, err := path_util.SmartPathExist("./meson.exe")
 	if err != nil {
 		basic.Logger.Errorln("RestartTerminal path_util.SmartExistPath err:", err)
+		return err
+	}
+	if !exist {
+		basic.Logger.Errorln("RestartNode path_util.SmartPathExist file not exist")
 		return err
 	}
 

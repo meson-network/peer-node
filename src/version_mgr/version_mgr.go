@@ -54,17 +54,17 @@ func (v *VersionMgr) GetVersion() string {
 	return v.CurrentVersion
 }
 
-func (v *VersionMgr) IsLatestVersion() (isLatestVersion bool, latestVersion string, err error) {
-	latestVersion, _, err = client.GetNodeVersionFromServer()
+func (v *VersionMgr) IsLatestVersion() (isLatestVersion bool, latestVersion string, downloadHost string, err error) {
+	latestVersion, _, downloadHost, err = client.GetNodeVersionFromServer()
 	if err != nil {
-		return true, latestVersion, err
+		return true, latestVersion, downloadHost, err
 	}
 
 	r := version.VersionCompare(v.CurrentVersion, latestVersion)
 	if r >= 0 {
-		return true, latestVersion, nil
+		return true, latestVersion, downloadHost, nil
 	}
-	return false, latestVersion, nil
+	return false, latestVersion, downloadHost, nil
 }
 
 func GetOSInfo() (arch string, osInfo string) {

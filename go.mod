@@ -8,7 +8,6 @@ require (
 	github.com/imroc/req v0.3.2
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/swaggo/echo-swagger v1.3.0
 	github.com/swaggo/swag v1.8.1
 	github.com/urfave/cli/v2 v2.4.0
 	gorm.io/gorm v1.23.4
@@ -27,7 +26,7 @@ require (
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.12
 	github.com/kardianos/service v1.2.1
-	github.com/meson-network/peer_common v0.0.0-20220607134814-f014ed07a447
+	github.com/meson-network/peer_common v0.0.0-20220616130532-a09442cc202a
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/pelletier/go-toml v1.9.4
 	github.com/shirou/gopsutil/v3 v3.22.4
@@ -83,7 +82,6 @@ require (
 	github.com/fraugster/parquet-go v0.10.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1 // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.4 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -213,7 +211,6 @@ require (
 	github.com/secure-io/sio-go v0.3.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/streadway/amqp v1.0.0 // indirect
-	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect

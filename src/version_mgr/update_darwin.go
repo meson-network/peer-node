@@ -22,7 +22,7 @@ import (
 )
 
 func (v *VersionMgr) CheckUpdate() {
-	isLatestVersion, latestVersion, _ := v.IsLatestVersion()
+	isLatestVersion, latestVersion, downloadHost, _ := v.IsLatestVersion()
 	if isLatestVersion {
 		return
 	}
@@ -41,7 +41,7 @@ func (v *VersionMgr) CheckUpdate() {
 	// 'https://dashboard.meson.network/static_assets/node/v0.1.2/meson-darwin-amd64.tar.gz'
 	fileName := "meson" + "-" + osInfo + "-" + arch + ".tar.gz"
 	downloadPath := "v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := "https://dashboard.meson.network/static_assets/node/" + downloadPath
+	newVersionDownloadUrl := downloadHost + "/static_assets/node/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
 	err := DownloadNewVersion(newVersionDownloadUrl)
