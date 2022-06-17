@@ -43,7 +43,7 @@ func PreCheckTask(remoteUrl string) error {
 		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_BUSY, "too many running download task")
 	}
 
-	//todo check space
+	//check space
 	freeSize := cdn_cache_folder.GetInstance().GetFreeSize()
 	if freeSize < cdn_cache_folder.FreeSpaceLine {
 		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_DISK_SPACE, "have not enough space")
@@ -86,7 +86,7 @@ func StartDownloader(
 	file_relpath := file_mgr.UrlHashToPublicFileRelPath(file_hash)
 	des_path := path.Join(cdn_cache_folder.GetInstance().GetCacheFileSaveFolderPath(), file_relpath)
 
-	old_file, file_err := file_mgr.GetFile(file_hash, true, true)
+	old_file, file_err := file_mgr.GetFile(file_hash, false, true)
 	if file_err != nil {
 		callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR)
 		return
@@ -126,12 +126,9 @@ func StartDownloader(
 	file_mgr.CreateFile(&file_mgr.FileModel{
 		File_hash:         file_hash,
 		Last_req_unixtime: nowTime,
-		//Last_scan_unixtime:     nowTime,
-		//Last_download_unixtime: nowTime,
-		Size_byte: 0,
-		Rel_path:  file_relpath,
-		Status:    file_mgr.STATUS_DOWNLOADING,
-		//Type:                   file_mgr.TYPE_PUBLIC,
+		Size_byte:         0,
+		Rel_path:          file_relpath,
+		Status:            file_mgr.STATUS_DOWNLOADING,
 	})
 
 	//dont forget to delete old fild otherwise you may append content after old content
@@ -179,9 +176,7 @@ func StartDownloader(
 			nowTime = time.Now().UTC().Unix()
 			file_mgr.UpdateFile(map[string]interface{}{
 				"last_req_unixtime": nowTime,
-				//"last_scan_unixtime":     nowTime,
-				//"last_download_unixtime": nowTime,
-				"size_byte": resp.BytesComplete(),
+				"size_byte":         resp.BytesComplete(),
 			}, file_hash)
 
 		case <-resp.Done:
@@ -210,10 +205,8 @@ func StartDownloader(
 				nowTime = time.Now().UTC().Unix()
 				file_mgr.UpdateFile(map[string]interface{}{
 					"last_req_unixtime": nowTime,
-					//"last_scan_unixtime":     nowTime,
-					//"last_download_unixtime": nowTime,
-					"size_byte": resp.BytesComplete(),
-					"status":    file_mgr.STATUS_DOWNLOADED,
+					"size_byte":         resp.BytesComplete(),
+					"status":            file_mgr.STATUS_DOWNLOADED,
 				}, file_hash)
 				callback_succeed(file_hash, resp.BytesComplete())
 				cdn_cache_folder.GetInstance().AddCacheUsedSize(resp.BytesComplete())

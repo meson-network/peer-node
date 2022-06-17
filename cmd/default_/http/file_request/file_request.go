@@ -89,6 +89,7 @@ func HandleFileRequest(httpServer *echo_plugin.EchoServer) {
 				fileIsMissing = true
 				//delete from db
 				file_mgr.DeleteFile(fileHash)
+				file_mgr.RemoveFileFromDisk(fileHash)
 				cdn_cache_folder.GetInstance().ReduceCacheUsedSize(file_info.Size_byte)
 			case -10005 - 10006 - 10007:
 				//-10005 file header not exist

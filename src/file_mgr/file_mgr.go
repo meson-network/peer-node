@@ -15,6 +15,7 @@ func RemoveFileFromDisk(fileHash string) {
 	fileAbsPath := GetFileAbsPath(fileHash)
 	os.Remove(fileAbsPath)
 	os.Remove(fileAbsPath + ".header")
+	DeleteEmptyFolder(fileAbsPath)
 }
 
 func GetFileAbsPath(file_hash string) string {
