@@ -12,6 +12,26 @@ import (
 	"github.com/meson-network/peer_common/cdn_cache"
 )
 
+func PreCheckConfig() {
+	toml_conf := conf.Get_config().Toml_config
+
+	token := toml_conf.Token
+	if len(token) != 24 {
+		basic.Logger.Fatalln("token config error")
+	}
+
+	port := toml_conf.Https_port
+	if port <= 0 || port > 65535 || echo_plugin.IsForbiddenPort(port) {
+		basic.Logger.Fatalln("https_port cofig error")
+	}
+
+	cdnCacheSize := toml_conf.Cache.Size
+	if cdnCacheSize < cdn_cache.MIN_CACHE_SIZE {
+		basic.Logger.Fatalln("cache.size config error,minimum is 20")
+	}
+
+}
+
 func CheckConfig() {
 	checkToken()
 	checkPort()
@@ -25,7 +45,7 @@ func checkToken() {
 
 	endpoint := toml_conf.EndPoint
 	if endpoint == "" {
-		basic.Logger.Errorln("[end_point] in config error")
+		basic.Logger.Fatalln("[end_point] in config error")
 		return
 	}
 

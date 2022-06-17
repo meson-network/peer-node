@@ -33,7 +33,7 @@ func StartDefault(clictx *cli.Context) {
 	basic.Logger.Infoln("Node starting, version: ", "v"+version_mgr.NodeVersion)
 
 	//check config
-	precheck_config.CheckConfig()
+	precheck_config.PreCheckConfig()
 
 	//init cdn cache folder
 	err := cdn_cache_folder.Init()

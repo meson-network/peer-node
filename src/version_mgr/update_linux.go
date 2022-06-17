@@ -38,10 +38,10 @@ func (v *VersionMgr) CheckUpdate() {
 	//new version download url
 	//check arch and os
 	arch, osInfo := GetOSInfo()
-	// 'https://dashboard.meson.network/static_assets/node/v0.1.2/meson-darwin-amd64.tar.gz'
+	// 'https://xxxx.xxx/xxxx/node/v0.1.2/meson-darwin-amd64.tar.gz'
 	fileName := "meson" + "-" + osInfo + "-" + arch + ".tar.gz"
 	downloadPath := "v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := downloadHost + "/static_assets/node/" + downloadPath
+	newVersionDownloadUrl := downloadHost + "/node/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
 	err := DownloadNewVersion(newVersionDownloadUrl)

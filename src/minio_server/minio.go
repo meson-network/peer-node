@@ -56,7 +56,7 @@ func RunMinio() error {
 		return errors.New("console port error")
 	}
 	if consolePort == toml_conf.Https_port || consolePort == apiPort {
-		return fmt.Errorf("storage api port [%d] already used in https port or api port", consolePort)
+		return fmt.Errorf("storage console port [%d] already used in https port or api port", consolePort)
 	}
 
 	//get domain from remote
