@@ -1,13 +1,13 @@
 package conf
 
 type TomlConfig struct {
-	Daemon_name string  `toml:"daemon_name"`
-	Log_level   string  `toml:"log_level"`
-	Token       string  `toml:"token"`
-	Https_port  int     `toml:"https_port"`
-	EndPoint    string  `toml:"end_point"`
-	Cache       Cache   `toml:"cache"`
-	Storage     Storage `toml:"storage"`
+	//Daemon_name string  `toml:"daemon_name"`
+	Log_level  string  `toml:"log_level"`
+	Token      string  `toml:"token"`
+	Https_port int     `toml:"https_port"`
+	EndPoint   string  `toml:"end_point"`
+	Cache      Cache   `toml:"cache"`
+	Storage    Storage `toml:"storage"`
 }
 
 type Cache struct {

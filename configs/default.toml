@@ -1,4 +1,3 @@
-daemon_name = "meson-node"
 end_point = "https://api.meson.network"
 https_port = 443
 log_level = "INFO"

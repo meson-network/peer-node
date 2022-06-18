@@ -11,8 +11,11 @@ import (
 	"github.com/meson-network/peer-node/cmd/config"
 	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/log"
+	"github.com/meson-network/peer-node/src/precheck_config"
 	"github.com/urfave/cli/v2"
 )
+
+const daemon_name = "meson-node"
 
 const CMD_NAME_DEFAULT = "default"
 const CMD_NAME_GEN_API = "gen_api"
@@ -55,7 +58,7 @@ func ConfigCmd() *cli.App {
 
 	return &cli.App{
 		Action: func(clictx *cli.Context) error {
-			OS_service_start(configuration.Toml_config.Daemon_name, "run", func() {
+			OS_service_start(daemon_name, "run", func() {
 				default_.StartDefault(clictx)
 			})
 			return nil
@@ -116,7 +119,7 @@ func ConfigCmd() *cli.App {
 						Name:  "install",
 						Usage: "install service",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "install", nil)
+							OS_service_start(daemon_name, "install", nil)
 							return nil
 						},
 					},
@@ -125,7 +128,7 @@ func ConfigCmd() *cli.App {
 						Name:  "remove",
 						Usage: "remove service",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "remove", nil)
+							OS_service_start(daemon_name, "remove", nil)
 							return nil
 						},
 					},
@@ -134,7 +137,9 @@ func ConfigCmd() *cli.App {
 						Name:  "start",
 						Usage: "run",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "start", nil)
+							//check config
+							precheck_config.PreCheckConfig()
+							OS_service_start(daemon_name, "start", nil)
 							return nil
 						},
 					},
@@ -143,7 +148,7 @@ func ConfigCmd() *cli.App {
 						Name:  "stop",
 						Usage: "stop",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "stop", nil)
+							OS_service_start(daemon_name, "stop", nil)
 							return nil
 						},
 					},
@@ -152,7 +157,9 @@ func ConfigCmd() *cli.App {
 						Name:  "restart",
 						Usage: "restart",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "restart", nil)
+							//check config
+							precheck_config.PreCheckConfig()
+							OS_service_start(daemon_name, "restart", nil)
 							return nil
 						},
 					},
@@ -161,7 +168,7 @@ func ConfigCmd() *cli.App {
 						Name:  "status",
 						Usage: "show process status",
 						Action: func(clictx *cli.Context) error {
-							OS_service_start(configuration.Toml_config.Daemon_name, "status", nil)
+							OS_service_start(daemon_name, "status", nil)
 							return nil
 						},
 					},
