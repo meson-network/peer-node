@@ -140,7 +140,6 @@ func DownloadNewVersion(downloadUrl string) error {
 		err = os.Remove(filePath)
 		if err != nil {
 			basic.Logger.Errorln("Error remove old file", filePath, "err:", err)
-			fmt.Println(err)
 			//return err
 		}
 		err = ioutil.WriteFile(filePath, content, 777)
