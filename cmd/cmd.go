@@ -74,14 +74,6 @@ func ConfigCmd() *cli.App {
 					return nil
 				},
 			},
-			//{
-			//	Name:  CMD_NAME_GEN_API,
-			//	Usage: "api command",
-			//	Action: func(clictx *cli.Context) error {
-			//		api.Gen_Api_Docs()
-			//		return nil
-			//	},
-			//},
 			{
 				Name:  CMD_NAME_CONFIG,
 				Usage: "config command",

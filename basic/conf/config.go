@@ -2,11 +2,11 @@ package conf
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/coreservice-io/utils/path_util"
-	"github.com/meson-network/peer-node/basic"
 	"github.com/pelletier/go-toml"
 )
 
@@ -88,7 +88,7 @@ func Init_config(config_path string) error {
 		return err
 	}
 
-	basic.Logger.Infoln("using config:", cfg.Abs_path)
+	fmt.Println("using config:", cfg.Abs_path)
 
 	config = &cfg
 

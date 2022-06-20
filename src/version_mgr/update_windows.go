@@ -6,97 +6,38 @@ package version_mgr
 import (
 	"archive/zip"
 	"bytes"
-	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
+	"github.com/pelletier/go-toml"
 )
 
-func (v *VersionMgr) CheckUpdate() {
-	isLatestVersion, latestVersion, downloadHost, _ := v.IsLatestVersion()
-	if isLatestVersion {
-		return
-	}
-
-	basic.Logger.Infoln("New version detected, please update by manual.")
-	return
-
-	//download new version
-	//need upgrade
-	if v.AutoUpdateFiledTime > updateRetryTimeLimit || v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
-		basic.Logger.Infoln("New version auto update failed, please update by manual.")
-		return
-	}
-	basic.Logger.Infoln("New version detected, start to upgrade... ")
-
-	//new version download url
-
+func genFileName() string {
 	//check arch and os
 	arch, osInfo := GetOSInfo()
-
 	// 'https://xxxx/xxxxx/node/v0.1.2/meson-windows-amd64.zip'
-	fileName := "meson" + "-" + osInfo + "-" + arch + ".zip"
-	downloadPath := "v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := downloadHost + "/node/" + downloadPath
-	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
-
-	err := DownloadNewVersion(newVersionDownloadUrl)
-	if err != nil {
-		basic.Logger.Errorln("CheckUpdate DownloadNewVersion err:", err)
-		v.LastFailedTime = time.Now().UTC().Unix()
-		v.AutoUpdateFiledTime++
-		return
-	}
-
-	//restart
-	//restart
-	err = RestartNode()
-	if err != nil {
-		basic.Logger.Errorln("CheckUpdate RestartNode err:", err)
-		v.LastFailedTime = time.Now().UTC().Unix()
-		v.AutoUpdateFiledTime++
-		return
-	}
+	return "meson" + "-" + osInfo + "-" + arch + ".zip"
 }
 
-func DownloadNewVersion(downloadUrl string) error {
-	//get
-	response, err := http.Get(downloadUrl)
-	if err != nil {
-		basic.Logger.Errorln(" DownloadNewVersion get file url "+downloadUrl+" error", "err", err)
-		return err
-	}
-
-	if response == nil {
-		return errors.New("response is nil")
-	}
-
-	if response.Body == nil {
-		return errors.New("DownloadNewVersion body is null")
-	}
-	defer response.Body.Close()
-
+func unzip(targetFolder string, body io.Reader) error {
 	//get content
-	tempContent, err := ioutil.ReadAll(response.Body)
+	tempContent, err := ioutil.ReadAll(body)
 	if err != nil {
 		basic.Logger.Errorln("DownloadNewVersion ioutil.ReadAll err", err)
 		return err
 	}
-
 	zipReader, err := zip.NewReader(bytes.NewReader(tempContent), int64(len(tempContent)))
 	if err != nil {
 		basic.Logger.Errorln("DownloadNewVersion zip.OpenReader err", err)
 		return err
 	}
-
 	for _, f := range zipReader.File {
 		arr := strings.Split(f.Name, "/")
 		nameArr := []string{}
@@ -110,12 +51,7 @@ func DownloadNewVersion(downloadUrl string) error {
 		}
 		name := filepath.Join(nameArr[1:]...)
 
-		//skip config folder and pro.json
-		if name == "configs" || name == "configs/default.toml" {
-			continue
-		}
-
-		filePath := path_util.ExE_Path(name)
+		filePath := filepath.Join(targetFolder, name)
 		if f.FileInfo().IsDir() {
 			err = os.MkdirAll(filePath, 0777)
 			if err != nil {
@@ -137,10 +73,38 @@ func DownloadNewVersion(downloadUrl string) error {
 			return err
 		}
 
-		err = os.Remove(filePath)
-		if err != nil {
-			basic.Logger.Errorln("Error remove old file", filePath, "err:", err)
-			//return err
+		//handle default.toml
+		if name == "configs/default.toml" {
+			//read new config
+			newConfigTree, err := toml.LoadBytes(content)
+			if err != nil {
+				basic.Logger.Errorln("new config file toml.LoadBytes err:", err, "content", string(content))
+				return err
+			}
+
+			//read upgrade_keep
+			reserveKeyArray := []string{}
+			reserveKey := newConfigTree.Get("upgrade_keep")
+			if reserveKey != nil {
+				for _, key := range reserveKey.([]string) {
+					reserveKeyArray = append(reserveKeyArray, key)
+				}
+			}
+
+			//read old config
+			oldConfigTree, err := toml.LoadFile(filePath)
+			if err != nil {
+				basic.Logger.Errorln("old config file toml.LoadFile err:", err, "filePath", filePath)
+				return err
+			}
+
+			//merge config content
+			config := mergeConfig(oldConfigTree, newConfigTree, reserveKeyArray)
+			content, err = config.Marshal()
+			if err != nil {
+				basic.Logger.Errorln("Error creating", filePath, "err:", err)
+				return err
+			}
 		}
 		err = ioutil.WriteFile(filePath, content, 777)
 		if err != nil {
@@ -148,9 +112,26 @@ func DownloadNewVersion(downloadUrl string) error {
 			return err
 		}
 		os.Chmod(filePath, 0777)
-
 	}
+	basic.Logger.Debugln("un zip ok")
+	return nil
+}
 
+func overwriteOldFile(newFile string, oldFile string) error {
+	input, err := ioutil.ReadFile(newFile)
+	if err != nil {
+		return err
+	}
+	//rename oldFile
+	reNameFile := oldFile + ".old"
+	os.Rename(oldFile, reNameFile)
+	err = ioutil.WriteFile(oldFile, input, 777)
+	if err != nil {
+		basic.Logger.Errorln("windows overwriteOldFile WriteFile error:", err, "filepath:", oldFile)
+		os.Rename(reNameFile, oldFile)
+		return err
+	}
+	os.Remove(reNameFile)
 	return nil
 }
 

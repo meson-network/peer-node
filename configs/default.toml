@@ -13,3 +13,15 @@ token = ""
   console_port = 10444
   folder = "./m_storage"
   password = ""
+
+upgrade_keep=[
+  "https_port",
+  "token",
+  "cache.folder",
+  "cache.size",
+  "storage.enable",
+  "storage.api_port",
+  "storage.console_port",
+  "storage.folder",
+  "storage.password",
+]
