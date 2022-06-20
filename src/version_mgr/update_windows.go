@@ -89,6 +89,7 @@ func overwriteOldFile(newFile string, oldFile string) error {
 		return err
 	}
 	//rename oldFile
+	//todo how to remove opened file
 	reNameFile := oldFile + ".old"
 	os.Rename(oldFile, reNameFile)
 	err = ioutil.WriteFile(oldFile, input, 777)
