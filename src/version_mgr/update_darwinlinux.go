@@ -16,7 +16,6 @@ import (
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
-	"github.com/pelletier/go-toml"
 )
 
 func genFileName() string {
@@ -74,39 +73,6 @@ func unzip(targetFolder string, body io.Reader) error {
 			return err
 		}
 
-		//handle default.toml
-		if name == "configs/default.toml" {
-			//read new config
-			newConfigTree, err := toml.LoadBytes(content)
-			if err != nil {
-				basic.Logger.Errorln("toml.LoadBytes err:", err, "content", string(content))
-				return err
-			}
-
-			//read upgrade_keep
-			reserveKeyArray := []string{}
-			reserveKey := newConfigTree.Get("upgrade_keep")
-			if reserveKey != nil {
-				for _, key := range reserveKey.([]string) {
-					reserveKeyArray = append(reserveKeyArray, key)
-				}
-			}
-
-			//read old config
-			oldConfigTree, err := toml.LoadFile(filePath)
-			if err != nil {
-				basic.Logger.Errorln("old config file toml.LoadFile err:", err, "filePath", filePath)
-				return err
-			}
-
-			//merge config content
-			config := mergeConfig(oldConfigTree, newConfigTree, reserveKeyArray)
-			content, err = config.Marshal()
-			if err != nil {
-				basic.Logger.Errorln("Error creating", filePath, "err:", err)
-				return err
-			}
-		}
 		err = ioutil.WriteFile(filePath, content, 0777)
 		if err != nil {
 			basic.Logger.Errorln("Error creating", filePath, "err:", err)

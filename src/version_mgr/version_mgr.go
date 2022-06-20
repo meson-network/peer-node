@@ -1,24 +1,27 @@
 package version_mgr
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer_common/version"
+	"github.com/pelletier/go-toml"
 )
 
 const NodeVersion = "3.0.7"
 
 const updateRetryIntervalSec = 12 * 3600
-const updateRetryTimeLimit = 7
+const updateRetryTimeLimit = 4
 
 type VersionMgr struct {
 	CurrentVersion      string
@@ -100,6 +103,14 @@ func (v *VersionMgr) CheckUpdate() {
 		return
 	}
 
+	//check main version
+	mainVersion := strings.Split(latestVersion, ".")[0]
+	currentMainVersion := strings.Split(NodeVersion, ".")[0]
+	if mainVersion != currentMainVersion {
+		basic.Logger.Infoln("New version released, please download new version.")
+		return
+	}
+
 	//download new version
 	//need upgrade
 	if v.AutoUpdateFiledTime > updateRetryTimeLimit || v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
@@ -135,7 +146,12 @@ func (v *VersionMgr) CheckUpdate() {
 
 func upgradeNewVersion(downloadUrl string) error {
 	//get
-	response, err := http.Get(downloadUrl)
+	//ignore tls
+	tt := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	requestClient := &http.Client{Transport: tt}
+	response, err := requestClient.Get(downloadUrl)
 	if err != nil {
 		basic.Logger.Errorln(" upgradeNewVersion get file url "+downloadUrl+" error", "err", err)
 		return err
@@ -147,7 +163,7 @@ func upgradeNewVersion(downloadUrl string) error {
 	defer response.Body.Close()
 
 	//unzip to temp folder
-	tempFolder := "temp"
+	tempFolder := "upgradetemp"
 	tempFolder = path_util.ExE_Path(tempFolder)
 	err = os.MkdirAll(tempFolder, 0777)
 	if err != nil {
@@ -160,18 +176,68 @@ func upgradeNewVersion(downloadUrl string) error {
 		return err
 	}
 
-	//overwrite oldFile
-	runningPath := path_util.ExE_PathStr()
-	err = filepath.Walk(tempFolder, func(path string, info fs.FileInfo, err error) error {
-		oldFile := filepath.Join(runningPath, info.Name())
-		newFile := filepath.Join(tempFolder, info.Name())
+	//merge config
+	//handle default.toml
+	//read new config
+	newConfigFile := filepath.Join(tempFolder, "configs", "default.toml")
+	newConfigTree, err := toml.LoadFile(newConfigFile)
+	if err != nil {
+		basic.Logger.Errorln("new config file toml.LoadFile err:", err, "path", newConfigFile)
+		return err
+	}
 
-		if info.IsDir() {
+	//read upgrade_keep
+	reserveKeyArray := []string{}
+	reserveKey := newConfigTree.Get("upgrade_keep")
+	if reserveKey != nil {
+		for _, key := range reserveKey.([]interface{}) {
+			reserveKeyArray = append(reserveKeyArray, key.(string))
+		}
+	}
+
+	//read old config
+	runningPath := path_util.ExE_PathStr()
+	oldConfigFile := filepath.Join(runningPath, "configs", "default.toml")
+	oldConfigTree, err := toml.LoadFile(oldConfigFile)
+	if err != nil {
+		basic.Logger.Errorln("old config file toml.LoadFile err:", err, "filePath", oldConfigFile)
+		return err
+	}
+
+	//merge config content
+	config := mergeConfig(oldConfigTree, newConfigTree, reserveKeyArray)
+	content, err := config.Marshal()
+	if err != nil {
+		basic.Logger.Errorln("mergeConfig Marshal err:", err)
+		return err
+	}
+	err = os.WriteFile(newConfigFile, content, 0777)
+	if err != nil {
+		basic.Logger.Errorln("mergeConfig write newConfig file err:", err)
+		return err
+	}
+
+	//overwrite oldFile
+	err = filepath.WalkDir(tempFolder, func(path string, d fs.DirEntry, err error) error {
+		if d.Name() == "upgradetemp" {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(tempFolder, path)
+		if err != nil {
+			basic.Logger.Errorln("upgradeNewVersion filepath.Walk filepath.Rel err", err, "path:", path)
+			return err
+		}
+		oldFile := filepath.Join(runningPath, relPath)
+		newFile := path
+
+		if d.IsDir() {
 			err = os.MkdirAll(oldFile, 0777)
 			if err != nil {
 				basic.Logger.Errorln("upgradeNewVersion filepath.Walk os.MkdirAll err", err, "path:", oldFile)
 				return err
 			}
+			return nil
 		}
 
 		err = overwriteOldFile(newFile, oldFile)

@@ -3,17 +3,6 @@ https_port = 443
 log_level = "INFO"
 token = ""
 
-[cache]
-  folder = "./m_cache"
-  size = 30
-
-[storage]
-  enable = true
-  api_port = 10443
-  console_port = 10444
-  folder = "./m_storage"
-  password = ""
-
 upgrade_keep=[
   "https_port",
   "token",
@@ -25,3 +14,15 @@ upgrade_keep=[
   "storage.folder",
   "storage.password",
 ]
+
+[cache]
+  folder = "./m_cache"
+  size = 30
+
+[storage]
+  enable = true
+  api_port = 10443
+  console_port = 10444
+  folder = "./m_storage"
+  password = ""
+
