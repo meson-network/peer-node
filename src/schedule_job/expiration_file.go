@@ -13,7 +13,6 @@ import (
 	"github.com/meson-network/peer-node/src/remote/client"
 	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/http/api"
-	commonApi "github.com/meson-network/peer_common/api"
 	"github.com/meson-network/peer_common/cached_file"
 )
 
@@ -70,7 +69,7 @@ func reportExpiredFiles() error {
 		postData := &cached_file.Msg_Req_FileExpire{
 			Expired_files: expiredFiles,
 		}
-		res := &commonApi.API_META_STATUS{}
+		res := &cached_file.Msg_Resp_FileExpire{}
 		err = api.POST_(client.EndPoint+"/api/node/file/expire", client.Token, postData, 30, res)
 		if err != nil {
 			basic.Logger.Errorln("reportExpiredFiles post error:", err)
@@ -82,7 +81,16 @@ func reportExpiredFiles() error {
 			continue
 		}
 
+		keepFiles := map[string]struct{}{}
+		for _, v := range res.Keep_files {
+			keepFiles[v] = struct{}{}
+		}
+
 		for _, v := range result.Files {
+			_, exist := keepFiles[v.File_hash]
+			if exist {
+				continue
+			}
 			//delete file and header on disk
 			absPath := file_mgr.GetFileAbsPath(v.File_hash)
 			os.Remove(absPath)

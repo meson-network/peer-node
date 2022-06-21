@@ -660,8 +660,8 @@ github.com/meson-network/minio v0.0.1 h1:fG+MnPNPwjp8z7uC+vix4cR3H1+4Iw3L6PN54NE
 github.com/meson-network/minio v0.0.1/go.mod h1:4FJMNaT+mv5a8c4w8YX2O9JI/XaGDZzXQrUQK0PCsIY=
 github.com/meson-network/minio-console v0.90.2 h1:Rstplvd/55AdFF0FoAcYlY59GCUAlkVTLC5HAgNA6MI=
 github.com/meson-network/minio-console v0.90.2/go.mod h1:yfF8zcgJtD+KPPFHHD1PMpFbhMnQRY8C7jmsrHBdoRU=
-github.com/meson-network/peer_common v0.0.0-20220616130532-a09442cc202a h1:fYN53puwB7egpIAfD+L3e6Szx1GoZQaONPsMY7pnnhU=
-github.com/meson-network/peer_common v0.0.0-20220616130532-a09442cc202a/go.mod h1:UubXVMIF8sGIRkDOcELck48Dx6iLzZxHlcLOpDjOalk=
+github.com/meson-network/peer_common v0.0.0-20220621013046-5576eb0946ea h1:t/WNqsEcA5yJeoh/B2FWkb1GZtxZISCETUP/SNABphU=
+github.com/meson-network/peer_common v0.0.0-20220621013046-5576eb0946ea/go.mod h1:UubXVMIF8sGIRkDOcELck48Dx6iLzZxHlcLOpDjOalk=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.48 h1:Ucfr7IIVyMBz4lRE8qmGUuZ4Wt3/ZGu9hmcMT3Uu4tQ=
 github.com/miekg/dns v1.1.48/go.mod h1:e3IlAVfNqAllflbibAZEWOXOQ+Ynzk/dDozDxY7XnME=

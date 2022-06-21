@@ -26,7 +26,7 @@ require (
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.12
 	github.com/kardianos/service v1.2.1
-	github.com/meson-network/peer_common v0.0.0-20220616130532-a09442cc202a
+	github.com/meson-network/peer_common v0.0.0-20220621013046-5576eb0946ea
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/pelletier/go-toml v1.9.4
 	github.com/shirou/gopsutil/v3 v3.22.4
@@ -259,8 +259,8 @@ require (
 )
 
 replace (
+	//github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 	//github.com/meson-network/peer_common => /Users/bruce/workspace/go/project/peer_common
 	github.com/minio/console => github.com/meson-network/minio-console v0.90.2
 	github.com/minio/minio => github.com/meson-network/minio v0.0.1
-//github.com/minio/minio => /Users/bruce/workspace/go/project/minio
 )

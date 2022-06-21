@@ -57,6 +57,7 @@ func ConfigCmd() *cli.App {
 	////////////////////////////////
 
 	return &cli.App{
+		Name: "meson",
 		Action: func(clictx *cli.Context) error {
 			OS_service_start(daemon_name, "run", func() {
 				default_.StartDefault(clictx)

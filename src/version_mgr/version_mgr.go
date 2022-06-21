@@ -1,7 +1,6 @@
 package version_mgr
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -146,9 +145,9 @@ func (v *VersionMgr) CheckUpdate() {
 
 func upgradeNewVersion(downloadUrl string) error {
 	//get
-	//ignore tls
+	//todo ignore tls???
 	tt := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		//TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	requestClient := &http.Client{Transport: tt}
 	response, err := requestClient.Get(downloadUrl)

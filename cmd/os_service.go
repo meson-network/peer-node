@@ -123,8 +123,8 @@ ExecStart={{.Path|cmdEscape}}{{range .Arguments}} {{.|cmd}}{{end}}
 {{if .ReloadSignal}}ExecReload=/bin/kill -{{.ReloadSignal}} "$MAINPID"{{end}}
 {{if .PIDFile}}PIDFile={{.PIDFile|cmd}}{{end}}
 {{if and .LogOutput .HasOutputFileSupport -}}
-StandardOutput=file:/var/log/{{.Name}}.out
-StandardError=file:/var/log/{{.Name}}.err
+StandardOutput=null
+StandardError=null
 {{- end}}
 {{if gt .LimitNOFILE -1 }}LimitNOFILE={{.LimitNOFILE}}{{end}}
 {{if .Restart}}Restart={{.Restart}}{{end}}
