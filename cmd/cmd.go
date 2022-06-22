@@ -12,6 +12,7 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/log"
 	"github.com/meson-network/peer-node/src/precheck_config"
+	"github.com/meson-network/peer-node/src/version_mgr"
 	"github.com/urfave/cli/v2"
 )
 
@@ -19,6 +20,7 @@ const daemon_name = "meson-node"
 
 const CMD_NAME_DEFAULT = "default"
 const CMD_NAME_GEN_API = "gen_api"
+const CMD_NAME_VERSION = "version"
 const CMD_NAME_LOG = "log"
 const CMD_NAME_SERVICE = "service"
 const CMD_NAME_CONFIG = "config"
@@ -72,6 +74,15 @@ func ConfigCmd() *cli.App {
 				Flags: log.GetFlags(),
 				Action: func(clictx *cli.Context) error {
 					log.StartLog(clictx)
+					return nil
+				},
+			},
+			{
+				Name:  CMD_NAME_VERSION,
+				Usage: "show version",
+				Flags: log.GetFlags(),
+				Action: func(clictx *cli.Context) error {
+					fmt.Println("version:", "v"+version_mgr.NodeVersion)
 					return nil
 				},
 			},

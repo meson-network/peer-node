@@ -40,6 +40,8 @@ func HeartBeat() {
 	)
 }
 
+var isInitial = true
+
 func sendHeartBeat() {
 	accessKey, _ := access_key_mgr.GetInstance().GetRandomKey()
 	portStr := echo_plugin.GetInstance().Http_port
@@ -49,13 +51,21 @@ func sendHeartBeat() {
 		Storage_port: minio_server.ApiPort,
 		Version:      version_mgr.NodeVersion,
 		Access_key:   accessKey,
+		Initial:      isInitial,
 	}
+
 	result, err := client.SendHeartBeat(postData)
 	if err != nil {
 		basic.Logger.Errorln("SendHeartBeat err:", err)
 		return
 	}
+
+	if isInitial {
+		isInitial = false
+	}
 	switch result.Meta_status {
+	case 1:
+		//success
 	case -10001: //post data error
 		basic.Logger.Errorln("hb, post data error")
 	case -10002: //heart request too fast

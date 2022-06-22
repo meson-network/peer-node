@@ -11,6 +11,7 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_/plugin"
 	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
+	"github.com/meson-network/peer-node/src/callback_confirm"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/common/dbkv"
@@ -137,6 +138,8 @@ func start_jobs() {
 	if !http.CheckDefaultHttpServerStarted() {
 		basic.Logger.Fatalln("http server not working")
 	}
+	////////
+	callback_confirm.WaitHeartBeatCallbackConfirm()
 
 	/////////
 	schedule_job.CheckVersion()

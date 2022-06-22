@@ -17,7 +17,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-const NodeVersion = "3.0.8"
+const NodeVersion = "3.0.9"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 4
@@ -114,6 +114,11 @@ func (v *VersionMgr) CheckUpdate() {
 	//need upgrade
 	if v.AutoUpdateFiledTime > updateRetryTimeLimit || v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
 		basic.Logger.Infoln("New version auto update failed, please update by manual.")
+
+		//one week later try again
+		if v.LastFailedTime > time.Now().UTC().Unix()-7*3600*24 {
+			v.AutoUpdateFiledTime = updateRetryTimeLimit - 1
+		}
 		return
 	}
 	basic.Logger.Infoln("New version detected, start to upgrade... ")

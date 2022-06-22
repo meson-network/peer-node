@@ -17,7 +17,7 @@ func CheckVersion() {
 		},
 		//onPanic callback
 		pErr.PanicHandler, //todo upload panic
-		60,
+		60,                //todo 3600 or 7200 in production
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

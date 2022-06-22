@@ -72,7 +72,7 @@ func os_service_run(s *service.Service, action string) {
 		if err != nil {
 			basic.Logger.Fatalln("run service error:", err)
 		} else {
-			basic.Logger.Infoln("service run")
+			//basic.Logger.Infoln("service run")
 		}
 	case "stop":
 		err := (*s).Stop()

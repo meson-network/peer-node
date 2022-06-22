@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
+	"github.com/meson-network/peer-node/src/callback_confirm"
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer_common/heart_beat"
 )
@@ -27,6 +28,11 @@ func nodeInfoHandler(ctx echo.Context) error {
 	if err != nil {
 		res.MetaStatus(-2, err.Error())
 		return ctx.JSON(http.StatusOK, res)
+	}
+
+	//get heart beat callback
+	if callback_confirm.WaitingHeartBeatCallback {
+		callback_confirm.HeartBeatReceiveChan <- true
 	}
 
 	nodeInfo := node_info.GetNodeInfo()
