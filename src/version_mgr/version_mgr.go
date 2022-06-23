@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/coreservice-io/utils/path_util"
@@ -103,27 +102,31 @@ func (v *VersionMgr) CheckUpdate() {
 	}
 
 	//check main version
-	mainVersion := strings.Split(latestVersion, ".")[0]
-	currentMainVersion := strings.Split(NodeVersion, ".")[0]
-	if mainVersion != currentMainVersion {
-		basic.Logger.Infoln("New version released, please download new version.")
+	//mainVersion := strings.Split(latestVersion, ".")[0]
+	//currentMainVersion := strings.Split(NodeVersion, ".")[0]
+	//if mainVersion != currentMainVersion {
+	//	basic.Logger.Infoln("New version released, please download new version.")
+	//	return
+	//}
+
+	if v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
 		return
 	}
+	//one week later try again
+	if v.AutoUpdateFiledTime >= updateRetryTimeLimit && v.LastFailedTime < time.Now().UTC().Unix()-5*3600*24 {
+		v.AutoUpdateFiledTime = updateRetryTimeLimit - 1
+	}
 
-	//download new version
-	//need upgrade
-	if v.AutoUpdateFiledTime > updateRetryTimeLimit || v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
+	if v.AutoUpdateFiledTime >= updateRetryTimeLimit {
 		basic.Logger.Infoln("New version auto update failed, please update by manual.")
-
-		//one week later try again
-		if v.LastFailedTime > time.Now().UTC().Unix()-7*3600*24 {
-			v.AutoUpdateFiledTime = updateRetryTimeLimit - 1
-		}
 		return
 	}
+
+	//do upgrade
 	basic.Logger.Infoln("New version detected, start to upgrade... ")
 
-	//new version download url
+	//download new version
+	//download url
 	fileName := genFileName()
 	downloadPath := "v" + latestVersion + "/" + fileName
 	newVersionDownloadUrl := downloadHost + "/node/" + downloadPath
