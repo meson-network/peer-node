@@ -2,7 +2,6 @@ package node_info
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer_common/heart_beat"
@@ -35,9 +34,9 @@ func refreshInfo() {
 	}
 
 	//cpu usage
-	if percent, err := cpu.Percent(time.Second, false); err == nil || len(percent) > 0 {
-		info.Cpu_percentage = percent[0]
-	}
+	//if percent, err := cpu.Percent(time.Second, false); err == nil || len(percent) > 0 {
+	//	info.Cpu_percentage = percent[0]
+	//}
 
 	//system info
 	if h, err := host.Info(); err == nil {
