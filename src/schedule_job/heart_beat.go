@@ -6,9 +6,9 @@ import (
 
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/basic"
-	"github.com/meson-network/peer-node/basic/conf"
 	"github.com/meson-network/peer-node/plugin/echo_plugin"
 	"github.com/meson-network/peer-node/src/access_key_mgr"
+	"github.com/meson-network/peer-node/src/minio_server"
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/remote/client"
 	"github.com/meson-network/peer-node/src/version_mgr"
@@ -45,11 +45,10 @@ var isInitial = true
 func sendHeartBeat() {
 	accessKey, _ := access_key_mgr.GetInstance().GetRandomKey()
 	portStr := echo_plugin.GetInstance().Http_port
-	minio_apiPort := conf.Get_config().Toml_config.Storage.Api_port
 	postData := &heart_beat.Msg_Req_HeartBeat{
 		Node_id:      node_info.GetNodeId(),
 		Port:         strconv.Itoa(portStr),
-		Storage_port: strconv.Itoa(minio_apiPort),
+		Storage_port: minio_server.ApiPort,
 		Version:      version_mgr.NodeVersion,
 		Access_key:   accessKey,
 		Initial:      isInitial,

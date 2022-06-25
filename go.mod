@@ -26,7 +26,7 @@ require (
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.12
 	github.com/kardianos/service v1.2.1
-	github.com/meson-network/peer_common v0.0.0-20220622070743-c2b32d157e0c
+	github.com/meson-network/peer_common v0.0.0-20220624095207-e74bf962894e
 	github.com/minio/minio v0.0.0-20220608020821-b0d7332a0c98
 	github.com/pelletier/go-toml v1.9.4
 	github.com/shirou/gopsutil/v3 v3.22.4
