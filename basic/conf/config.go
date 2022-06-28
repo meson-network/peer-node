@@ -2,7 +2,6 @@ package conf
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -88,7 +87,7 @@ func Init_config(config_path string) error {
 		return err
 	}
 
-	fmt.Println("using config:", cfg.Abs_path)
+	//fmt.Println("using config:", cfg.Abs_path)
 
 	config = &cfg
 

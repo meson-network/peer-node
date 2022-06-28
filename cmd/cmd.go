@@ -58,13 +58,23 @@ func ConfigCmd() *cli.App {
 	basic.Logger.SetLevel(ilog.ParseLogLevel(configuration.Toml_config.Log_level))
 	////////////////////////////////
 
+	var defaultAction = func(clictx *cli.Context) error {
+		OS_service_start(daemon_name, "run", func() {
+			default_.StartDefault(clictx)
+		})
+		return nil
+	}
+	if len(real_args) > 1 {
+		defaultAction = nil
+	}
+
 	return &cli.App{
-		Name: "meson",
-		Action: func(clictx *cli.Context) error {
-			OS_service_start(daemon_name, "run", func() {
-				default_.StartDefault(clictx)
-			})
-			return nil
+		Name:   "meson",
+		Action: defaultAction, //only run if no sub command
+
+		//run if sub command not correct
+		CommandNotFound: func(context *cli.Context, s string) {
+			fmt.Println("command not find, use -h or --help show help")
 		},
 
 		Commands: []*cli.Command{
