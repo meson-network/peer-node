@@ -82,7 +82,7 @@ func ConfigCmd() *cli.App {
 				Usage: "show version",
 				Flags: log.GetFlags(),
 				Action: func(clictx *cli.Context) error {
-					fmt.Println("version:", "v"+version_mgr.NodeVersion)
+					fmt.Println(version_mgr.NodeVersion)
 					return nil
 				},
 			},
