@@ -11,18 +11,14 @@ import (
 	"github.com/meson-network/peer-node/cmd/config"
 	"github.com/meson-network/peer-node/cmd/default_"
 	"github.com/meson-network/peer-node/cmd/log"
-	"github.com/meson-network/peer-node/src/precheck_config"
 	"github.com/meson-network/peer-node/src/version_mgr"
 	"github.com/urfave/cli/v2"
 )
-
-const daemon_name = "meson-node"
 
 const CMD_NAME_DEFAULT = "default"
 const CMD_NAME_GEN_API = "gen_api"
 const CMD_NAME_VERSION = "version"
 const CMD_NAME_LOG = "log"
-const CMD_NAME_SERVICE = "service"
 const CMD_NAME_CONFIG = "config"
 
 ////////config to do cmd ///////////
@@ -59,9 +55,7 @@ func ConfigCmd() *cli.App {
 	////////////////////////////////
 
 	var defaultAction = func(clictx *cli.Context) error {
-		OS_service_start(daemon_name, "run", func() {
-			default_.StartDefault(clictx)
-		})
+		default_.StartDefault(clictx)
 		return nil
 	}
 	if len(real_args) > 1 {
@@ -69,7 +63,7 @@ func ConfigCmd() *cli.App {
 	}
 
 	return &cli.App{
-		Name:   "meson",
+		Name:   "meson_cdn",
 		Action: defaultAction, //only run if no sub command
 
 		//run if sub command not correct
@@ -119,70 +113,6 @@ func ConfigCmd() *cli.App {
 						Flags: append(config.Cli_get_flags(), &cli.StringFlag{Name: "config", Required: false}),
 						Action: func(clictx *cli.Context) error {
 							config.Cli_set_config(clictx)
-							return nil
-						},
-					},
-				},
-			},
-			{
-				Name:  CMD_NAME_SERVICE,
-				Usage: "service command",
-				Subcommands: []*cli.Command{
-					//service install
-					{
-						Name:  "install",
-						Usage: "install service",
-						Action: func(clictx *cli.Context) error {
-							OS_service_start(daemon_name, "install", nil)
-							return nil
-						},
-					},
-					//service remove
-					{
-						Name:  "remove",
-						Usage: "remove service",
-						Action: func(clictx *cli.Context) error {
-							OS_service_start(daemon_name, "remove", nil)
-							return nil
-						},
-					},
-					//service start
-					{
-						Name:  "start",
-						Usage: "run",
-						Action: func(clictx *cli.Context) error {
-							//check config
-							precheck_config.PreCheckConfig()
-							OS_service_start(daemon_name, "start", nil)
-							return nil
-						},
-					},
-					//service stop
-					{
-						Name:  "stop",
-						Usage: "stop",
-						Action: func(clictx *cli.Context) error {
-							OS_service_start(daemon_name, "stop", nil)
-							return nil
-						},
-					},
-					//service restart
-					{
-						Name:  "restart",
-						Usage: "restart",
-						Action: func(clictx *cli.Context) error {
-							//check config
-							precheck_config.PreCheckConfig()
-							OS_service_start(daemon_name, "restart", nil)
-							return nil
-						},
-					},
-					//service status
-					{
-						Name:  "status",
-						Usage: "show process status",
-						Action: func(clictx *cli.Context) error {
-							OS_service_start(daemon_name, "status", nil)
 							return nil
 						},
 					},

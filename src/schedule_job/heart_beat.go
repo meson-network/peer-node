@@ -89,5 +89,8 @@ func sendHeartBeat() {
 	case -10099: //internal error
 		basic.Logger.Errorln("hb, error code 10099 force stop")
 		os.Exit(0)
+	case -10100: //internal error
+		basic.Logger.Errorln("hb, error code 10100 try to on-failure restart")
+		os.Exit(1)
 	}
 }

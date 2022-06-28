@@ -80,14 +80,6 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln(err)
 	}
 
-	//check cache folder
-	basic.Logger.Infoln("Checking cdn cache folder...")
-	err = cdn_cache_folder.GetInstance().CheckFolder(5)
-	if err != nil {
-		basic.Logger.Fatalln("check cdn cache folder err:", err)
-	}
-	speed_tester_file.CheckTesterFile()
-
 	//init node
 	basic.Logger.Infoln("Init node id...")
 	err = node_info.InitNode()
@@ -113,6 +105,14 @@ func StartDefault(clictx *cli.Context) {
 	if err_server != nil {
 		basic.Logger.Fatalln(err_server)
 	}
+
+	//check cache folder
+	basic.Logger.Infoln("Checking cdn cache folder...")
+	err = cdn_cache_folder.GetInstance().CheckFolder(5)
+	if err != nil {
+		basic.Logger.Fatalln("check cdn cache folder err:", err)
+	}
+	speed_tester_file.CheckTesterFile()
 
 	//start the httpserver
 	go http.StartDefaultHttpSever()

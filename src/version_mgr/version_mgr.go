@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/coreservice-io/utils/path_util"
@@ -16,7 +15,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-const NodeVersion = "3.1.0"
+const NodeVersion = "3.1.8"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 4
@@ -75,25 +74,25 @@ func (v *VersionMgr) IsLatestVersion() (isLatestVersion bool, latestVersion stri
 	return false, latestVersion, downloadHost, nil
 }
 
-func GetOSInfo() (arch string, osInfo string) {
-	arch = "amd64"
-	switch runtime.GOARCH {
-	case "386":
-		arch = "386"
-	case "arm64":
-		arch = "arm64"
-	}
-
-	osInfo = "linux"
-	switch runtime.GOOS {
-	case "windows":
-		osInfo = "windows"
-	case "darwin":
-		osInfo = "darwin"
-	}
-
-	return arch, osInfo
-}
+//func GetOSInfo() (arch string, osInfo string) {
+//	arch = "amd64"
+//	switch runtime.GOARCH {
+//	case "386":
+//		arch = "386"
+//	case "arm64":
+//		arch = "arm64"
+//	}
+//
+//	osInfo = "linux"
+//	switch runtime.GOOS {
+//	case "windows":
+//		osInfo = "windows"
+//	case "darwin":
+//		osInfo = "darwin"
+//	}
+//
+//	return arch, osInfo
+//}
 
 func (v *VersionMgr) CheckUpdate() {
 	isLatestVersion, latestVersion, downloadHost, _ := v.IsLatestVersion()
@@ -129,7 +128,7 @@ func (v *VersionMgr) CheckUpdate() {
 	//download url
 	fileName := genFileName()
 	downloadPath := "v" + latestVersion + "/" + fileName
-	newVersionDownloadUrl := downloadHost + "/node/" + downloadPath
+	newVersionDownloadUrl := downloadHost + "/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
 	//upgrade

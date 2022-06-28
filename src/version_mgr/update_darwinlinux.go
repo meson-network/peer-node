@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/coreservice-io/utils/path_util"
@@ -19,10 +20,8 @@ import (
 )
 
 func genFileName() string {
-	//check arch and os
-	arch, osInfo := GetOSInfo()
-	// 'https://xxx.xxxx/xxxx/node/v0.1.2/meson-darwin-amd64.tar.gz'
-	return "meson" + "-" + osInfo + "-" + arch + ".tar.gz"
+	// 'https://xxx.xxxx/xxxx/meson_peer_cdn/v0.1.2/meson_cdn-darwin-amd64.tar.gz'
+	return "meson_cdn" + "-" + runtime.GOOS + "-" + runtime.GOARCH + ".tar.gz"
 }
 
 func unzip(targetFolder string, body io.Reader) error {
@@ -99,9 +98,21 @@ func overwriteOldFile(newFile string, oldFile string) error {
 }
 
 func RestartNode() error {
-	basic.Logger.Debugln("peer node restart cmd")
+	basic.Logger.Debugln("meson_cdn node restart...")
+	os.Exit(10)
 
-	absPath, exist, err := path_util.SmartPathExist("./meson")
+	exeFilePath, err := os.Executable()
+	if err != nil {
+		basic.Logger.Errorln("RestartNode os.Executable() err:", err)
+		return err
+	}
+
+	exeName := filepath.Base(exeFilePath)
+
+	dirPath := filepath.Dir(exeFilePath)
+	serviceFilePath := filepath.Join(dirPath, "service")
+
+	absPath, exist, err := path_util.SmartPathExist(serviceFilePath)
 	if err != nil {
 		basic.Logger.Errorln("RestartNode path_util.SmartPathExist err:", err)
 		return err
@@ -111,10 +122,10 @@ func RestartNode() error {
 		return err
 	}
 
-	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("sudo %s service restart", absPath))
+	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("sudo %s restart %s", absPath, exeName))
 	err = cmd.Run()
 	if err != nil {
-		basic.Logger.Errorln("restart peer node error:", err)
+		basic.Logger.Errorln("restart meson_cdn node error:", err)
 		return err
 	}
 	return nil
