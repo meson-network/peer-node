@@ -10,12 +10,11 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
-	"github.com/coreservice-io/utils/path_util"
+	//"github.com/coreservice-io/utils/path_util"
 	"github.com/meson-network/peer-node/basic"
 )
 
@@ -88,7 +87,7 @@ func overwriteOldFile(newFile string, oldFile string) error {
 		return err
 	}
 	os.Remove(oldFile)
-	err = ioutil.WriteFile(oldFile, input, 777)
+	err = ioutil.WriteFile(oldFile, input, 0777)
 	if err != nil {
 		fmt.Println("Error creating", oldFile)
 		fmt.Println(err)
@@ -100,33 +99,34 @@ func overwriteOldFile(newFile string, oldFile string) error {
 func RestartNode() error {
 	basic.Logger.Debugln("meson_cdn node restart...")
 	os.Exit(10)
-
-	exeFilePath, err := os.Executable()
-	if err != nil {
-		basic.Logger.Errorln("RestartNode os.Executable() err:", err)
-		return err
-	}
-
-	exeName := filepath.Base(exeFilePath)
-
-	dirPath := filepath.Dir(exeFilePath)
-	serviceFilePath := filepath.Join(dirPath, "service")
-
-	absPath, exist, err := path_util.SmartPathExist(serviceFilePath)
-	if err != nil {
-		basic.Logger.Errorln("RestartNode path_util.SmartPathExist err:", err)
-		return err
-	}
-	if !exist {
-		basic.Logger.Errorln("RestartNode path_util.SmartPathExist file not exist")
-		return err
-	}
-
-	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("sudo %s restart %s", absPath, exeName))
-	err = cmd.Run()
-	if err != nil {
-		basic.Logger.Errorln("restart meson_cdn node error:", err)
-		return err
-	}
 	return nil
+
+	//exeFilePath, err := os.Executable()
+	//if err != nil {
+	//	basic.Logger.Errorln("RestartNode os.Executable() err:", err)
+	//	return err
+	//}
+	//
+	//exeName := filepath.Base(exeFilePath)
+	//
+	//dirPath := filepath.Dir(exeFilePath)
+	//serviceFilePath := filepath.Join(dirPath, "service")
+	//
+	//absPath, exist, err := path_util.SmartPathExist(serviceFilePath)
+	//if err != nil {
+	//	basic.Logger.Errorln("RestartNode path_util.SmartPathExist err:", err)
+	//	return err
+	//}
+	//if !exist {
+	//	basic.Logger.Errorln("RestartNode path_util.SmartPathExist file not exist")
+	//	return err
+	//}
+	//
+	//cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("sudo %s restart %s", absPath, exeName))
+	//err = cmd.Run()
+	//if err != nil {
+	//	basic.Logger.Errorln("restart meson_cdn node error:", err)
+	//	return err
+	//}
+	//return nil
 }
