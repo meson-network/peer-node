@@ -15,7 +15,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-const NodeVersion = "3.1.8"
+const NodeVersion = "3.1.9"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 4
