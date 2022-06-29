@@ -25,32 +25,4 @@ func PreCheckConfig() {
 		basic.Logger.Fatalln("cache.size config error, minimum is 20, please set cache size in config")
 	}
 
-	if toml_conf.Storage.Enable == false {
-		return
-	}
-
-	apiPort := toml_conf.Storage.Api_port
-	if apiPort <= 0 || apiPort > 65535 {
-		basic.Logger.Fatalln("storage.api_port error, please set correct port in config")
-	}
-	if apiPort == toml_conf.Https_port {
-		basic.Logger.Fatalln("storage api port [%d] already used in https port", apiPort)
-	}
-
-	consolePort := toml_conf.Storage.Console_port
-	if consolePort <= 0 || consolePort > 65535 {
-		basic.Logger.Fatalln("storage.console_port error, please set correct port in config")
-	}
-	if consolePort == toml_conf.Https_port || consolePort == apiPort {
-		basic.Logger.Fatalln("storage console port [%d] already used in https port or api port", consolePort)
-	}
-
-	password := toml_conf.Storage.Password
-	if password == "" {
-		basic.Logger.Fatalln("storage.password not exist in config")
-	}
-	if len(password) < 6 {
-		basic.Logger.Fatalln("storage.password length can not less than 6")
-	}
-
 }
