@@ -25,7 +25,7 @@ func HeartBeat() {
 			sendHeartBeat()
 		},
 		//onPanic callback
-		pErr.PanicHandler, //todo upload panic
+		pErr.PanicHandler,
 		30,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

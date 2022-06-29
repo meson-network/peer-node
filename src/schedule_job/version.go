@@ -16,8 +16,8 @@ func CheckVersion() {
 			version_mgr.GetInstance().CheckUpdate()
 		},
 		//onPanic callback
-		pErr.PanicHandler, //todo upload panic
-		60,                //todo 3600 or 7200 in production
+		pErr.PanicHandler,
+		7200, //todo 3600 or 7200 in production
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic

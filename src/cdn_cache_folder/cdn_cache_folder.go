@@ -45,7 +45,7 @@ func Init() error {
 
 	//cdn_cache dir
 	cacheFolder := toml_conf.Cache.Folder
-	if cacheFolder == "" { //todo set a default value or return error
+	if cacheFolder == "" { //set a default value
 		cacheFolder = "m_cache"
 		//return errors.New("[cache.folder] not configured correctly")
 	}

@@ -26,7 +26,7 @@ func UpdateCert() {
 			}
 		},
 		//onPanic callback
-		pErr.PanicHandler, //todo upload panic
+		pErr.PanicHandler, //
 		3600,              //todo 3600 in production
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic

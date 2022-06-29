@@ -30,7 +30,7 @@ func ScanExpirationFile() {
 			syncCacheFolderSize()
 		},
 		//onPanic callback
-		pErr.PanicHandler, //todo upload panic
+		pErr.PanicHandler,
 		600,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
@@ -45,7 +45,7 @@ func ScanExpirationFile() {
 }
 
 func reportExpiredFiles() error {
-	//todo get files no accessed
+	//get files no accessed
 	nowTime := time.Now().UTC().Unix()
 	timeLine := nowTime - expireTime
 	offset := 0
