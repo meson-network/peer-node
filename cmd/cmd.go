@@ -32,8 +32,8 @@ func ConfigCmd() *cli.App {
 		arg_lower := strings.ToLower(arg)
 		if strings.HasPrefix(arg_lower, "-conf=") || strings.HasPrefix(arg_lower, "--conf=") {
 
-			toml_target := strings.Trim(arg_lower, "-conf=")
-			toml_target = strings.Trim(toml_target, "--conf=")
+			toml_target := strings.TrimPrefix(arg_lower, "--conf=")
+			toml_target = strings.TrimPrefix(toml_target, "-conf=")
 			toml_conf_path = "configs/" + toml_target + ".toml"
 			fmt.Println("toml_conf_path", toml_conf_path)
 			continue
@@ -51,7 +51,9 @@ func ConfigCmd() *cli.App {
 	configuration := conf.Get_config()
 
 	/////set loglevel//////
-	basic.Logger.SetLevel(ilog.ParseLogLevel(configuration.Toml_config.Log_level))
+	loglevel := ilog.ParseLogLevel(configuration.Toml_config.Log.Level)
+	basic.Logger.SetLevel(loglevel)
+	fmt.Println("loglevel used:", ilog.LogLevelToTag(loglevel))
 	////////////////////////////////
 
 	var defaultAction = func(clictx *cli.Context) error {
