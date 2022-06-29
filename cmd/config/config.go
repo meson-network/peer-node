@@ -19,12 +19,6 @@ func Cli_get_flags() []cli.Flag {
 	allflags = append(allflags, &cli.IntFlag{Name: "cache.size", Required: false})
 	allflags = append(allflags, &cli.StringFlag{Name: "cache.folder", Required: false})
 
-	allflags = append(allflags, &cli.BoolFlag{Name: "storage.enable", Required: false})
-	allflags = append(allflags, &cli.IntFlag{Name: "storage.api_port", Required: false})
-	allflags = append(allflags, &cli.IntFlag{Name: "storage.console_port", Required: false})
-	allflags = append(allflags, &cli.StringFlag{Name: "storage.folder", Required: false})
-	allflags = append(allflags, &cli.StringFlag{Name: "storage.password", Required: false})
-
 	return allflags
 }
 
@@ -61,36 +55,6 @@ func Cli_set_config(clictx *cli.Context) {
 	}
 	if clictx.IsSet("cache.folder") {
 		config.Toml_config.Cache.Folder = clictx.String("cache.folder")
-	}
-
-	//storage
-	if clictx.IsSet("storage.enable") {
-		config.Toml_config.Storage.Enable = clictx.Bool("storage.enable")
-	}
-	if clictx.IsSet("storage.api_port") {
-		port := clictx.Int("storage.api_port")
-		if port <= 0 || port > 65535 {
-			basic.Logger.Fatalln("storage.console_port config error,", port, "is not allowed")
-		}
-		config.Toml_config.Storage.Api_port = port
-	}
-	if clictx.IsSet("storage.console_port") {
-		port := clictx.Int("storage.console_port")
-		if port <= 0 || port > 65535 || echo_plugin.IsForbiddenPort(port) {
-			basic.Logger.Fatalln("storage.console_port config error,", port, "is not allowed")
-		}
-		config.Toml_config.Storage.Console_port = port
-	}
-	if clictx.IsSet("storage.folder") {
-		config.Toml_config.Storage.Folder = clictx.String("storage.folder")
-	}
-	if clictx.IsSet("storage.password") {
-		password := clictx.String("storage.password")
-		if len(password) < 6 {
-			basic.Logger.Fatalln("password length error, minimum length is 6")
-		}
-
-		config.Toml_config.Storage.Password = password
 	}
 
 	err := config.Save_config()

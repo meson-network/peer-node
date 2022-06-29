@@ -1,4 +1,4 @@
-end_point = "https://api.cdn.meson.network"
+end_point = "https://api.meson.network"
 https_port = 443
 token = ""
 
@@ -7,24 +7,12 @@ upgrade_keep=[
   "token",
   "cache.folder",
   "cache.size",
-  "storage.enable",
-  "storage.api_port",
-  "storage.console_port",
-  "storage.folder",
-  "storage.password",
 ]
 
 [log]
-level = "INFO"
+  level = "INFO"
 
 [cache]
   folder = "./m_cache"
   size = 30
-
-[storage]
-  enable = true
-  api_port = 10443
-  console_port = 10444
-  folder = "./m_storage"
-  password = ""
 

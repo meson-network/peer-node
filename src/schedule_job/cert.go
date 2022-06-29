@@ -6,7 +6,6 @@ import (
 	"github.com/meson-network/peer-node/cmd/default_/http"
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	pErr "github.com/meson-network/peer-node/tools/errors"
-	minio "github.com/minio/minio/cmd"
 )
 
 func UpdateCert() {
@@ -20,11 +19,6 @@ func UpdateCert() {
 				err := http.ServerReloadCert()
 				if err != nil {
 					basic.Logger.Errorln("schedule UpdateCert http.ServerReloadCert error:", err)
-				}
-				basic.Logger.Debugln("minio.GetCertManger().ReloadCerts()")
-				im := minio.GetCertManger()
-				if im != nil {
-					im.ReloadCerts()
 				}
 			})
 			if err != nil {
