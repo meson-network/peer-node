@@ -53,7 +53,7 @@ func ConfigCmd() *cli.App {
 	/////set loglevel//////
 	loglevel := ilog.ParseLogLevel(configuration.Toml_config.Log.Level)
 	basic.Logger.SetLevel(loglevel)
-	fmt.Println("loglevel used:", ilog.LogLevelToTag(loglevel))
+	//fmt.Println("loglevel used:", ilog.LogLevelToTag(loglevel))
 	////////////////////////////////
 
 	var defaultAction = func(clictx *cli.Context) error {

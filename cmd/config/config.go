@@ -60,5 +60,7 @@ func Cli_set_config(clictx *cli.Context) {
 	err := config.Save_config()
 	if err != nil {
 		color.Red("save config error:", err)
+	} else {
+		color.Green("set config success")
 	}
 }
