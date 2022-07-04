@@ -44,19 +44,18 @@ func request(method string, url string, token string, postData interface{}, time
 		authHeader["Authorization"] = "Bearer " + token
 	}
 
-	r := req.New()
-	r.SetTimeout(time.Duration(timeOutSec) * time.Second)
+	req.SetTimeout(time.Duration(timeOutSec) * time.Second)
 
 	var resp *req.Resp
 	var err error
 
 	switch method {
 	case get:
-		resp, err = r.Get(url, authHeader)
+		resp, err = req.Get(url, authHeader)
 	case post:
-		resp, err = r.Post(url, authHeader, req.BodyJSON(postData))
+		resp, err = req.Post(url, authHeader, req.BodyJSON(postData))
 	default:
-		// imposssible
+		// impossible
 	}
 
 	if err != nil {

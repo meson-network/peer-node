@@ -25,7 +25,7 @@ func Init() error {
 
 	url := endpoint + "/api/user/token_check"
 	res := &api.API_META_STATUS{}
-	err := api2.Get(url, token_str, res)
+	err := api2.Get_(url, token_str, 30, res)
 	if err != nil {
 		return err
 	}

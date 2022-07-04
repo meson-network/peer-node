@@ -27,19 +27,5 @@ func SuccessCallback(filehash string, file_size int64) {
 }
 
 func FailedCallback(filehash string, download_code int) {
-	//postData := &download.Msg_Req_Download_Callback_Failed{
-	//	//Origin_url: "",
-	//	File_hash: filehash,
-	//}
-	//result := &download.Msg_Resp_Download_Callback{}
-	//err := api.POST_(EndPoint+"/api/node/download/failed", Token, postData, 30, result)
-	//if err != nil {
-	//	basic.Logger.Errorln("FailedCallback post err:", err, "fileHash:", filehash)
-	//	return
-	//}
-	//
-	//if result.Meta_status <= 0 {
-	//	basic.Logger.Errorln("FailedCallback post err:", result.Meta_message, "fileHash:", filehash)
-	//	return
-	//}
+
 }

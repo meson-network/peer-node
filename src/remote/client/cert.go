@@ -9,7 +9,7 @@ import (
 
 func GetCertHash() (string, error) {
 	hashRes := &dns.Msg_Resp_CertHash{}
-	err := api.Get(EndPoint+"/api/node/cert/hash", Token, hashRes)
+	err := api.Get_(EndPoint+"/api/node/cert/hash", Token, 30, hashRes)
 	if err != nil {
 		return "", err
 	}
@@ -22,7 +22,7 @@ func GetCertHash() (string, error) {
 
 func GetCert() (crt string, key string, err error) {
 	res := &dns.Msg_Resp_Cert{}
-	err = api.Get(EndPoint+"/api/node/cert", Token, res)
+	err = api.Get_(EndPoint+"/api/node/cert", Token, 30, res)
 	if err != nil {
 		return "", "", err
 	}

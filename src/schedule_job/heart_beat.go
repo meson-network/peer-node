@@ -80,9 +80,9 @@ func sendHeartBeat() {
 		basic.Logger.Errorln("hb, ip resolve error")
 	case -10007: //ip to spec00 host error
 		basic.Logger.Errorln("hb, ip to host error")
-	case -10008 - 10009: //ping back error
-		basic.Logger.Errorln("hb, ping back error")
-	case -10010 - 10011: //internal error
+	case -10008, -10009: //ping back error
+		basic.Logger.Debugln("hb, ping back error")
+	case -10010, -10011: //internal error
 		basic.Logger.Errorln("hb, remote internal error")
 	case -10099: //internal error
 		basic.Logger.Errorln("hb, error code 10099 force stop")
