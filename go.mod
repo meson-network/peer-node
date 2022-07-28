@@ -22,7 +22,7 @@ require (
 	github.com/coreservice-io/job v0.1.20
 	github.com/coreservice-io/log v0.1.18
 	github.com/coreservice-io/logrus_log v0.1.20
-	github.com/coreservice-io/reference v0.0.8
+	github.com/coreservice-io/reference v0.0.9
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.12
 	github.com/meson-network/peer_common v0.0.0-20220629012600-8e5ed85185e3
