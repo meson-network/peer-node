@@ -119,3 +119,33 @@ func QueryFile(file_hash *string, less_than_req_unixtime *int64, status *[]strin
 		return queryResult, nil
 	}
 }
+
+func QueryExpireFile(timeline_sec int64, limit int, offset int) (*QueryFileResult, error) {
+	//try from db
+	queryResult := &QueryFileResult{
+		Files:      []*FileModel{},
+		TotalCount: 0,
+	}
+	basic.Logger.Debugln("GetFile from sqlite")
+
+	query := sqlite_plugin.GetInstance().Table("file")
+	query.Where("status IN ?", []string{STATUS_DOWNLOADED})
+	query.Where("(last_req_unixtime+no_access_maintain_sec) < ?", timeline_sec)
+
+	query.Count(&queryResult.TotalCount)
+	if limit > 0 {
+		query.Limit(limit)
+	}
+	if offset > 0 {
+		query.Offset(offset)
+	}
+
+	err := query.Find(&queryResult.Files).Error
+
+	if err != nil {
+		basic.Logger.Errorln("GetFile err :", err)
+		return nil, err
+	} else {
+		return queryResult, nil
+	}
+}

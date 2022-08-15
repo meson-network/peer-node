@@ -16,8 +16,6 @@ import (
 	"github.com/meson-network/peer_common/cached_file"
 )
 
-const expireTime = 3600 * 6 //no access in 6 hours
-
 func ScanExpirationFile() {
 	const jobName = "ExpirationFile"
 
@@ -47,10 +45,9 @@ func ScanExpirationFile() {
 func reportExpiredFiles() error {
 	//get files no accessed
 	nowTime := time.Now().UTC().Unix()
-	timeLine := nowTime - expireTime
 	offset := 0
 	for {
-		result, err := file_mgr.QueryFile(nil, &timeLine, &[]string{file_mgr.STATUS_DOWNLOADED}, nil, 500, offset, false, false)
+		result, err := file_mgr.QueryExpireFile(nowTime, 500, offset)
 		if err != nil {
 			return err
 		}
@@ -98,6 +95,7 @@ func reportExpiredFiles() error {
 			file_mgr.DeleteFile(v.File_hash)
 			file_mgr.DeleteEmptyFolder(absPath)
 			cdn_cache_folder.GetInstance().ReduceCacheUsedSize(v.Size_byte)
+			offset--
 		}
 	}
 }

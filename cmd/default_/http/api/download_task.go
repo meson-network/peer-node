@@ -39,7 +39,7 @@ func downloadTaskHandler(ctx echo.Context) error {
 	}
 
 	//pre check
-	err = download_mgr.PreCheckTask(msg.Origin_url)
+	err = download_mgr.PreCheckTask(msg.Origin_url, msg.Single_file_limit_byte)
 	if err != nil {
 		eCode, eMsg := pErr.ResolveStatusError(err)
 		res.MetaStatus(eCode, eMsg.Error())
@@ -47,7 +47,7 @@ func downloadTaskHandler(ctx echo.Context) error {
 	}
 
 	//do download
-	go download_mgr.StartDownloader(msg.Origin_url, msg.File_hash, client.SuccessCallback, client.FailedCallback)
+	go download_mgr.StartDownloader(msg.Origin_url, msg.File_hash, msg.No_access_maintain_sec, msg.Single_file_limit_byte, client.SuccessCallback, client.FailedCallback)
 
 	res.MetaStatus(1, "success")
 	return ctx.JSON(http.StatusOK, res)

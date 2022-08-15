@@ -38,7 +38,7 @@ func clean_download(filehash string, file_path string) {
 	file_mgr.DeleteFile(filehash)
 }
 
-func PreCheckTask(remoteUrl string) error {
+func PreCheckTask(remoteUrl string, size_limt int64) error {
 	if GetTotalDownloaderNum() >= max_downloaders {
 		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_BUSY, "too many running download task")
 	}
@@ -68,8 +68,13 @@ func PreCheckTask(remoteUrl string) error {
 	value, exist := result.Response().Header["Content-Length"]
 	if exist && len(value) > 0 {
 		size, err := strconv.Atoi(value[0])
-		if err == nil && size > 0 && size > max_file_size_bytes {
-			return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_OVERSIZE, "file too big")
+		if err == nil && size > 0 {
+			if int64(size) > size_limt {
+				return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_OVERSIZE, "file too big")
+			}
+			if int64(size) > freeSize {
+				return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_DISK_SPACE, "have not enough space")
+			}
 		}
 	}
 
@@ -79,6 +84,8 @@ func PreCheckTask(remoteUrl string) error {
 func StartDownloader(
 	remoteUrl string,
 	file_hash string,
+	no_access_maintain_sec int64,
+	size_limit int64,
 	callback_succeed func(filehash string, file_size int64),
 	callback_failed func(filehash string, download_code int),
 ) {
@@ -124,11 +131,12 @@ func StartDownloader(
 
 	nowTime := time.Now().UTC().Unix()
 	file_mgr.CreateFile(&file_mgr.FileModel{
-		File_hash:         file_hash,
-		Last_req_unixtime: nowTime,
-		Size_byte:         0,
-		Rel_path:          file_relpath,
-		Status:            file_mgr.STATUS_DOWNLOADING,
+		File_hash:              file_hash,
+		Last_req_unixtime:      nowTime,
+		No_access_maintain_sec: no_access_maintain_sec,
+		Size_byte:              0,
+		Rel_path:               file_relpath,
+		Status:                 file_mgr.STATUS_DOWNLOADING,
 	})
 
 	//dont forget to delete old fild otherwise you may append content after old content
@@ -159,7 +167,7 @@ func StartDownloader(
 		select {
 		case <-t.C:
 			//check size limits
-			if resp.BytesComplete() > max_file_size_bytes {
+			if resp.BytesComplete() > size_limit {
 				clean_download(file_hash, des_path)
 				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
 				return
