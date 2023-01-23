@@ -10,11 +10,6 @@ import (
 func PreCheckConfig() {
 	toml_conf := conf.Get_config().Toml_config
 
-	token := toml_conf.Token
-	if len(token) != 24 {
-		basic.Logger.Fatalln("token config error, please set correct token in config")
-	}
-
 	port := toml_conf.Https_port
 	if port <= 0 || port > 65535 || echo_plugin.IsForbiddenPort(port) {
 		basic.Logger.Fatalln("https_port cofig error, please set correct port in config")

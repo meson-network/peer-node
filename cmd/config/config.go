@@ -30,9 +30,6 @@ func Cli_set_config(clictx *cli.Context) {
 	}
 	if clictx.IsSet("token") {
 		token := clictx.String("token")
-		if len(token) != 24 {
-			basic.Logger.Fatalln("token format error,token length should be 24")
-		}
 		config.Toml_config.Token = token
 	}
 
@@ -45,7 +42,7 @@ func Cli_set_config(clictx *cli.Context) {
 		config.Toml_config.Https_port = port
 	}
 
-	//cache config
+	// cache config
 	if clictx.IsSet("cache.size") {
 		size := clictx.Int("cache.size")
 		if size < cdn_cache.MIN_CACHE_SIZE {
