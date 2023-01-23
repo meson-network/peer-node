@@ -15,7 +15,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-const NodeVersion = "3.1.18"
+const NodeVersion = "3.1.19"
 
 const updateRetryIntervalSec = 12 * 3600
 const updateRetryTimeLimit = 4
@@ -80,18 +80,18 @@ func (v *VersionMgr) CheckUpdate() {
 		return
 	}
 
-	//check main version
-	//mainVersion := strings.Split(latestVersion, ".")[0]
-	//currentMainVersion := strings.Split(NodeVersion, ".")[0]
-	//if mainVersion != currentMainVersion {
+	// check main version
+	// mainVersion := strings.Split(latestVersion, ".")[0]
+	// currentMainVersion := strings.Split(NodeVersion, ".")[0]
+	// if mainVersion != currentMainVersion {
 	//	basic.Logger.Infoln("New version released, please download new version.")
 	//	return
-	//}
+	// }
 
 	if v.LastFailedTime > time.Now().UTC().Unix()-updateRetryIntervalSec {
 		return
 	}
-	//one week later try again
+	// one week later try again
 	if v.AutoUpdateFiledTime >= updateRetryTimeLimit && v.LastFailedTime < time.Now().UTC().Unix()-5*3600*24 {
 		v.AutoUpdateFiledTime = updateRetryTimeLimit - 1
 	}
@@ -101,17 +101,17 @@ func (v *VersionMgr) CheckUpdate() {
 		return
 	}
 
-	//do upgrade
+	// do upgrade
 	basic.Logger.Infoln("New version detected, start to upgrade... ")
 
-	//download new version
-	//download url
+	// download new version
+	// download url
 	fileName := genFileName()
 	downloadPath := "v" + latestVersion + "/" + fileName
 	newVersionDownloadUrl := downloadHost + "/" + downloadPath
 	basic.Logger.Debugln("new version download url", "url", newVersionDownloadUrl)
 
-	//upgrade
+	// upgrade
 	err := upgradeNewVersion(newVersionDownloadUrl)
 	if err != nil {
 		basic.Logger.Errorln("CheckUpdate DownloadNewVersion err:", err)
@@ -120,7 +120,7 @@ func (v *VersionMgr) CheckUpdate() {
 		return
 	}
 
-	//restart
+	// restart
 	err = RestartNode()
 	if err != nil {
 		basic.Logger.Errorln("CheckUpdate RestartNode err:", err)
@@ -131,10 +131,10 @@ func (v *VersionMgr) CheckUpdate() {
 }
 
 func upgradeNewVersion(downloadUrl string) error {
-	//get
-	//todo ignore tls???
+	// get
+	// todo ignore tls???
 	tt := &http.Transport{
-		//TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		// TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	requestClient := &http.Client{Transport: tt}
 	response, err := requestClient.Get(downloadUrl)
@@ -148,7 +148,7 @@ func upgradeNewVersion(downloadUrl string) error {
 	}
 	defer response.Body.Close()
 
-	//unzip to temp folder
+	// unzip to temp folder
 	tempFolder := "upgradetemp"
 	tempFolder = path_util.ExE_Path(tempFolder)
 	err = os.MkdirAll(tempFolder, 0777)
@@ -162,9 +162,9 @@ func upgradeNewVersion(downloadUrl string) error {
 		return err
 	}
 
-	//merge config
-	//handle default.toml
-	//read new config
+	// merge config
+	// handle default.toml
+	// read new config
 	newConfigFile := filepath.Join(tempFolder, "configs", "default.toml")
 	newConfigTree, err := toml.LoadFile(newConfigFile)
 	if err != nil {
@@ -172,7 +172,7 @@ func upgradeNewVersion(downloadUrl string) error {
 		return err
 	}
 
-	//read upgrade_keep
+	// read upgrade_keep
 	reserveKeyArray := []string{}
 	reserveKey := newConfigTree.Get("upgrade_keep")
 	if reserveKey != nil {
@@ -181,7 +181,7 @@ func upgradeNewVersion(downloadUrl string) error {
 		}
 	}
 
-	//read old config
+	// read old config
 	runningPath := path_util.ExE_PathStr()
 	oldConfigFile := filepath.Join(runningPath, "configs", "default.toml")
 	oldConfigTree, err := toml.LoadFile(oldConfigFile)
@@ -190,7 +190,7 @@ func upgradeNewVersion(downloadUrl string) error {
 		return err
 	}
 
-	//merge config content
+	// merge config content
 	config := mergeConfig(oldConfigTree, newConfigTree, reserveKeyArray)
 	content, err := config.Marshal()
 	if err != nil {
@@ -203,7 +203,7 @@ func upgradeNewVersion(downloadUrl string) error {
 		return err
 	}
 
-	//overwrite oldFile
+	// overwrite oldFile
 	err = filepath.WalkDir(tempFolder, func(path string, d fs.DirEntry, err error) error {
 		if d.Name() == "upgradetemp" {
 			return nil
