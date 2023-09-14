@@ -1,22 +1,23 @@
 package schedule_job
 
 import (
+	"math"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/coreservice-io/job"
 	"github.com/meson-network/peer-node/basic"
-	"github.com/meson-network/peer-node/plugin/sqlite_plugin"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	"github.com/meson-network/peer-node/src/node_config"
 	"github.com/meson-network/peer-node/src/remote/client"
 	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/http/api"
 	"github.com/meson-network/peer_common/cached_file"
 )
 
-const expireTime = 3600 * 6 //no access in 6 hours
+// todo server side control cache time
+// const expireTime = 3600 * 6 //no access in 6 hours
 
 func ScanExpirationFile() {
 	const jobName = "ExpirationFile"
@@ -25,13 +26,20 @@ func ScanExpirationFile() {
 		//job process
 		jobName,
 		func() {
-			reportExpiredFiles()
 			//sync cache folder size
-			syncCacheFolderSize()
+			defer cdn_cache_folder.GetInstance().SyncCacheFolderSize()
+			// check space, if space usage>80%, remove file to free space
+			totalSize := cdn_cache_folder.GetInstance().Cache_provide_size
+			usedSize := cdn_cache_folder.GetInstance().GetMesonCacheUsedSize()
+			if math.Abs(float64(usedSize)/float64(totalSize)) < node_config.Delete_trigger_rate {
+				return
+			}
+
+			reportExpiredFiles()
 		},
 		//onPanic callback
 		pErr.PanicHandler,
-		600,
+		300,
 		// job type
 		// UJob.TYPE_PANIC_REDO  auto restart if panic
 		// UJob.TYPE_PANIC_RETURN  stop if panic
@@ -47,7 +55,7 @@ func ScanExpirationFile() {
 func reportExpiredFiles() error {
 	//get files no accessed
 	nowTime := time.Now().UTC().Unix()
-	timeLine := nowTime - expireTime
+	timeLine := nowTime - node_config.Cached_file_expire_secs
 	offset := 0
 	for {
 		result, err := file_mgr.QueryFile(nil, &timeLine, &[]string{file_mgr.STATUS_DOWNLOADED}, nil, 500, offset, false, false)
@@ -100,21 +108,4 @@ func reportExpiredFiles() error {
 			cdn_cache_folder.GetInstance().ReduceCacheUsedSize(v.Size_byte)
 		}
 	}
-}
-
-func syncCacheFolderSize() {
-	//var size int64
-	var size struct {
-		TotalSize int64 `json:"total_size"`
-	}
-	err := sqlite_plugin.GetInstance().Table("file").Select("sum(size_byte) as total_size").Where("status='DOWNLOADED'").Take(&size).Error
-	if err != nil {
-		if !strings.Contains(err.Error(), "converting NULL to int64 is unsupported") {
-			basic.Logger.Errorln("syncCacheFolderSize err:", err)
-		}
-		return
-	}
-	//basic.Logger.Infoln(size)
-
-	cdn_cache_folder.GetInstance().SetCacheUsedSize(size.TotalSize)
 }
