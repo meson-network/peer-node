@@ -14,11 +14,12 @@ import (
 	"github.com/meson-network/peer-node/basic"
 	"github.com/meson-network/peer-node/src/cdn_cache_folder"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	"github.com/meson-network/peer-node/src/node_config"
 	pErr "github.com/meson-network/peer-node/tools/errors"
 	"github.com/meson-network/peer-node/tools/file"
 )
 
-//todo put these consts into common as will be used for both server and peer
+// todo put these consts into common as will be used for both server and peer
 const NODE_DOWNLOAD_CODE_ERR = -10001                   //general download failure
 const NODE_DOWNLOAD_CODE_ERR_BUSY = -10002              //active shutdown cause of max_downloaders limited , system too busy
 const NODE_DOWNLOAD_CODE_ERR_SLOW = -10003              //active shutdown cause of too slow download at high traffic time
@@ -27,8 +28,7 @@ const NODE_DOWNLOAD_CODE_ERR_OVERSIZE = -10005          //active shutdown cause 
 const NODE_DOWNLOAD_CODE_ERR_DISK_SPACE = -10006        //active shutdown cause of single file size limit
 
 const max_downloaders = 10
-const max_file_size_bytes = 1024 * 1024 * 1024 //1GB limit
-const min_speed_byte_per_sec = 1024 * 250      //active shutdown if reach (max_downloaders*70%) and download speed is below 250kb/second sec
+const min_speed_byte_per_sec = 1024 * 250 //active shutdown if reach (max_downloaders*70%) and download speed is below 250kb/second sec
 const safe_seconds = 20
 
 var total_downloaders int64
@@ -45,7 +45,7 @@ func PreCheckTask(remoteUrl string) error {
 
 	//check space
 	freeSize := cdn_cache_folder.GetInstance().GetFreeSize()
-	if freeSize < cdn_cache_folder.FreeSpaceLine {
+	if freeSize < node_config.Free_space_line {
 		return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_DISK_SPACE, "have not enough space")
 	}
 
@@ -68,7 +68,7 @@ func PreCheckTask(remoteUrl string) error {
 	value, exist := result.Response().Header["Content-Length"]
 	if exist && len(value) > 0 {
 		size, err := strconv.Atoi(value[0])
-		if err == nil && size > 0 && size > max_file_size_bytes {
+		if err == nil && size > 0 && size > int(node_config.Max_file_size_bytes) { // todo server side control size limit
 			return pErr.NewStatusError(NODE_DOWNLOAD_CODE_ERR_OVERSIZE, "file too big")
 		}
 	}
@@ -154,12 +154,13 @@ func StartDownloader(
 
 	start_time := time.Now()
 	t := time.NewTicker(2 * time.Second)
+	defer t.Stop()
 
 	for {
 		select {
 		case <-t.C:
 			//check size limits
-			if resp.BytesComplete() > max_file_size_bytes {
+			if resp.BytesComplete() > node_config.Max_file_size_bytes {
 				clean_download(file_hash, des_path)
 				callback_failed(file_hash, NODE_DOWNLOAD_CODE_ERR_OVERSIZE)
 				return

@@ -126,8 +126,8 @@ github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4
 github.com/mattn/go-runewidth v0.0.13/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/mattn/go-sqlite3 v1.14.9 h1:10HX2Td0ocZpYEjhilsuo6WWtUqttj2Kb0KtD86/KYA=
 github.com/mattn/go-sqlite3 v1.14.9/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
-github.com/meson-network/peer_common v0.0.0-20220629012600-8e5ed85185e3 h1:AeZjyUZ0c5jXqlleU+XreThRVqkvl7ToT0KdKJPt66g=
-github.com/meson-network/peer_common v0.0.0-20220629012600-8e5ed85185e3/go.mod h1:UubXVMIF8sGIRkDOcELck48Dx6iLzZxHlcLOpDjOalk=
+github.com/meson-network/peer_common v0.0.0-20230914041810-8054ee9b1f4d h1:vcxH1eQQWmEyPBrq893X5qPfWTwn1Ep5G3CutyWb3/4=
+github.com/meson-network/peer_common v0.0.0-20230914041810-8054ee9b1f4d/go.mod h1:UubXVMIF8sGIRkDOcELck48Dx6iLzZxHlcLOpDjOalk=
 github.com/miekg/dns v1.1.48/go.mod h1:e3IlAVfNqAllflbibAZEWOXOQ+Ynzk/dDozDxY7XnME=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=

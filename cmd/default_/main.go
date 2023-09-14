@@ -16,6 +16,7 @@ import (
 	"github.com/meson-network/peer-node/src/cert_mgr"
 	"github.com/meson-network/peer-node/src/common/dbkv"
 	"github.com/meson-network/peer-node/src/file_mgr"
+	"github.com/meson-network/peer-node/src/node_config"
 	"github.com/meson-network/peer-node/src/node_info"
 	"github.com/meson-network/peer-node/src/precheck_config"
 	"github.com/meson-network/peer-node/src/remote/client"
@@ -112,6 +113,10 @@ func StartDefault(clictx *cli.Context) {
 		basic.Logger.Fatalln("check cdn cache folder err:", err)
 	}
 	speed_tester_file.CheckTesterFile()
+	cdn_cache_folder.GetInstance().SyncCacheFolderSize()
+
+	// get node config
+	node_config.GetNodeConfig()
 
 	//start the httpserver
 	go http.StartDefaultHttpSever()
@@ -136,12 +141,14 @@ func start_jobs() {
 	callback_confirm.WaitHeartBeatCallbackConfirm()
 
 	/////////
+	schedule_job.GetNodeConfig()
 	schedule_job.CheckVersion()
-	schedule_job.ScanExpirationFile()
 	schedule_job.UpdateCert()
 	schedule_job.ScanLeakFile()
 	schedule_job.RenewAccessKey()
 	schedule_job.DeleteEmptyFolder()
+
+	schedule_job.ScanExpirationFile()
 
 	schedule_job.HeartBeat()
 }

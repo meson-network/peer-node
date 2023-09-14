@@ -25,7 +25,7 @@ require (
 	github.com/coreservice-io/reference v0.0.9
 	github.com/coreservice-io/safe_go v0.1.4
 	github.com/coreservice-io/utils v0.1.12
-	github.com/meson-network/peer_common v0.0.0-20220629012600-8e5ed85185e3
+	github.com/meson-network/peer_common v0.0.0-20230914041810-8054ee9b1f4d
 	github.com/pelletier/go-toml v1.9.4
 	github.com/shirou/gopsutil/v3 v3.22.4
 	gorm.io/driver/sqlite v1.2.6
